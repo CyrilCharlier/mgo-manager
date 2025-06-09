@@ -1,0 +1,20 @@
+{{ form_start(form, {'attr': {'id': 'ajaxSetForm', 'class': 'ajax-form'}}) }}
+<div class="row">
+    <div class="col-md-12">
+        <div class="input-group input-group-static mb-4">
+            <label for="set_form_name">Nom de la Page<span class="text-danger">*</span></label>
+            {{form_widget(form.name, {'attr': {'class':'form-control', 'onfocus': 'focused(this)', 'onfocusout': 'defocused(this)'}})}}
+            {{form_errors(form.name)}}
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="input-group input-group-static mb-4">
+            <label for="set_form_page">N° de la page<span class="text-danger">*</span></label>
+            {{form_widget(form.page, {'attr': {'class':'form-control'}})}}
+        </div>
+    </div>
+    <div class="col-md-12">
+        <input type="submit" value="Enregistrer" class="waves-effect waves-light btn btn-primary" style="width: 100%;" />
+    </div>
+</div>
+{{ form_end(form) }}

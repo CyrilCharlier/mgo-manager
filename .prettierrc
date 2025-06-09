@@ -1,0 +1,20 @@
+{
+  "printWidth": 1000,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": false,
+  "singleQuote": true,
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "trailingComma": "es5",
+  "htmlWhitespaceSensitivity": "ignore",
+  "overrides": [
+    {
+      "files": "*.twig",
+      "options": {
+        "parser": "angular", 
+        "singleQuote": false
+      }
+    }
+  ]
+}

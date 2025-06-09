@@ -1,0 +1,210 @@
+{% extends "base.html.twig" %}
+
+{% block mainContent %}
+<div class="container-fluid">
+    <section class="px-md-4">
+        <div class="row">
+            <div class="col-lg-12 mb-3">
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <input type="text" id="searchInput" class="form-control" placeholder="🔍 Rechercher un nom de carte">
+                        </div>
+                        <table class="table table-sm table-hover mb-0 text-center">
+                            <thead>
+                                <tr>
+                                    <th>Album</th>
+                                    <th>Page</th>
+                                    <th>numéro</th>
+                                    <th>Nom</th>
+                                    <th>Etoile</th>
+                                    <th>Or</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for s in album.sets %}
+                            {% for c in s.cartes %}
+                                <tr>
+                                    <td>{{ album.name }}</td>
+                                    <td>{{ s.name }}</td>
+                                    <td id="num{{c.id}}">{{ c.num }}</td>
+                                    <td id="name{{c.id}}">{{ c.name }}</td>
+                                    <td id="nbetoile{{c.id}}">{{ c.nbetoile }}</td>
+                                    <td>
+                                        {% if c.golden %}
+                                            <i class="material-icons text-warning" id="golden{{c.id}}">star</i>
+                                        {% else %}
+                                            <i class="material-icons text-muted" id="golden{{c.id}}">star_border</i>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <button class="waves-effect waves-light btn btn-primary btn-sm"
+                                            data-url="{{ path('app_admin_carte_edit', {'id': c.id}) }}"
+                                            data-title="Modifier une carte"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#carteModal">Modifier</button></td>
+                                </tr>
+                            {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<div class="modal fade" id="carteModal" tabindex="-1" aria-hidden="true" style="z-index:10000;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark text-white border-secondary">
+        <div class="modal-header">
+            <h5 class="modal-title" id="carteModalTitle">Ajouter un compte</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="carteModalBody">
+            <div class="text-center text-muted">Chargement...</div>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javaScripts %}
+<script>
+    function initModalPage () {
+        const modal = document.getElementById('carteModal');
+        const modalBody = document.getElementById('carteModalBody');
+        const modalTitle = document.getElementById('carteModalTitle');
+
+        if (!modal || !modalBody) return;
+
+        modal.addEventListener('show.bs.modal', event => {
+            const trigger = event.relatedTarget;
+            const url = trigger.getAttribute('data-url');
+            const title = trigger.getAttribute('data-title');
+            modalTitle.innerHTML = title;
+
+            if (!url) return;
+
+            // Affiche un loader temporaire
+            modalBody.innerHTML = '<div class="text-center text-muted">Chargement...</div>';
+
+            // Charge le formulaire
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => {
+                    if (!response.ok) throw new Error('Erreur lors du chargement du formulaire');
+                        return response.text();
+                })
+                .then(html => {
+                    modalBody.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error(err);
+                    modalBody.innerHTML = '<div class="text-danger">Erreur de chargement.</div>';
+                });
+        });
+
+        document.addEventListener('submit', function(e) {
+            if (e.target && e.target.matches('#ajaxCarteForm')) {
+                e.preventDefault();
+                const form = e.target;
+                const action = form.getAttribute('action');
+                const method = form.getAttribute('method') || 'POST';
+
+                const formData = new FormData(form);
+
+                fetch(action, {
+                    method: method,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mise à jour dynamique des champs dans le tableau
+                        document.querySelector(`#num${data.data.id}`).textContent = data.data.num;
+                        document.querySelector(`#name${data.data.id}`).textContent = data.data.name;
+                        document.querySelector(`#nbetoile${data.data.id}`).textContent = data.data.nbetoile;
+
+                        const goldenCell = document.getElementById('golden' + data.data.id);
+                        if (goldenCell) {
+                            data.data.golden
+                                ? goldenCell.innerHTML=`<i class="material-icons text-warning" title="Golden">star</i>`
+                                : goldenCell.innerHTML=`<i class="material-icons text-muted" title="Non golden">star_border</i>`;
+                        }
+
+                        // Ferme le modal Bootstrap 5
+                        const modalElement = document.getElementById('carteModal');
+                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        modalInstance.hide();
+                    } else {
+                        console.error('Erreur de validation côté serveur');
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur AJAX :', err);
+                });
+            }
+        });
+    }
+
+    function initSearch() {
+        const input = document.getElementById('searchInput');
+        const tbody = document.querySelector('table tbody');
+        const allRows = Array.from(tbody.querySelectorAll('tr'));
+
+        input.addEventListener('input', function () {
+            const search = this.value.trim().toLowerCase();
+
+            if (!search) {
+                // Recherche vide => on restaure l’ordre initial
+                tbody.innerHTML = '';
+                allRows.forEach(row => {
+                    row.classList.remove('highlight');
+                    tbody.appendChild(row);
+                });
+                return;
+            }
+
+            // On sépare les lignes qui correspondent et celles qui ne correspondent pas
+            const matching = [];
+            const others = [];
+
+            allRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(search)) {
+                    row.classList.add('highlight');
+                    matching.push(row);
+                } else {
+                    row.classList.remove('highlight');
+                    others.push(row);
+                }
+            });
+
+            // On réordonne le tableau : correspondantes en haut, le reste ensuite
+            tbody.innerHTML = '';
+            matching.forEach(row => tbody.appendChild(row));
+            others.forEach(row => tbody.appendChild(row));
+        });
+    }
+
+    function onPageLoad() {
+        initModalPage();
+        initSearch();
+    }
+    
+    window.addEventListener('load', onPageLoad);
+</script>
+{% endblock %}
+
+{% block styleSheets %}
+<style>
+.highlight {
+    background-color: rgba(0, 123, 255, 0.25) !important; /* bleu clair semi-transparent */
+    transition: background-color 0.6s ease;
+}
+</style>
+{% endblock %}

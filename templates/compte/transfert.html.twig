@@ -1,0 +1,96 @@
+{% extends "base.html.twig" %}
+
+{% block mainContent %}
+<div class="container-fluid">
+    <section class="px-md-4">
+        <div class="row">
+            <div class="col-lg-12 position-relative mb-3 col-transition overflow-visible">
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <div class="mb-3 text-start text-white">
+                            <i class="material-symbols-rounded opacity-5">info</i>
+                            Dans l'enête de la colonne, c'est le compte qui peut donner la carte. Face aux noms des cartes c'est le compte qui peut recevoir.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+{% for s in album.sets %}
+            <div class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
+                <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
+                     {{ s.page }} - {{ s.name }}
+                </div>
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <div class="text-xs">
+                            <table id="mainTable{{ s.id }}" class="table table-sm table-hover mb-0 text-xs">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">#</th>
+                                        <th>Carte</th>
+                                        {% for cpte in app.user.comptes %}
+                                        <th class="text-center">{{ cpte.name }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in s.cartes %}
+                                    <tr>
+                                        <td class="text-center text-primary">{{c.num}}</td>
+                                        <td class="text-primary">{{c.name}}</td>
+                                        {% for cpte in app.user.comptes %}
+                                        <td class="text-center">
+                                        {% if cpte.getCarteObtenue(c) is not null and cpte.getCarteObtenue(c).nombre > 1 %}
+                                        {% for cpte2 in app.user.comptes %}
+                                            {% if cpte.id == cpte2.id %}{% else %}
+                                                {% if cpte2.getCarteObtenue(c) is null %}
+                                                <button type="button" id="transfert_carte_{{c.id}}_{{cpte.id}}_{{cpte2.id}}" data-idcarte="{{c.id}}" data-idcompte="{{cpte.id}}" data-idcompte2="{{cpte2.id}}" class="waves-effect waves-light btn btn-primary btn-xs">
+                                                {{cpte2.name}}
+                                                </button><br>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% endif %}
+                                        </td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block styleSheets %}
+<style>
+table.table td,
+table.table th {
+  vertical-align: middle !important;
+}
+
+.dark-version .table > :not(caption) > * > *.text-success {
+    color: #4CAF50 !important; /* vert */
+}
+
+.dark-version .table > :not(caption) > * > *.text-danger {
+    color: #F44335 !important; /* rouge */
+}
+
+.entete-flottante {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  z-index: 2;
+  pointer-events: none; /* pour éviter de bloquer les clics */
+}
+</style>
+{% endblock %}

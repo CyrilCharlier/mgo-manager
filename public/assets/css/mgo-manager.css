@@ -1,0 +1,311 @@
+/* Toast styles */
+.notyf__toast--success {
+    background-color: #2e7d32 !important;
+}
+
+.notyf__toast--error {
+    background-color: #c94f4f !important;
+    color: #fff !important;
+}
+
+.notyf__toast--info {
+    background-color: #5e92f3 !important;
+}
+
+.notyf__toast--warning {
+    background-color: #fbc02d !important;
+    color: #222 !important;
+}
+
+/* Icon styles */
+.notyf__icon i {
+    font-size: 20px;
+}
+
+.notyf__toast--error .material-icons {
+    color: #fff !important;
+}
+
+.notyf__toast--warning .material-icons {
+    color: #222 !important;
+}
+
+.notyf__toast--success .material-icons,
+.notyf__toast--info .material-icons {
+    color: #fff !important;
+}
+
+/* Fix bouton fermeture pleine hauteur avec padding et largeur ajustée */
+.notyf__toast {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 12px !important;
+    min-height: 48px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+.notyf__dismiss-btn {
+    height: 100% !important;
+    min-height: 48px !important;
+    width: 32px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    cursor: pointer !important;
+    background: transparent !important;
+    border: none !important;
+    color: inherit !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+}
+
+.notyf__dismiss-btn:hover,
+.notyf__dismiss-btn:focus,
+.notyf__dismiss-btn:active {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: none !important;
+}
+
+/* Conteneur du champ fermé */
+body.dark-version .select2-container--default .select2-selection--single {
+  background-color: #1e1e2f !important;
+  border: 1px solid #444 !important;
+  color: #f0f0f0 !important;
+}
+
+/* Texte sélectionné dans le champ */
+body.dark-version .select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #f0f0f0 !important;
+}
+
+/* Flèche (icône) */
+body.dark-version .select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: #f0f0f0 transparent transparent transparent !important;
+}
+
+/* Conteneur dropdown (la liste déroulante) */
+body.dark-version .select2-container--default .select2-dropdown {
+  background-color: #2a2a3b !important;
+  border: 1px solid #444 !important;
+  color: #f0f0f0 !important;
+}
+
+/* Options de la liste */
+body.dark-version .select2-container--default .select2-results__option {
+  background-color: #2a2a3b !important;
+  color: #f0f0f0 !important;
+}
+
+/* Option en survol / sélection */
+body.dark-version .select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: #3a3a5a !important;
+  color: #fff !important;
+}
+
+/* Input de recherche dans la dropdown (si utilisé avec search) */
+body.dark-version .select2-search--dropdown .select2-search__field {
+  background-color: #1e1e2f !important;
+  color: #f0f0f0 !important;
+  border: 1px solid #444 !important;
+}
+
+/* Supprime tout fond blanc résiduel */
+body.dark-version .select2-container--default .select2-selection--single,
+body.dark-version .select2-container--default .select2-selection--multiple {
+  background-image: none !important;
+}
+
+/* Titre des optgroup dans la dropdown */
+body.dark-version .select2-container--default .select2-results__group {
+  background-color: #252536 !important;
+  color: #f0f0f0 !important;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 6px 12px;
+  border-top: 1px solid #444;
+  border-bottom: 1px solid #444;
+  margin-top: 4px;
+}
+
+/* Options sous un optgroup (pour un léger décalage visuel) */
+body.dark-version .select2-container--default .select2-results__option[role="treeitem"] {
+  padding-left: 24px;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.pulse {
+  animation: pulse 0.4s ease-in-out;
+  transform-origin: center center;
+}
+
+@keyframes pulse-glow {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+    background-color: #dc3545; /* rouge bootstrap */
+  }
+  50% {
+    transform: scale(1.5);
+    box-shadow: 0 0 15px 5px rgba(220, 53, 69, 0.7);
+    background-color: #ff4d4d; /* rouge clair */
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+    background-color: #dc3545;
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 0.6s ease-in-out;
+  transform-origin: center center;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  75% {
+    transform: translateX(-3px);
+  }
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+#notifContainer {
+  display: inline-block; /* pour bien gérer le scaling */
+}
+
+.ql-editor {
+  line-height: 1.4;
+}
+
+.ql-editor p {
+  font-size: 0.75rem; /* text-xs */
+}
+
+.btn-xs {
+  padding: 0.25rem 0.5rem !important; /* moins de padding */
+  font-size: 0.75rem !important;      /* taille de texte plus petite */
+  height: 1.75rem !important;         /* hauteur du bouton réduite */
+  min-width: 2rem !important;         /* largeur mini pour garder cohérence */
+  line-height: 1.2 !important;
+  border-radius: 0.2rem !important;
+  margin-bottom: 0 !important;
+}
+
+.table-xs td, .table-xs th {
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
+  font-size: 0.75rem !important;
+  line-height: 1.2 !important;
+}
+
+.image-option {
+    cursor: pointer;
+    transition: border 0.2s, box-shadow 0.2s;
+    border: 2px solid transparent;
+    border-radius: 50%; /* ✅ rond */
+    padding: 4px;
+    display: inline-block;
+    overflow: hidden;
+}
+
+/* État sélectionné (halo bleu rond) */
+.image-option.selected {
+    border: 2px solid #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* ✅ halo bleu rond */
+}
+
+/* Image dans le bouton */
+.image-option img {
+    display: block;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+/* Effet de survol : halo rond couleur primaire */
+.image-option:hover {
+    box-shadow: 0 0 10px 2px var(--bs-primary); /* ou #007bff selon ton thème */
+}
+.image-option:hover img {
+    transform: scale(1.08);
+}
+
+/* Scroll personnalisé */
+#image-selector {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+#image-selector::-webkit-scrollbar {
+    width: 6px;
+}
+#image-selector::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 3px;
+}
+#image-selector::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.impersonation-exit-btn-dark {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    background-color: #1f1f1f;
+    color: #f5f5f5;
+    border: 1px solid #444;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
+}
+
+.impersonation-exit-btn-dark:hover {
+    background-color: #292929;
+    transform: scale(1.03);
+    text-decoration: none;
+}
+
+.impersonation-exit-btn-dark i {
+    font-size: 16px;
+}

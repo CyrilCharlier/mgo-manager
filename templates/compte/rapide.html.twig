@@ -1,0 +1,125 @@
+{% extends "base.html.twig" %}
+
+{% block mainContent %}
+<div class="container-fluid">
+    <section class="px-md-4">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Ajouter une carte</h5>
+                    </div>
+                    <div class="card-body pt-0">
+                        <form>
+                            <div class="row">
+                            <div class="col-md-1 my-2">
+                                    <label for="carte" class="control-label">Carte</label>
+                                </div>
+                                <div class="col-md-11 my-2">
+                                    <select id="carte" name="carte" class="form-control select2">
+                                        <option value="0"><i>Choisir une carte</i></option>
+                                        {% for s in album.sets %}
+                                        <optgroup label="{{s.name}}">
+                                            {% for carte in s.cartes %}
+                                            <option value="{{ carte.id }}">{{ carte.name }}</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-1 my-2">
+                                    <label for="vers" class="control-label">Vers</label>
+                                </div>
+                                <div class="col-md-11 my-2">
+                                    <select id="compte" name="compte" class="form-control select2">
+                                    {% for c in app.user.comptes %}
+                                        <option value="{{ c.id }}">{{ c.name }}</option>
+                                    {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-12 my-2">
+                                    <button class="waves-effect waves-light btn btn-primary" id="valideajout" style="width: 100%;">Enregistrer</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Transférer une carte</h5>
+                    </div>
+                    <div class="card-body pt-0">
+                        {{ form_start(formT, { 'attr': { 'id':'formtransfert' }}) }}
+                            <div class="row">
+                                <div class="col-1 my-2">
+                                    <label for="carte" class="control-label">Carte</label>
+                                </div>
+                                <div class="col-11 my-2">
+                                    {{ form_widget(formT.carte, {'attr': {'class': 'form-control select2'}}) }}
+                                </div>
+                                <div class="col-1 my-2">
+                                    <label for="de" class="control-label">De</label>
+                                </div>
+                                <div class="col-11 my-2">
+                                    {{ form_widget(formT.cFrom, {'attr': {'class': 'form-control select2'}}) }}
+                                </div>
+                                <div class="col-1 my-2">
+                                    <label for="vers" class="control-label">Vers</label>
+                                </div>
+                                <div class="col-11 my-2">
+                                    {{ form_widget(formT.cTo, {'attr': {'class': 'form-control select2'}}) }}
+                                </div>
+                                <div class="col-12 my-2">
+                                    <button class="waves-effect waves-light btn btn-primary" style="width: 100%;" id="transfert_carte">Transférer</button>
+                                </div>
+                            </div>
+                        {{ form_end(formT) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block javaScripts %}
+<script>
+    function callCarteAjout(event) {
+        event.preventDefault();
+        var compte = document.getElementById('compte').value;
+        var carte = document.getElementById('carte').value;
+
+        if (carte == 0) {
+            MGOM.notify('Veuillez choisir une carte', 'warning');
+            return;
+        }
+
+        MGOM.fetchData('/rapide/' + compte + '/' + carte)
+            .then(data => {
+                if (data.success) {
+                    MGOM.notify(data.message, 'success');
+                    $('#carte').val('0').trigger('change');
+                } else {
+                    MGOM.notify(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                MGOM.notify(error, 'error');
+            });
+    }
+    
+    function initEvent() {
+        document.querySelectorAll('button[id^="valideajout"]').forEach(button => {
+            button.addEventListener('click', callCarteAjout);
+        });
+    }
+
+    function onPageLoad() {
+        initEvent();
+    }
+    
+    window.addEventListener('load', onPageLoad);
+</script>
+{% endblock %}

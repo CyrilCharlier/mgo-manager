@@ -1,0 +1,92 @@
+<!-- Navbar -->
+<nav class="navbar navbar-main navbar-expand-lg position-sticky mt-2 top-1 px-0 py-1 mx-3 shadow-none border-radius-lg z-index-sticky">
+	<div class="container-fluid py-1">
+		<div class="sidenav-toggler sidenav-toggler-inner d-xl-block d-none">
+			<a href="javascript:;" class="nav-link text-white p-0">
+				<div class="sidenav-toggler-inner">
+					<i class="sidenav-toggler-line bg-white"></i>
+					<i class="sidenav-toggler-line bg-white"></i>
+					<i class="sidenav-toggler-line bg-white"></i>
+				</div>
+			</a>
+		</div>
+		{#<nav aria-label="breadcrumb">
+			<ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 ps-2 me-sm-6 me-5">
+				<li class="breadcrumb-item text-sm">
+					<a class="text-white opacity-5" href="javascript:;">Pages</a>
+				</li>
+				<li class="breadcrumb-item text-sm text-white active" aria-current="page">All Projects</li>
+			</ol>
+		</nav>#}
+		<div class="collapse navbar-collapse me-md-0 me-sm-4 mt-sm-0 mt-2" id="navbar">
+			<div class="ms-md-auto pe-md-3 d-flex align-items-center">
+				{#<div class="input-group input-group-dynamic mb-4">
+					<label class="form-label">Type here...</label>
+					<input class="form-control" type="text" onfocus="focused(this)" onfocusout="defocused(this)">
+					<span class="input-group-text">
+						<i class="fas fa-search" aria-hidden="true"></i>
+					</span>
+				</div>#}&nbsp;
+			</div>
+			<ul class="navbar-nav justify-content-end">
+				<li class="nav-item d-flex align-items-center">
+					<a href="{{ path('app_logout') }}" class="nav-link text-white font-weight-bold px-0">
+						<i class="material-symbols-rounded me-2">
+							logout
+						</i>
+					</a>
+				</li>
+				<li class="nav-item dropdown pe-2 d-flex align-items-center">
+					<a href="javascript:;" class="nav-link text-white p-0 position-relative" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="material-symbols-rounded me-1">
+							notifications
+						</i>
+						<span id="notifContainer" class="position-absolute top-5 start-100 translate-middle badge rounded-pill bg-danger border border-white small py-1 px-2">
+							<span class="small" id="countNotif">{{ app.user.notifications|length }}</span>
+							<span class="visually-hidden">Notifications</span>
+						</span>
+					</a>
+					<ul class="dropdown-menu dropdown-menu-end p-2 ms-n4 border border-primary rounded" aria-labelledby="dropdownMenuButton">
+						{% for n in app.user.notifications %}
+						<li class="mb-2" id="notification-{{ n.id }}">
+							<a class="dropdown-item border-radius-md p-2 d-flex align-items-start justify-content-between w-100 mw-100" href="javascript:;">
+								<div class="d-flex">
+									<div class="d-flex flex-column justify-content-center">
+										<h6 class="text-sm font-weight-normal mb-1 mb-0">
+											{{ n.texte }}
+										</h6>
+									</div>
+								</div>
+								
+								<!-- bouton supprimer -->
+								<button class="btn btn-sm btn-outline-danger px-2 py-0 ms-2 delete-notification-btn"
+										data-id="{{ n.id }}" title="Supprimer">
+									<i class="fas fa-trash-alt"></i>
+								</button>
+							</a>
+						</li>
+						{% endfor %}
+					</ul>
+				</li>
+				<li class="nav-item d-xl-none ps-3 pe-0 d-flex align-items-center">
+					<a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+						<div class="sidenav-toggler-inner">
+							<i class="sidenav-toggler-line bg-white"></i>
+							<i class="sidenav-toggler-line bg-white"></i>
+							<i class="sidenav-toggler-line bg-white"></i>
+						</div>
+					</a>
+				</li>
+				{#<li class="nav-item px-3 d-flex align-items-center">
+					<a href="javascript:;" class="nav-link text-white p-0">
+						<i class="material-symbols-rounded fixed-plugin-button-nav cursor-pointer">
+							settings
+						</i>
+					</a>
+				</li>#}
+				
+			</ul>
+		</div>
+	</div>
+</nav>
+<!-- End Navbar -->

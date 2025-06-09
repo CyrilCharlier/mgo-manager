@@ -1,0 +1,182 @@
+{% extends "base.html.twig" %}
+{% import 'macros.html.twig' as macros %}
+
+{% block mainContent %}
+    <div class="container-fluid">
+      <section class="px-md-4">
+        <div class="row mt-lg-4 mt-2">
+          {% if album is not null %}
+              {% for c in app.user.comptes %}
+                  {{ macros.renderCompte(c, etoilesDoublesParCompte[c.id], nombreCartesObtenuesParCompte[c.id], album.getTotalCarte) }}
+              {% endfor %}
+          {% else %}
+              <div class="alert alert-warning">Aucun album actif.</div>
+          {% endif %}
+          {% if app.user.comptes|length == 0 %}
+            <div class="card bg-gradient-dark border border-primary border-2 shadow-lg" id="create-account-hint">
+              <div class="card-header pb-0 d-flex align-items-center">
+                <i class="material-symbols-rounded text-primary me-2" style="font-size: 2rem;">rocket_launch</i>
+                <h5 class="mb-0 text-white">En route vers les étoiles...</h5>
+              </div>
+              <div class="card-body text-white">
+                <p class="mb-4">
+                  Pour explorer les cartes et échanger avec vos comptes, vous devez d’abord <strong>créer un compte Monopoly GO Manager.</strong>
+                </p>
+                <a href="#" class="btn btn-primary btn-block btn-lg"
+                    data-url="{{ path('app_compte_add') }}"
+                    data-title="Ajouter un compte"
+                    data-bs-toggle="modal"
+                    data-bs-target="#accountModal">
+                  🚀 Créer un compte maintenant
+                </a>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        {% if app.user.comptes|length != 0 %}
+        <div class="row">
+          <div class="col-lg-4 col-md-6">
+            <div class="card" id="password">
+              <div class="card-header">
+                <h5>Qui possède ...</h5>
+              </div>
+              <div class="card-body pt-0">
+                <div class="input-group input-group-outline">
+                  <select id="carte_double" class="form-control select2" style="width: 100%">
+                    <option value="0">Sélectionner une carte</option>
+                    {% for s in albumActif.sets %}
+                    <optgroup label="{{ s.name }}">
+                      {% for c in s.cartes %}
+                      <option value="{{ c.id }}">{{ c.name }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    {% endfor %}
+                  </select>
+                </div>
+                <p class="text-muted mt-4">
+                  {% for c in app.user.comptes %}
+                  <span class="badge badge-info ms-auto mb-auto compte-carte-double" data-id="{{ c.id }}" data-name="{{ c.name }}">{{ c.name }}</span>
+                  {% endfor %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmation de suppression</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          </div>
+          <div class="modal-body">
+            Êtes-vous sûr de vouloir supprimer ce compte ? Cette action est <strong>définitive</strong>.
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Supprimer</a>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block javaScripts %}
+  <script src="{{ asset('assets/js/plugins/countup.min.js') }}"></script>
+  <script>
+    function callCopieMGO(event) {
+        event.preventDefault();
+        const mgo = event.currentTarget.getAttribute('data-mgo');
+
+        if (!mgo) {
+            MGOM.notify('Erreur lors de la copie', 'error');
+            return;
+        }
+
+        navigator.clipboard.writeText(mgo).then(() => {
+            MGOM.notify(mgo+' copié avec succès');
+        }).catch(err => {
+            console.error('Erreur lors de la copie :', err);
+            MGOM.notify(err, 'error');
+        });
+    }
+
+    function initCount() {
+      {% for c in app.user.comptes %}
+      MGOM.animeCount('etoilesDoubles{{c.id}}', document.getElementById("etoilesDoubles{{c.id}}").getAttribute("countTo"));
+      {% endfor %}
+    }
+
+    function initConfirmDelete() {
+        const modal = document.getElementById('confirmDeleteModal');
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+
+        modal.addEventListener('show.bs.modal', event => {
+          const triggerBtn = event.relatedTarget;
+          const url = triggerBtn.getAttribute('data-url');
+
+          confirmBtn.setAttribute('href', url);
+        });
+    }
+
+    function initEvent() {
+      document.querySelectorAll('[id^="copierMGO"]').forEach(button => {
+          button.addEventListener('click', callCopieMGO);
+      });
+
+      $('#carte_double').on('change', callComptePossede);
+    }
+
+    function callComptePossede(event) {
+      event.preventDefault();
+      var carteid = $(this).val();
+      document.querySelectorAll('.compte-carte-double').forEach(span => {
+          span.classList.remove('badge-success');
+          span.classList.remove('badge-info');
+          span.classList.add('badge-danger');
+          span.innerText = span.dataset.name; // Réinitialise le nom d’origine
+      });
+
+      MGOM.fetchData("/recherche/carteobtenue/" + carteid)
+          .then(data => {
+              console.log('Succès:', data);
+              if (data.success) {
+                  data.message.comptes.forEach(function(compte) {
+                      document.querySelectorAll('.compte-carte-double[data-id="' + compte.id + '"]').forEach(spanCompte => {
+                          if (compte.nombre > 1) {
+                              spanCompte.innerText = compte.name + " (+" + (compte.nombre - 1) + ")";
+                              spanCompte.classList.add('badge-success');
+                              spanCompte.classList.remove('badge-danger');
+                          } else if (compte.nombre == 1) {
+                              spanCompte.innerText = compte.name;
+                              spanCompte.classList.add('badge-success');
+                              spanCompte.classList.remove('badge-danger');
+                          } else {
+                              spanCompte.innerText = compte.name;
+                              spanCompte.classList.remove('badge-success');
+                              spanCompte.classList.add('badge-danger');
+                          }
+                      });
+                  });
+              } else {
+                  MGOM.notify(data.message, 'error');
+              }
+          })
+          .catch(error => {
+              console.error('Erreur:', error);
+              MGOM.notify(error, 'error');
+          });
+    }
+    
+    function onPageLoad() {
+      initCount();
+      initEvent();
+      initConfirmDelete();
+    }
+    
+    window.addEventListener('load', onPageLoad);
+  </script>
+{% endblock %}

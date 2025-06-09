@@ -1,0 +1,215 @@
+{% extends "base.html.twig" %}
+
+{% block mainContent %}
+<div class="container-fluid">
+    <section class="px-md-4">
+        <div class="row">
+            <div class="col-lg-6 mb-3">
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <table class="table table-sm table-hover mb-0 text-center">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Actif</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for a in albums %}
+                                <tr>
+                                    <td>{{ a.id }}</td>
+                                    <td>{{ a.name }}</td>
+                                    <td>
+                                        {% if a.active %}
+                                            <span class="badge badge-success">Oui</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Non</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="/admin/album/{{a.id}}/active" class="btn btn-primary btn-sm ">Active</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {#<div class="col-lg-6 mb-3">
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <h3>Charge Album</h3>
+                        <button class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmTraitement"
+                            data-url="{{path('app_admin_charge_starwars')}}">STARWARS</button>
+                    </div>
+                </div>
+            </div>#}
+            <div class="col-lg-6 mb-3">
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <table class="table table-sm table-hover mb-0 text-center">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Rôles</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                    <tr>
+                                        <td>{{ user.username }}</td>
+                                        <td>
+                                        {% for role in user.roles %}
+                                            {% set badgeClass = 
+                                                role == 'ROLE_ADMIN' ? 'badge-danger' :
+                                                role == 'ROLE_MODERATOR' ? 'badge-warning' :
+                                                role == 'ROLE_USER' ? 'badge-info' :
+                                                'badge-secondary'
+                                            %}
+                                            <span class="badge {{ badgeClass }} ms-1">{{ role|replace({'ROLE_': ''}) }}</span>
+                                        {% endfor %}
+                                        </td>
+                                        <td>
+                                            <!-- Bouton d'impersonation -->
+                                            <a href="{{ path('app_dashboard') ~ '?_switch_user=' ~ user.username }}"
+                                                class="btn-dark-action"
+                                                title="Impersonate {{ user.username }}">
+                                                <i class="mdi mdi-account-switch"></i> Impersonate
+                                            </a>
+
+                                            <!-- Bouton pour ajouter ROLE_ADMIN -->
+                                            {% if 'ROLE_ADMIN' not in user.roles %}
+                                                <a href="{{ path('app_admin_add_admin_role', {id: user.id}) }}" 
+                                                    class="btn-dark-action">
+                                                    <i class="mdi mdi-account-key"></i> Promeut ADMIN
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ path('app_admin_del_admin_role', { id: user.id }) }}"
+                                                    class="btn-dark-warning"
+                                                    title="Retirer ROLE_ADMIN à {{ user.username }}">
+                                                    <i class="mdi mdi-account-off"></i> Retirer admin
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4">Aucun utilisateur trouvé.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<div class="modal fade" id="confirmTraitement" tabindex="-1" aria-labelledby="confirmTraitementLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="confirmTraitementLabel">Confirmation de lancement</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir lancer ce traitement ? Cette action est à faire <strong>qu'une seule fois</strong>.
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <a id="confirmTraitementBtn" href="#" class="btn btn-danger">Lancer</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javaScripts %}
+    <script>
+        function initConfirmTraitement() {
+            const modal = document.getElementById('confirmTraitement');
+            const confirmBtn = document.getElementById('confirmTraitementBtn');
+
+            modal.addEventListener('show.bs.modal', event => {
+                const triggerBtn = event.relatedTarget;
+                const url = triggerBtn.getAttribute('data-url');
+
+                confirmBtn.setAttribute('href', url);
+            });
+        }
+        function onPageLoad() {
+            initConfirmTraitement();
+        }
+
+        window.addEventListener('load', onPageLoad);
+    </script>
+{% endblock %}
+
+{% block styleSheets %}
+<style>
+.btn-dark-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    background-color: #2c2c2e;
+    color: #f1f1f1;
+    border: 1px solid #444;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-dark-action:hover {
+    background-color: #3a3a3c;
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+.btn-dark-action i {
+    font-size: 14px;
+}
+
+.btn-dark-success {
+    background-color: #295c3a;
+    color: #e0ffe5;
+    border: 1px solid #3b7a4d;
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+.btn-dark-success:hover {
+    background-color: #34754b;
+}
+
+.btn-dark-warning {
+    background-color: #5c2c2c;
+    color: #ffe5e5;
+    border: 1px solid #7a3b3b;
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+.btn-dark-warning:hover {
+    background-color: #754343;
+}
+</style>
+{% endblock %}

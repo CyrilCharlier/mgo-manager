@@ -1,0 +1,32 @@
+{{ form_start(form) }}
+<div class="row">
+    <div class="col-md-12">
+        <div class="input-group input-group-static mb-4">
+            <label for="compte_form_name">Compte<span class="text-danger">*</span></label>
+            {{form_widget(form.name, {'attr': {'class':'form-control', 'onfocus': 'focused(this)', 'onfocusout': 'defocused(this)'}})}}
+            {{form_errors(form.name)}}
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="input-group input-group-static mb-4">
+            <label for="compte_form_mgo">MGO</label>
+            {{form_widget(form.mgo, {'attr': {'class':'form-control'}})}}
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="input-group input-group-static mb-4">
+            <div id="image-selector" class="d-flex flex-wrap gap-2 mb-3">
+                {% for choice in form.image.vars.choices %}
+                    <div class="image-option {% if choice.value == form.image.vars.value %}selected{% endif %}" data-image="{{ choice.value }}">
+                        <img src="{{ asset('assets/img/mgo_caracter/' ~ choice.value) }}" alt="{{ choice.label }}">
+                    </div>
+                {% endfor %}
+            </div>
+            {{ form_widget(form.image, {'attr': {'class': 'd-none'}}) }}
+        </div>
+    </div>
+    <div class="col-md-12">
+        <input type="submit" value="Enregistrer" class="waves-effect waves-light btn btn-primary" style="width: 100%;" />
+    </div>
+</div>
+{{ form_end(form) }}
