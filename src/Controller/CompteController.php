@@ -283,9 +283,9 @@ final class CompteController extends AbstractController
     }
 
     #[Route('/timeline', name: 'app_timeline')]
-    public function timeline(AlbumRepository $albumRepository): Response
+    public function timeline(HistoriqueRepository $historiqueRepository): Response
     {
-        $historiques = $this->getCurrentUser()->getHistoriques();
+        $historiques = $historiqueRepository->findLast100ByUser($this->getCurrentUser());
         $grouped = [];
 
         foreach ($historiques as $histo) {
