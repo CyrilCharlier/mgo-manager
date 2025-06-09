@@ -109,10 +109,37 @@
                 MGOM.notify(error, 'error');
             });
     }
+
+    function callCarteTransfert(event)
+    {
+        event.preventDefault();
+        const formData = new FormData(document.getElementById('formtransfert'));
+
+        fetch('/compte/transfert', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Succès:', data);
+            if (data.success) {
+                MGOM.notify(data.message, 'info');
+            } else {
+                MGOM.notify(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            MGOM.notify(error, 'error');
+        });
+    }
     
     function initEvent() {
         document.querySelectorAll('button[id^="valideajout"]').forEach(button => {
             button.addEventListener('click', callCarteAjout);
+        });
+        document.querySelectorAll('button[id^="transfert_carte"]').forEach(button => {
+            button.addEventListener('click', callCarteTransfert);
         });
     }
 

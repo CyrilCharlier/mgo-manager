@@ -129,6 +129,12 @@ final class CompteController extends AbstractController
                     ]);
                 }
             }
+            if($cFrom == $cTo) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Vous ne pouvez pas transférer depuis et vers le même compte.'
+                ]);
+            }
 
             $coFrom = $cFrom->getCarteObtenue($carte);
             if(is_null($coFrom)) {
@@ -157,14 +163,6 @@ final class CompteController extends AbstractController
             }
             $em->persist($coFrom);
             $em->persist($coTo);
-
-            $h = new Historique();
-            $h->setTitre('Transfert de carte');
-            $h->setDescription('Carte ['.$carte->getS()->getAlbum()->getName().']['.$carte->getS()->getPage().' - '.$carte->getS()->getName().']['.$carte->getNum().' - '.$carte->getName().'] transférée de ['.$cFrom->getName().'] à ['.$cTo->getName().']');
-            $h->setCompte($cFrom);
-            $h->setUser($cFrom->getUser());
-            $h->setIcone('swap_horiz');
-            $em->persist($h);
 
             $h = new Historique();
             $h->setTitre('Transfert de carte');
