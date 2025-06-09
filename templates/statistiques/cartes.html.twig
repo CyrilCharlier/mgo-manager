@@ -1,0 +1,150 @@
+{% extends "base.html.twig" %}
+
+{% block mainContent %}
+<div class="container-fluid">
+  <section class="px-md-4">
+    <div class="row mt-4">
+      <div class="card bg-gradient-dark border border-primary border-2 shadow-lg">
+        <div class="card-header pb-0 d-flex align-items-center">
+          <h5 class="mb-2 text-white">Statistiques globales des cartes</h5>
+        </div>
+        <div class="card-body pt-3 text-white">
+          <canvas id="cartesChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="card bg-gradient-dark border border-primary border-2 shadow-lg">
+        <div class="card-header pb-0 d-flex align-items-center">
+          <h5 class="mb-2 text-white">
+            <i class="material-symbols-rounded text-primary me-2">star_rate</i>
+            Cartes obtenues par niveau d’étoile
+          </h5>
+        </div>
+        <div class="card-body pt-3 text-white">
+          <canvas id="etoilesChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block javaScripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  function statistiquesCarte() {
+    const ctx = document.getElementById('cartesChart').getContext('2d');
+
+    const data = {
+        labels: {{ stats|map(c => c.nomCarte)|json_encode|raw }},
+        datasets: [{
+            label: 'Nombre total',
+            data: {{ stats|map(c => c.total)|json_encode|raw }},
+            backgroundColor: 'rgba(233, 30, 99, 0.5)',
+            borderColor: 'rgba(233, 30, 99, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    const config = {
+        type: 'bar', // ou 'doughnut' pour un camembert
+        data: data,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#ffffff'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#ffffff'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            }
+        }
+    };
+
+    new Chart(ctx, config);
+  }
+
+  function statistiqueParNbEtoile() {
+    const ctxEtoiles = document.getElementById('etoilesChart').getContext('2d');
+
+    const dataEtoiles = {
+        labels: {{ statsEtoiles|map(r => r.etoiles ~ ' ⭐')|json_encode|raw }},
+        datasets: [{
+            label: 'Total de cartes',
+            data: {{ statsEtoiles|map(r => r.total)|json_encode|raw }},
+            backgroundColor: [
+                '#b0bec5', // ⭐ 1
+                '#64b5f6', // ⭐⭐ 2
+                '#ba68c8', // ⭐⭐⭐ 3
+                '#ffb74d', // ⭐⭐⭐⭐ 4
+                '#e91e63'  // ⭐⭐⭐⭐⭐ 5
+            ],
+            borderColor: '#ffffff',
+            borderWidth: 1
+        }]
+    };
+
+    const configEtoiles = {
+        type: 'bar',
+        data: dataEtoiles,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.raw} cartes obtenues`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#ffffff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        }
+    };
+
+    new Chart(ctxEtoiles, configEtoiles);
+  }
+
+  statistiquesCarte();
+  statistiqueParNbEtoile();
+</script>
+{% endblock %}
+{% block styleSheets %}
+<style>
+canvas {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 0 12px rgba(233, 30, 99, 0.4);
+    margin-bottom: 2rem;
+}
+
+</style>
+{% endblock %}

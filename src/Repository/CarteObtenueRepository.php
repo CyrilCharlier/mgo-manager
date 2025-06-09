@@ -30,28 +30,25 @@ class CarteObtenueRepository extends ServiceEntityRepository
         ;
     }
 
-    //    /**
-    //     * @return CarteObtenue[] Returns an array of CarteObtenue objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getStatistiquesGlobales(): array
+    {
+        return $this->createQueryBuilder('co')
+            ->select('c.name AS nomCarte', 'SUM(co.nombre) AS total') // adapte les champs si besoin
+            ->join('co.carte', 'c')
+            ->groupBy('co.carte')
+            ->orderBy('total', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?CarteObtenue
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function getStatistiquesParEtoiles(): array
+    {
+        return $this->createQueryBuilder('co')
+            ->select('c.nbetoile AS etoiles', 'SUM(co.nombre) AS total')
+            ->join('co.carte', 'c')
+            ->groupBy('c.nbetoile')
+            ->orderBy('etoiles', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
