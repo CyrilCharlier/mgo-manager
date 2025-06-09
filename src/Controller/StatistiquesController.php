@@ -14,12 +14,13 @@ final class StatistiquesController extends AbstractController
         CarteObtenueRepository $carteObtenueRepository
     ): Response {
         $stats = $carteObtenueRepository->getStatistiquesGlobales();
-        $stats = array_slice($stats, 0, 50);
-
+        $statsPlus = array_slice($stats, 0, 30);
+        $statsMoins = array_slice($stats, -30);
         $statsEtoiles = $carteObtenueRepository->getStatistiquesParEtoiles();
 
         return $this->render('statistiques/cartes.html.twig', [
-            'stats' => $stats,
+            'statsPlus' => $statsPlus,
+            'statsMoins' => $statsMoins,
             'statsEtoiles' => $statsEtoiles,
         ]);
     }

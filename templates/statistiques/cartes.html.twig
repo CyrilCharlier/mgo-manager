@@ -6,10 +6,20 @@
     <div class="row mt-4">
       <div class="card bg-gradient-dark border border-primary border-2 shadow-lg">
         <div class="card-header pb-0 d-flex align-items-center">
-          <h5 class="mb-2 text-white">Statistiques globales des cartes</h5>
+          <h5 class="mb-2 text-white">Les 30 cartes les plus données</h5>
         </div>
         <div class="card-body pt-3 text-white">
-          <canvas id="cartesChart" height="100"></canvas>
+          <canvas id="cartesPlusChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="card bg-gradient-dark border border-primary border-2 shadow-lg">
+        <div class="card-header pb-0 d-flex align-items-center">
+          <h5 class="mb-2 text-white">Les 30 cartes les moins données</h5>
+        </div>
+        <div class="card-body pt-3 text-white">
+          <canvas id="cartesMoinsChart" height="100"></canvas>
         </div>
       </div>
     </div>
@@ -33,14 +43,59 @@
 {% block javaScripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  function statistiquesCarte() {
-    const ctx = document.getElementById('cartesChart').getContext('2d');
+  function statistiquesCartePlus() {
+    const ctx = document.getElementById('cartesPlusChart').getContext('2d');
 
     const data = {
-        labels: {{ stats|map(c => c.nomCarte)|json_encode|raw }},
+        labels: {{ statsPlus|map(c => c.nomCarte)|json_encode|raw }},
         datasets: [{
             label: 'Nombre total',
-            data: {{ stats|map(c => c.total)|json_encode|raw }},
+            data: {{ statsPlus|map(c => c.total)|json_encode|raw }},
+            backgroundColor: 'rgba(233, 30, 99, 0.5)',
+            borderColor: 'rgba(233, 30, 99, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    const config = {
+        type: 'bar', // ou 'doughnut' pour un camembert
+        data: data,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#ffffff'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#ffffff'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            }
+        }
+    };
+
+    new Chart(ctx, config);
+  }
+
+  function statistiquesCarteMoins() {
+    const ctx = document.getElementById('cartesMoinsChart').getContext('2d');
+
+    const data = {
+        labels: {{ statsMoins|map(c => c.nomCarte)|json_encode|raw }},
+        datasets: [{
+            label: 'Nombre total',
+            data: {{ statsMoins|map(c => c.total)|json_encode|raw }},
             backgroundColor: 'rgba(233, 30, 99, 0.5)',
             borderColor: 'rgba(233, 30, 99, 1)',
             borderWidth: 1
@@ -132,7 +187,8 @@
     new Chart(ctxEtoiles, configEtoiles);
   }
 
-  statistiquesCarte();
+  statistiquesCartePlus();
+  statistiquesCarteMoins();
   statistiqueParNbEtoile();
 </script>
 {% endblock %}
