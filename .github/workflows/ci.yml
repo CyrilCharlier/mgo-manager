@@ -1,0 +1,33 @@
+name: PHPStan
+
+on:
+  push:
+    paths:
+      - '**.php'
+  pull_request:
+
+jobs:
+  phpstan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Setup PHP avec extensions requises (Symfony en utilise plusieurs)
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, pdo, dom, curl
+          coverage: none
+
+      # Installer les dépendances Composer
+      - name: Install dependencies
+        uses: php-actions/composer@v6
+
+      # Exécuter PHPStan
+      - name: Run PHPStan
+        uses: php-actions/phpstan@v3
+        with:
+          path: src
+          level: max
