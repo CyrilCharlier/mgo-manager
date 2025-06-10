@@ -19,6 +19,12 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class AdminController extends AbstractController
 {
+    #[Route('/cgu', name: 'app_cgu')]
+    public function cgu(): Response
+    {
+        return $this->render('admin/CGU.html.twig');
+    }
+    
     #[Route('/admin', name: 'app_admin')]
     public function index(AlbumRepository $albumRepository, UserRepository $userRepository): Response
     {
