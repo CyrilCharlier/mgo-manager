@@ -31,7 +31,9 @@ class AddRoleToUserCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /** @var string $username */
         $username = (string)$input->getArgument('username');
+        /** @var string $role */
         $role = (string)$input->getArgument('role');
 
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -42,11 +44,11 @@ class AddRoleToUserCommand extends Command
             $output->writeln('User not found.');
             return Command::FAILURE;
         }
-
+        /** @var list<string> $roles */
         $roles = $user->getRoles();
         if (!in_array($role, $roles, true)) {
             $roles[] = $role;
-            $user->setRoles($roles);
+            $user->setRoles(array_values($roles));
             $this->entityManager->persist($user);
             $this->entityManager->flush();
             $output->writeln(sprintf('Role "%s" added to user "%s".', $role, $username));
