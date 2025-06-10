@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AddRoleToUserCommand extends Command
 {
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -31,10 +31,11 @@ class AddRoleToUserCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $username = $input->getArgument('username');
-        $role = $input->getArgument('role');
+        $username = (string)$input->getArgument('username');
+        $role = (string)$input->getArgument('role');
 
         $userRepository = $this->entityManager->getRepository(User::class);
+        /** @var \App\Entity\User|null $user */
         $user = $userRepository->findOneBy(['username' => $username]);
 
         if (!$user) {
