@@ -31,7 +31,7 @@ class Set
 
     /**
      * @var Collection<int, Carte>&Selectable
-     */
+     */ 
     #[ORM\OneToMany(targetEntity: Carte::class, mappedBy: 's', orphanRemoval: true, fetch:"EAGER")]
     private Collection $cartes;
 
