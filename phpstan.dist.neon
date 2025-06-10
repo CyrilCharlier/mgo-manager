@@ -4,4 +4,4 @@ parameters:
         - src
 
     ignoreErrors:
-        - '#Property App\\Entity\\.*::\$id \(int\|null\) is never assigned int#'
+        - '#Property App\\Entity\\.*::\$id \(int\|null\) is never assigned int so it can be removed from the property type#'

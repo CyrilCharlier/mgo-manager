@@ -366,8 +366,7 @@ final class CompteController extends AbstractController
         EntityManagerInterface $em
     ): Response
     {
-        /** @var \App\Entity\User|null $user */
-        $u = $security->getUser();
+        $u = $this->getCurrentUser();
         if($u != $compte->getUser())
         {
             return $this->json([
@@ -431,8 +430,7 @@ final class CompteController extends AbstractController
         EntityManagerInterface $em,
     ): Response
     {
-        /** @var \App\Entity\User|null $user */
-        $u = $security->getUser();
+        $u = $this->getCurrentUser();
         if($u != $compte->getUser()) {
             return $this->json([
                 'success' => false,
