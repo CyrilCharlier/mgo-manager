@@ -34,5 +34,6 @@ jobs:
         with:
           path: src
           level: 6
+          configuration: phpstan.dist.neon
           memory_limit: 512M
           error_format: github
