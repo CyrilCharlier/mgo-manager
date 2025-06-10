@@ -52,7 +52,7 @@ class TransfertForm extends AbstractType
 
             $form->add('carte', EntityType::class, [
                 'class' => Carte::class,
-                'query_builder' => function (EntityRepository $er) use ($user) {
+                'query_builder' => function (EntityRepository $er) {
                     $qb = $er->createQueryBuilder('c')
                         ->innerJoin('c.set', 's') 
                         ->innerJoin('s.album', 'a')

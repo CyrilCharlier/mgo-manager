@@ -1,7 +1,7 @@
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+
 parameters:
-    level: 6
+    level: 2
     paths:
         - src
-
-    ignoreErrors:
-        - '#Property App\\Entity\\.*::\$id \(int\|null\) is never assigned int so it can be removed from the property type#'

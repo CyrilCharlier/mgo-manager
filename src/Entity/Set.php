@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\SetRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Selectable;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Order;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,7 +30,7 @@ class Set
     private ?int $page = null;
 
     /**
-     * @var Collection<int, Carte>
+     * @var Collection<int, Carte>&Selectable
      */
     #[ORM\OneToMany(targetEntity: Carte::class, mappedBy: 's', orphanRemoval: true, fetch:"EAGER")]
     private Collection $cartes;
@@ -86,7 +87,7 @@ class Set
     }
 
     /**
-     * @return Collection<int, Carte>
+     * @return Collection<int, Carte>&Selectable
      */
     public function getCartes(): Collection
     {
