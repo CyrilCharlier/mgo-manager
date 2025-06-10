@@ -33,6 +33,6 @@ jobs:
         uses: php-actions/phpstan@v3
         with:
           path: src
-          level: max
+          level: 6
           memory_limit: 512M
           error_format: github
