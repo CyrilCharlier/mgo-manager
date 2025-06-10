@@ -13,7 +13,6 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
     public function __construct(AlbumRepository $albumRepository)
     {
-        $p=null;
         $this->albumRepository = $albumRepository;
     }
 
