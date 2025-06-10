@@ -27,7 +27,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 final class CompteController extends AbstractController
 {
-    private $mailer;
+    private MailerInterface $mailer;
 
     public function __construct(MailerInterface $mailer)
     {
@@ -76,7 +76,7 @@ final class CompteController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $compte = $form->getData();
-            $compte->setUser($this->getUser());
+            $compte->setUser($this->getCurrentUser());
             $em->persist($compte);
             $h = new Historique();
             $h->setTitre('Création compte');
@@ -188,7 +188,7 @@ final class CompteController extends AbstractController
     #[Route('/compte/{id}/delete', name: 'app_compte_delete')]
     public function compteDelete(Compte $c, EntityManagerInterface $em): Response
     {
-        if($this->getUser() != $c->getUser()) {
+        if($this->getCurrentUser() != $c->getUser()) {
             return $this->redirectToRoute('app_dashboard');
         }
         $h = new Historique();
@@ -206,7 +206,7 @@ final class CompteController extends AbstractController
     #[Route('/compte/{id}/edit', name: 'app_compte_edit')]
     public function compteEdit(Request $request, Compte $c, EntityManagerInterface $em): Response
     {
-        if($this->getUser() != $c->getUser()) {
+        if($$this->getCurrentUser() != $c->getUser()) {
             return $this->redirectToRoute('app_dashboard');
         }
 
@@ -216,7 +216,7 @@ final class CompteController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $c = $form->getData();
-            $c->setUser($this->getUser());
+            $c->setUser($this->getCurrentUser());
             $em->persist($c);
             $h = new Historique();
             $h->setTitre('Compte modifié');
@@ -247,7 +247,7 @@ final class CompteController extends AbstractController
     #[Route('/notifications/{id}', name: 'app_notification_delete', methods: ['DELETE'])]
     public function delete(Notification $notification, EntityManagerInterface $em): JsonResponse
     {
-        $user = $this->getUser();
+        $user = $this->getCurrentUser();
         if ($notification->getUser() !== $user) {
             return new JsonResponse(['error' => 'Forbidden'], 403);
         }
@@ -366,6 +366,7 @@ final class CompteController extends AbstractController
         EntityManagerInterface $em
     ): Response
     {
+        /** @var \App\Entity\User|null $user */
         $u = $security->getUser();
         if($u != $compte->getUser())
         {
@@ -430,6 +431,7 @@ final class CompteController extends AbstractController
         EntityManagerInterface $em,
     ): Response
     {
+        /** @var \App\Entity\User|null $user */
         $u = $security->getUser();
         if($u != $compte->getUser()) {
             return $this->json([

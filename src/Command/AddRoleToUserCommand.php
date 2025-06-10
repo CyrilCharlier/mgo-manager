@@ -48,7 +48,7 @@ class AddRoleToUserCommand extends Command
         $roles = $user->getRoles();
         if (!in_array($role, $roles, true)) {
             $roles[] = $role;
-            $user->setRoles(array_values($roles));
+            $user->setRoles($roles);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
             $output->writeln(sprintf('Role "%s" added to user "%s".', $role, $username));
