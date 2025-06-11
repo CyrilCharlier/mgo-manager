@@ -44,6 +44,7 @@ class Compte
     public function __construct()
     {
         $this->historiques = new ArrayCollection();
+        $this->carteObtenues = new ArrayCollection();
     }
 
     public function getId(): ?int
