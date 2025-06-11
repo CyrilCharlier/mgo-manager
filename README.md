@@ -1,6 +1,7 @@
 # MGO Manager
 
-![PHPStan](https://github.com/CyrilCharlier/mgo-manager/actions/workflows/ci.yml/badge.svg)
+![PHPStan](https://github.com/CyrilCharlier/mgo-manager/actions/workflows/phpstan.yml/badge.svg)
+![CodeQL](https://github.com/CyrilCharlier/mgo-manager/actions/workflows/codeql.yml/badge.svg)
 
 **MGO Manager** est une application web permettant de gérer efficacement les comptes du jeu *Monopoly GO!* (MGO). Elle offre une interface intuitive pour suivre les cartes, organiser les échanges, et visualiser les statistiques globales.
 

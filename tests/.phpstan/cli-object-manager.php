@@ -11,5 +11,4 @@ $kernel->boot();
 $dotenv = new Symfony\Component\Dotenv\Dotenv();
 $dotenv->loadEnv(dirname(__DIR__) . '/.env.local');
 
-
 return $kernel->getContainer()->get('doctrine')->getManager();
