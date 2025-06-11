@@ -30,6 +30,9 @@ class CarteObtenueRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @return array<int, array{nomCarte: string, total: string}>
+     */
     public function getStatistiquesGlobales(): array
     {
         return $this->createQueryBuilder('co')
@@ -41,6 +44,9 @@ class CarteObtenueRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return list<array{etoiles: int, total: numeric-string}>
+     */
     public function getStatistiquesParEtoiles(): array
     {
         return $this->createQueryBuilder('co')

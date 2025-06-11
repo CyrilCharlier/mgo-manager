@@ -3,12 +3,13 @@
 namespace App\Form;
 
 use App\Entity\Carte;
-use App\Entity\Set;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<Carte>
+ */
 class CarteForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

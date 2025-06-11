@@ -17,6 +17,9 @@ class HistoriqueRepository extends ServiceEntityRepository
         parent::__construct($registry, Historique::class);
     }
 
+    /**
+     * @return array<int, Historique>
+     */
     public function findLast100ByUser(User $user): array
     {
         return $this->createQueryBuilder('h')

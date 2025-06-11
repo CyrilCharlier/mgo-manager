@@ -25,7 +25,7 @@ class Album
     private bool $active;
 
     /**
-     * @var Collection<int, Set>&Selectable
+     * @var Collection<int, Set> & Selectable<int, Set>
      */
     #[ORM\OneToMany(targetEntity: Set::class, mappedBy: 'album', orphanRemoval: true, fetch:"EAGER")]
     private Collection $sets;
@@ -104,6 +104,9 @@ class Album
         return $total;
     }
 
+    /**
+     * @return Collection<int, Carte> & Selectable<int, Carte>
+     */
     public function getGoldenCartes(): Collection
     {
         $cartes = new ArrayCollection();

@@ -30,7 +30,7 @@ class Set
     private int $page;
 
     /**
-     * @var Collection<int, Carte>&Selectable
+     * @var Collection<int, Carte> & Selectable<int, Carte>
      */ 
     #[ORM\OneToMany(targetEntity: Carte::class, mappedBy: 's', orphanRemoval: true, fetch:"EAGER")]
     private Collection $cartes;
@@ -87,7 +87,7 @@ class Set
     }
 
     /**
-     * @return Collection<int, Carte>&Selectable
+     * @return Collection<int, Carte> & Selectable<int, Carte>
      */
     public function getCartes(): Collection
     {

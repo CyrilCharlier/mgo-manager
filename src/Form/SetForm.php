@@ -2,12 +2,14 @@
 
 namespace App\Form;
 
-use App\Entity\Album;
 use App\Entity\Set;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<Set>
+ */
 class SetForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void

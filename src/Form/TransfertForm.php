@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Carte;
-use App\Entity\CarteObtenue;
 use App\Entity\Transfert;
 use App\Entity\Compte;
 use Symfony\Component\Form\AbstractType;
@@ -15,6 +14,9 @@ use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\SecurityBundle\Security;
 
+/**
+ * @extends AbstractType<Transfert>
+ */
 class TransfertForm extends AbstractType
 {
     private $security;
