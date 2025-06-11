@@ -30,7 +30,7 @@
 
 ## 📸 Aperçu (Screenshots)
 
-_A venir_
+_à venir_
 
 ---
 
