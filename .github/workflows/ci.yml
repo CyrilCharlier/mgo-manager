@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         uses: php-actions/composer@v6
 
+      - name: Set fake DATABASE_URL for PHPStan
+        run: echo "DATABASE_URL=sqlite:///%kernel.project_dir%/var/test.db" >> $GITHUB_ENV
+
       - name: Run PHPStan
         uses: php-actions/phpstan@v3
         with:
