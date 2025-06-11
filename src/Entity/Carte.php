@@ -16,20 +16,20 @@ class Carte
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $name = null;
+    private string $name;
 
     #[ORM\Column]
-    private ?int $nbetoile = null;
+    private int $nbetoile;
 
     #[ORM\Column]
-    private ?int $num = null;
+    private int $num;
 
     #[ORM\ManyToOne(inversedBy: 'cartes')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Set $s = null;
+    private Set $s;
 
     #[ORM\Column(nullable: false)]
-    private ?bool $golden = null;
+    private bool $golden;
 
     /**
      * @var Collection<int, CarteObtenue>
@@ -38,7 +38,7 @@ class Carte
     private Collection $carteObtenues;
 
     #[ORM\Column]
-    private ?bool $transferable = null;
+    private bool $transferable;
 
     public function __construct()
     {

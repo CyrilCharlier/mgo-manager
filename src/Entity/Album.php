@@ -19,10 +19,10 @@ class Album
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $name = null;
+    private string $name;
 
     #[ORM\Column]
-    private ?bool $active = null;
+    private bool $active;
 
     /**
      * @var Collection<int, Set>&Selectable

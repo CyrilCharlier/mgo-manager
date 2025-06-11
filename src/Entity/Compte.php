@@ -17,14 +17,14 @@ class Compte
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $name = null;
+    private string $name;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $mgo = null;
 
     #[ORM\ManyToOne(inversedBy: 'comptes')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private User $user;
 
     /**
      * @var Collection<int, CarteObtenue>

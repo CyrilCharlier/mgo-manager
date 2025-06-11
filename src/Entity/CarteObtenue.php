@@ -15,14 +15,14 @@ class CarteObtenue
 
     #[ORM\ManyToOne(inversedBy: 'carteObtenues')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Carte $carte = null;
+    private Carte $carte;
 
     #[ORM\ManyToOne(inversedBy: 'carteObtenues')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Compte $compte = null;
+    private Compte $compte;
 
     #[ORM\Column]
-    private ?int $nombre = null;
+    private int $nombre;
 
     public function getId(): ?int
     {

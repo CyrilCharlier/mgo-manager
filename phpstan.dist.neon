@@ -1,7 +1,25 @@
 includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-symfony/rules.neon
     - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-doctrine/rules.neon
 
 parameters:
     level: 2
     paths:
         - src
+        - tests
+
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+
+    doctrine:
+        objectManagerLoader: tests/.phpstan/cli-object-manager.php
+
+    # ignoreErrors:
+       # - '#Property App\\Entity\\.*::\$id \(int\|null\) is never assigned int so it can be removed from the property type#'
+
+    inferPrivatePropertyTypeFromConstructor: true
+    reportUnmatchedIgnoredErrors: true
+
+    tmpDir: %currentWorkingDirectory%/var/cache/phpstan

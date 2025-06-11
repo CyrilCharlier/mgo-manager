@@ -15,14 +15,14 @@ class Notification
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $icone = null;
+    private string $icone;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $texte = null;
+    private string $texte;
 
     #[ORM\ManyToOne(inversedBy: 'notifications')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private User $user;
 
     public function getId(): ?int
     {

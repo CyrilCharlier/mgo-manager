@@ -15,24 +15,24 @@ class Historique
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $titre = null;
+    private string $titre;
 
     #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
+    private string $description;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $horodatage = null;
+    private \DateTimeImmutable $horodatage;
 
     #[ORM\ManyToOne(inversedBy: 'historiques')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?Compte $compte = null;
+    private Compte $compte;
 
     #[ORM\ManyToOne(inversedBy: 'historiques')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private User $user;
 
     #[ORM\Column(length: 100)]
-    private ?string $icone = null;
+    private string $icone;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $commentaire = null;

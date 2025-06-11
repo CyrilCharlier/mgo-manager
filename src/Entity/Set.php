@@ -20,14 +20,14 @@ class Set
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $name = null;
+    private string $name;
 
     #[ORM\ManyToOne(inversedBy: 'sets')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Album $album = null;
+    private Album $album;
 
     #[ORM\Column(nullable: false)]
-    private ?int $page = null;
+    private int $page;
 
     /**
      * @var Collection<int, Carte>&Selectable
