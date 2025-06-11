@@ -31,7 +31,7 @@ class CarteObtenueRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array<int, array{nomCarte: string, total: string}>
+     * @return array<int, array{nomCarte: string, total: numeric-string|int}>
      */
     public function getStatistiquesGlobales(): array
     {
@@ -45,7 +45,7 @@ class CarteObtenueRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return list<array{etoiles: int, total: numeric-string}>
+     * @return list<array{etoiles: int, total: numeric-string|int}>
      */
     public function getStatistiquesParEtoiles(): array
     {
