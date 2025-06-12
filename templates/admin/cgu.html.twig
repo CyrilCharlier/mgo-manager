@@ -1,97 +1,114 @@
-{% extends "base.html.twig" %}
+<!DOCTYPE html>
+<html lang="fr">
 
-{% block mainContent %}
-<div class="container-fluid">
-    <section class="px-md-4">
-        <div class="row">
-            <div class="col-12 col-lg-10 mx-auto">
-                <div class="card shadow-sm mb-5">
-                    <div class="card-body p-4">
-                        <h1 class="h3 mb-4">Conditions Générales d’Utilisation (CGU)</h1>
-                        <p class="text-muted mb-4">Dernière mise à jour : 10 juin 2025</p>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/img/logocarte.png') }}">
+        <link rel="icon" type="image/png" href="{{ asset('assets/img/logocarte.png') }}">
+        <title>
+            MGO Manager
+        </title>
+        
+        <!-- Nucleo Icons -->
+        <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
+        <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
+        <!-- Font Awesome Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer">
+        <!-- Material Icons -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+        <!-- CSS Files -->
+        <link href="{{ asset('assets/css/material-dashboard.css?v=3.1.0') }}" rel="stylesheet" id="pagestyle" />
+    </head>
+    <body class="g-sidenav-show dark-version bg-gray-600">
+        <div class="main-content position-relative bg-gray-100 max-height-vh-100 h-100">
+            <div class="container-fluid">
+                <section class="px-md-4">
+                    <div class="row">
+                        <div class="col-12 col-lg-10 mx-auto">
+                            <div class="card shadow-sm mb-5">
+                                <div class="card-body p-4">
+                                    <h1 class="h3 mb-4">Conditions Générales d’Utilisation (CGU)</h1>
+                                    <p class="text-muted mb-4">Dernière mise à jour : 10 juin 2025</p>
 
-                        <p>Bienvenue sur <strong>MGO Manager</strong>. En accédant à ce site, vous acceptez les présentes Conditions Générales d’Utilisation. Merci de les lire attentivement.</p>
+                                    <p>Bienvenue sur <strong>MGO Manager</strong>. En accédant à ce site, vous acceptez les présentes Conditions Générales d’Utilisation. Merci de les lire attentivement.</p>
 
-                        <h4 class="mt-5">1. Présentation du site</h4>
-                        <p>MGO Manager est une plateforme non officielle dédiée à la gestion de comptes du jeu <strong>Monopoly GO!</strong>, permettant notamment de :</p>
-                        <ul>
-                            <li>Suivre les cartes possédées et manquantes,</li>
-                            <li>Visualiser les cartes disponibles entre plusieurs comptes,</li>
-                            <li>Optimiser les échanges de cartes,</li>
-                            <li>Consulter des statistiques et historiques liés aux échanges,</li>
-                            <li>Gérer plusieurs comptes avec différents rôles (admin, membre).</li>
-                        </ul>
-                        <div class="alert alert-warning small mt-3">
-                            <strong>Important :</strong> MGO Manager n’est <strong>pas affilié à Scopely</strong> ou à Hasbro, éditeurs du jeu Monopoly GO.
+                                    <h4 class="mt-5">1. Présentation du site</h4>
+                                    <p>MGO Manager est une plateforme non officielle dédiée à la gestion de comptes du jeu <strong>Monopoly GO!</strong>, permettant notamment de :</p>
+                                    <ul>
+                                        <li>Suivre les cartes possédées et manquantes,</li>
+                                        <li>Visualiser les cartes disponibles entre plusieurs comptes,</li>
+                                        <li>Optimiser les échanges de cartes,</li>
+                                        <li>Consulter des statistiques et historiques liés aux échanges,</li>
+                                        <li>Gérer plusieurs comptes avec différents rôles (admin, membre).</li>
+                                    </ul>
+                                    <div class="alert alert-warning small mt-3">
+                                        <strong>Important :</strong> MGO Manager n’est <strong>pas affilié à Scopely</strong> ou à Hasbro, éditeurs du jeu Monopoly GO.
+                                    </div>
+
+                                    <h4 class="mt-5">2. Accès au site</h4>
+                                    <p>Le site est accessible via un compte utilisateur personnel. Certaines fonctionnalités peuvent être restreintes selon les droits associés.</p>
+                                    <p><strong>Prérequis :</strong></p>
+                                    <ul>
+                                        <li>Être âgé de 13 ans ou plus (ou avec autorisation parentale),</li>
+                                        <li>Disposer d’une connexion internet.</li>
+                                    </ul>
+                                    <p>L’éditeur se réserve le droit de suspendre ou supprimer l’accès à un compte en cas de non-respect des présentes CGU.</p>
+
+                                    <h4 class="mt-5">3. Fonctionnalités proposées</h4>
+                                    <ul>
+                                        <li>Suivi des cartes par compte Monopoly GO</li>
+                                        <li>Recommandations d’échanges de cartes entre comptes</li>
+                                        <li>Notifications intelligentes sur les cartes disponibles</li>
+                                        <li>Statistiques et historiques d’échanges</li>
+                                        <li>Gestion multi-utilisateurs avec rôles</li>
+                                    </ul>
+                                    <p>MGO Manager est un outil complémentaire au jeu et n’interfère pas avec ses mécanismes internes.</p>
+
+                                    <h4 class="mt-5">4. Comptes utilisateurs</h4>
+                                    <p>Chaque utilisateur est responsable de la confidentialité de ses identifiants. L’éditeur ne pourra être tenu responsable d’un usage frauduleux du compte.</p>
+                                    <p>Le partage volontaire d’identifiants à des tiers est fait sous votre entière responsabilité.</p>
+
+                                    <h4 class="mt-5">5. Données enregistrées</h4>
+                                    <p>Les données enregistrées sont celles fournies par les utilisateurs :</p>
+                                    <ul>
+                                        <li>Noms de comptes Monopoly GO (pseudonymes),</li>
+                                        <li>Statut des cartes (possédées, manquantes, échangées),</li>
+                                        <li>Historique d’actions (ajouts, transferts),</li>
+                                        <li>Adresses email (optionnelles, pour notifications ou récupération).</li>
+                                    </ul>
+                                    <p>Aucune donnée sensible (numéro de téléphone, mot de passe de jeu, données bancaires…) n’est demandée.</p>
+
+                                    <h4 class="mt-5">6. Responsabilités</h4>
+                                    <p>MGO Manager est un outil tiers. L’utilisation des informations fournies (notamment les suggestions d’échange) reste à l’initiative de l’utilisateur.</p>
+                                    <p>L’éditeur ne garantit pas la disponibilité continue du service ni l'absence de bugs. Il s'efforcera toutefois de corriger rapidement toute anomalie signalée.</p>
+
+                                    <h4 class="mt-5">7. Propriété intellectuelle</h4>
+                                    <p>Le contenu du site (code source, interface, organisation des données) est protégé par le droit d’auteur. Toute reproduction, copie ou distribution, totale ou partielle, sans autorisation est interdite.</p>
+                                    <p>Les noms "Monopoly" et "Monopoly GO!" sont des marques déposées de leurs propriétaires respectifs. MGO Manager n'en revendique aucun droit.</p>
+
+                                    <h4 class="mt-5">8. Modifications des CGU</h4>
+                                    <p>Les présentes CGU peuvent être modifiées à tout moment. En cas de modification substantielle, les utilisateurs en seront informés à leur prochaine connexion.</p>
+
+                                    <h4 class="mt-5">9. Contact</h4>
+                                    <p>Pour toute question ou signalement, vous pouvez contacter l’administrateur du site à l’adresse suivante : <span id="mail"></span>.</p>
+                                </div>
+                            </div>
                         </div>
-
-                        <h4 class="mt-5">2. Accès au site</h4>
-                        <p>Le site est accessible via un compte utilisateur personnel. Certaines fonctionnalités peuvent être restreintes selon les droits associés.</p>
-                        <p><strong>Prérequis :</strong></p>
-                        <ul>
-                            <li>Être âgé de 13 ans ou plus (ou avec autorisation parentale),</li>
-                            <li>Disposer d’une connexion internet.</li>
-                        </ul>
-                        <p>L’éditeur se réserve le droit de suspendre ou supprimer l’accès à un compte en cas de non-respect des présentes CGU.</p>
-
-                        <h4 class="mt-5">3. Fonctionnalités proposées</h4>
-                        <ul>
-                            <li>Suivi des cartes par compte Monopoly GO</li>
-                            <li>Recommandations d’échanges de cartes entre comptes</li>
-                            <li>Notifications intelligentes sur les cartes disponibles</li>
-                            <li>Statistiques et historiques d’échanges</li>
-                            <li>Gestion multi-utilisateurs avec rôles</li>
-                        </ul>
-                        <p>MGO Manager est un outil complémentaire au jeu et n’interfère pas avec ses mécanismes internes.</p>
-
-                        <h4 class="mt-5">4. Comptes utilisateurs</h4>
-                        <p>Chaque utilisateur est responsable de la confidentialité de ses identifiants. L’éditeur ne pourra être tenu responsable d’un usage frauduleux du compte.</p>
-                        <p>Le partage volontaire d’identifiants à des tiers est fait sous votre entière responsabilité.</p>
-
-                        <h4 class="mt-5">5. Données enregistrées</h4>
-                        <p>Les données enregistrées sont celles fournies par les utilisateurs :</p>
-                        <ul>
-                            <li>Noms de comptes Monopoly GO (pseudonymes),</li>
-                            <li>Statut des cartes (possédées, manquantes, échangées),</li>
-                            <li>Historique d’actions (ajouts, transferts),</li>
-                            <li>Adresses email (optionnelles, pour notifications ou récupération).</li>
-                        </ul>
-                        <p>Aucune donnée sensible (numéro de téléphone, mot de passe de jeu, données bancaires…) n’est demandée.</p>
-
-                        <h4 class="mt-5">6. Responsabilités</h4>
-                        <p>MGO Manager est un outil tiers. L’utilisation des informations fournies (notamment les suggestions d’échange) reste à l’initiative de l’utilisateur.</p>
-                        <p>L’éditeur ne garantit pas la disponibilité continue du service ni l'absence de bugs. Il s'efforcera toutefois de corriger rapidement toute anomalie signalée.</p>
-
-                        <h4 class="mt-5">7. Propriété intellectuelle</h4>
-                        <p>Le contenu du site (code source, interface, organisation des données) est protégé par le droit d’auteur. Toute reproduction, copie ou distribution, totale ou partielle, sans autorisation est interdite.</p>
-                        <p>Les noms "Monopoly" et "Monopoly GO!" sont des marques déposées de leurs propriétaires respectifs. MGO Manager n'en revendique aucun droit.</p>
-
-                        <h4 class="mt-5">8. Modifications des CGU</h4>
-                        <p>Les présentes CGU peuvent être modifiées à tout moment. En cas de modification substantielle, les utilisateurs en seront informés à leur prochaine connexion.</p>
-
-                        <h4 class="mt-5">9. Contact</h4>
-                        <p>Pour toute question ou signalement, vous pouvez contacter l’administrateur du site à l’adresse suivante : <span id="mail"></span>.</p>
                     </div>
-                </div>
+                </section>
             </div>
         </div>
-    </section>
-</div>
-{% endblock %}
+        <!--   Core JS Files   -->
+        <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
+        <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
+        <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+        <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
+        <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
 
-{% block javaScripts %}
-<script>
-    function onPageLoad() {
-        const u = "cyril";
-        const d = "charlier.cloud";
-        document.getElementById("mail").innerHTML = `<a href="mailto:${u}@${d}">${u}@${d}</a>`;
-    }
-    
-    window.addEventListener('load', onPageLoad);
-</script>
-{% endblock %}
-
-{% block styleSheets %}
-<style>
-</style>
-{% endblock %}
+        <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
+        <script src="{{ asset('assets/js/material-dashboard.min.js') }}"></script>
+    </body>
+</html>
