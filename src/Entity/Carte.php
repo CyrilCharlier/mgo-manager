@@ -52,6 +52,11 @@ class Carte
 
     public function getName(): ?string
     {
+        return $this->name;
+    }
+
+    public function getNameStyle(): ?string
+    {
         return ($this->isGolden() ? '✨ '.$this->name : $this->name);
     }
 

@@ -65,7 +65,7 @@ class TransfertForm extends AbstractType
                 'group_by' => function(Carte $c) {
                     return $c->getS()->getName(); // Remplacez 'getNom' par la méthode qui retourne le nom de l'album
                 },
-                'choice_label' => 'name',
+                'choice_label' => 'getNameStyle',
             ]);
         });
     }

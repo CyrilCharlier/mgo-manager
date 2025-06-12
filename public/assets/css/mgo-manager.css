@@ -124,12 +124,14 @@ body.dark-version .select2-container--default .select2-selection--multiple {
 body.dark-version .select2-container--default .select2-results__group {
   background-color: #252536 !important;
   color: #f0f0f0 !important;
-  font-weight: 600;
+  font-weight: 700;
+  font-style: italic;
   font-size: 0.9rem;
   padding: 6px 12px;
   border-top: 1px solid #444;
   border-bottom: 1px solid #444;
   margin-top: 4px;
+  text-align: center;
 }
 
 /* Options sous un optgroup (pour un léger décalage visuel) */

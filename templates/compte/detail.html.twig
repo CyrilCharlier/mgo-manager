@@ -34,6 +34,9 @@
                                         <th class="text-center"><i class="material-symbols-rounded text-sm" style="color: #facc15 !important;">star</i></th>
                                         <th>Nom</th>
                                         <th class="text-center">Double</th>
+                                        {% if is_granted("ROLE_ADMIN") %}
+                                        <th class="text-center"><i class="material-symbols-rounded text-sm">settings</i></th>
+                                        {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -41,15 +44,24 @@
                                     {% set carteObtenue = compte.getCarteObtenue(c) %}
                                     <tr class="ligne-carte ligne-carte-{{ c.id }}" data-iscarteobtenue="{{ carteObtenue is empty ? '0' : '1' }}">
                                         <td class="text-center text-xs"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>
-                                            {{c.nbetoile}}
-                                            <i class="material-symbols-rounded text-sm {% if c.golden %}etoile-golden etoile-golden-{{ c.id }}{% endif %}"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>star</i>
+                                            <span id="nbetoile_carte{{c.id}}">{{c.nbetoile}}</span>
+                                            <i id="nbetoile_etoile_carte{{c.id}}" class="material-symbols-rounded text-sm{% if c.golden %} etoile-golden etoile-golden-{{ c.id }}{% endif %}"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>star</i>
                                         </td>
-                                        <td id="nom_carte{{ c.id }}" class="text-{{ carteObtenue is empty ? 'danger' : 'success' }}">{{c.num}} - {{c.name}}</td>
+                                        <td id="nom_carte{{ c.id }}" class="text-{{ carteObtenue is empty ? 'danger' : 'success' }}">{{c.num}} - {{c.nameStyle}}</td>
                                         <td class="text-center"> 
                                             <button {% if carteObtenue is empty %}disabled {% endif %}type="button" data-idcarte="{{c.id}}" id="minus_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs" aria-label="Enlève une carte {{c.name}} de ton album"><i class="material-symbols-rounded text-xs">remove</i></button>
                                             <span class="badge badge-pill {% if c.golden %}badge-warning{% else %}badge-info{% endif %}" id="double_carte_{{c.id}}">{{ carteObtenue is empty ? '0' : (compte.getCarteObtenue(c).nombre-1) }}</span>
                                             <button type="button" data-idcarte="{{c.id}}" id="plus_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs" aria-label="Ajoute une carte {{c.name}} de ton album"><i class="material-symbols-rounded text-xs">add</i></button>
                                         </td>
+                                        {% if is_granted("ROLE_ADMIN") %}
+                                        <td class="text-center">
+                                            <button type="button" data-idcarte="{{c.id}}" id="mod_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs"
+                                                data-url="{{ path('app_admin_carte_edit', {'id': c.id}) }}"
+                                                data-title="Modifier une carte"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#carteModal"><i class="material-symbols-rounded text-xs">edit</i></button>
+                                        </td>
+                                        {% endif %}
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -62,11 +74,109 @@
         </div>
     </section>
 </div>
+    {% if is_granted("ROLE_ADMIN") %}
+    <div class="modal fade" id="carteModal" tabindex="-1" aria-hidden="true" style="z-index:10000;">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark text-white border-secondary">
+          <div class="modal-header">
+              <h5 class="modal-title" id="carteModalTitle">Ajouter un compte</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="carteModalBody">
+              <div class="text-center text-muted">Chargement...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
 {% endblock %}
 
 {% block javaScripts %}
 <script>
     var cacheCO = false;
+
+    {% if is_granted("ROLE_ADMIN") %}
+    function initModalPage () {
+        const modal = document.getElementById('carteModal');
+        const modalBody = document.getElementById('carteModalBody');
+        const modalTitle = document.getElementById('carteModalTitle');
+
+        if (!modal || !modalBody) return;
+
+        modal.addEventListener('show.bs.modal', event => {
+            const trigger = event.relatedTarget;
+            const url = trigger.getAttribute('data-url');
+            const title = trigger.getAttribute('data-title');
+            modalTitle.innerHTML = title;
+
+            if (!url) return;
+
+            // Affiche un loader temporaire
+            modalBody.innerHTML = '<div class="text-center text-muted">Chargement...</div>';
+
+            // Charge le formulaire
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => {
+                    if (!response.ok) throw new Error('Erreur lors du chargement du formulaire');
+                        return response.text();
+                })
+                .then(html => {
+                    modalBody.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error(err);
+                    modalBody.innerHTML = '<div class="text-danger">Erreur de chargement.</div>';
+                });
+        });
+
+        document.addEventListener('submit', function(e) {
+            if (e.target && e.target.matches('#ajaxCarteForm')) {
+                e.preventDefault();
+                const form = e.target;
+                const action = form.getAttribute('action');
+                const method = form.getAttribute('method') || 'POST';
+
+                const formData = new FormData(form);
+
+                fetch(action, {
+                    method: method,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mise à jour dynamique des champs dans le tableau
+                        const idC = data.data.id;
+                        const nbetoileC = data.data.nbetoile;
+                        const numC = data.data.num;
+                        const nameC = data.data.name;
+                        const goldenC = data.data.golden;
+
+                        document.getElementById('nbetoile_carte'+idC).innerHTML = nbetoileC;
+                        document.getElementById('nom_carte'+idC).innerHTML = numC+' - '+nameC;
+                        document.getElementById('double_carte_'+idC).classList.toggle('badge-warning', goldenC);
+                        document.getElementById('double_carte_'+idC).classList.toggle('badge-info', !goldenC);
+                        document.getElementById('nbetoile_carte' + idC).parentElement.style.setProperty('color', goldenC ? '#facc15' : '', 'important');
+                        document.getElementById('nbetoile_etoile_carte'+idC).style.setProperty('color', goldenC ? '#facc15' : '', 'important');
+
+                        // Ferme le modal Bootstrap 5
+                        const modalElement = document.getElementById('carteModal');
+                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        modalInstance.hide();
+                    } else {
+                        console.error('Erreur de validation côté serveur');
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur AJAX :', err);
+                });
+            }
+        });
+    }
+    {% endif %}
 
     function getCompte() {
         return document.getElementById('compte_actif').value;
@@ -205,7 +315,6 @@
         }, 150);
     }
 
-
     function updateProgressionBadge() {
         const totalCartes = document.querySelectorAll('tr.ligne-carte').length;
         const cartesObtenues = document.querySelectorAll('tr.ligne-carte[data-iscarteobtenue="1"]').length;
@@ -309,6 +418,9 @@
         setTimeout(() => {
             animateBadge();
         }, 50);
+        {% if is_granted("ROLE_ADMIN") %}
+        initModalPage();
+        {% endif %}
     }
     window.addEventListener('load', onPageLoad);
 </script>

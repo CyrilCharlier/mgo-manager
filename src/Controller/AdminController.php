@@ -149,15 +149,39 @@ final class AdminController extends AbstractController
                 'data' => [
                     'id' => $c->getId(),
                     'num' => $c->getNum(),
-                    'name' => $c->getName(),
-                    'nbetoile' => $c->getNbetoile(),
                     'golden' => $c->isGolden(),
+                    'name' => $c->getNameStyle(),
+                    'nbetoile' => $c->getNbetoile(),                    
                 ] 
             ]);
         }
         return $this->render('admin/form.carte.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    #[Route('/admin/historique/cleanup', name: 'app_admin_historique_cleanup')]
+    public function cleanupHistorique(EntityManagerInterface $em): Response
+    {
+        $conn = $em->getConnection();
+        $deletedCount = 0;
+
+        $userIds = $conn->fetchFirstColumn('SELECT DISTINCT user_id FROM historique');
+
+        foreach ($userIds as $userId) {
+            $idsToDelete = $conn->fetchFirstColumn(
+                'SELECT id FROM historique WHERE user_id = :userId ORDER BY horodatage DESC LIMIT 100000 OFFSET 1000',
+                ['userId' => $userId]
+            );
+
+            if (!empty($idsToDelete)) {
+                $placeholders = implode(',', array_fill(0, count($idsToDelete), '?'));
+                $conn->executeStatement("DELETE FROM historique WHERE id IN ($placeholders)", $idsToDelete);
+                $deletedCount += count($idsToDelete);
+            }
+        }
+
+        return $this->redirectToRoute('app_admin');
     }
 
     #[Route('/admin/charge/starwars', name: 'app_admin_charge_starwars', methods: ['GET'])]

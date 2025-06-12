@@ -18,7 +18,7 @@ class CarteForm extends AbstractType
             ->add('name')
             ->add('nbetoile')
             ->add('num')
-            ->add('golden')        ;
+            ->add('golden');
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -21,7 +21,7 @@
                                         {% for s in album.sets %}
                                         <optgroup label="{{s.name}}">
                                             {% for carte in s.cartes %}
-                                            <option value="{{ carte.id }}">{{ carte.name }}</option>
+                                            <option value="{{ carte.id }}">{{ carte.nameStyle }}</option>
                                             {% endfor %}
                                         </optgroup>
                                         {% endfor %}
