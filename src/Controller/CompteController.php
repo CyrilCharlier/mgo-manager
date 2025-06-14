@@ -426,7 +426,6 @@ final class CompteController extends AbstractController
         Carte $c,
         #[MapEntity(mapping: ['idcompte' => 'id'])]
         Compte $compte,
-        Security $security,
         EntityManagerInterface $em,
     ): Response
     {
@@ -497,6 +496,35 @@ final class CompteController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => ['comptes' => $comptesRetour, 'nombre' => count($comptesRetour)],
+        ]);
+    }
+
+    #[Route('/compte/toggle-principal/{id}', name: 'compte_toggle_principal', methods: ['POST'])]
+    public function togglePrincipal(
+        Compte $compte,                 // Injection automatique de l'entité via ParamConverter
+        EntityManagerInterface $em      // Injection automatique de l'EntityManager
+    ): JsonResponse {
+        $user = $this->getCurrentUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Vérifie que le compte appartient bien à l’utilisateur connecté
+        if ($compte->getUser() !== $user) {
+            return $this->json(['error' => 'Accès refusé'], 403);
+        }
+
+        // Bascule le booléen principal
+        $nouvelEtat = !$compte->isPrincipal();
+        $compte->setPrincipal($nouvelEtat);
+
+        $em->persist($compte);
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'compteId' => $compte->getId(),
+            'principal' => $nouvelEtat,
         ]);
     }
 }

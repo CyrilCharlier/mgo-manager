@@ -12,10 +12,20 @@
                     {% endif %}
                     </div>
                     <div class="ms-3 my-auto">
-                    <h6 class="mb-0">{{ compte.name }}</h6>
-                    <div class="avatar-group">
-                        {% if compte.mgo is empty %} MGO-... {% else %}{{ compte.mgo }}<i id="copierMGO{{compte.id}}" data-mgo="{{ compte.mgo }}" style="cursor: pointer;" class="ms-2 fa-solid fa-copy"></i>{% endif %}
-                    </div>
+                        <div class="d-flex align-items-center">
+                            <h6 class="mb-0 me-2">{{ compte.name }}</h6>
+                            <i class="fa-solid fa-crown ms-1 {{ compte.principal ? 'text-warning opacity-100' : 'text-secondary opacity-30' }}"
+                                role="button" tabindex="0"
+                                data-id="{{ compte.id }}"
+                                aria-pressed="{{ compte.principal ? 'true' : 'false' }}"
+                                title="{{ compte.principal ? 'Compte principal' : 'Définir comme principal' }}"
+                                onclick="togglePrincipal(this)"
+                                onkeydown="if(event.key==='Enter' || event.key===' ') { togglePrincipal(this); event.preventDefault(); }">
+                            </i>
+                        </div>
+                        <div class="avatar-group">
+                            {% if compte.mgo is empty %} MGO-... {% else %}{{ compte.mgo }}<i id="copierMGO{{compte.id}}" data-mgo="{{ compte.mgo }}" style="cursor: pointer;" class="ms-2 fa-solid fa-copy"></i>{% endif %}
+                        </div>
                     </div>
                     <div class="ms-auto">
                     <div class="dropdown">

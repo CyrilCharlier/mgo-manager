@@ -21,7 +21,7 @@ final class Version20250613023511 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE compte ADD principal TINYINT(1) DEFAULT NULL, DROP image
+            ALTER TABLE compte ADD principal TINYINT(1) DEFAULT NULL
         SQL);
     }
 
@@ -29,7 +29,7 @@ final class Version20250613023511 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE compte ADD image VARCHAR(150) DEFAULT NULL, DROP principal
+            DROP principal
         SQL);
     }
 }

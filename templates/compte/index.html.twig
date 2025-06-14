@@ -37,8 +37,11 @@
         <div class="row">
           <div class="col-lg-4 col-md-6">
             <div class="card" id="password">
-              <div class="card-header">
-                <h5>Qui possède ...</h5>
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Qui possède ...</h5>
+                <button id="togglePrincipalBtn" class="btn btn-sm btn-info" type="button" title="Afficher uniquement les comptes principaux">
+                  <i class="fas fa-eye"></i>
+                </button>
               </div>
               <div class="card-body pt-0">
                 <div class="input-group input-group-outline">
@@ -55,7 +58,7 @@
                 </div>
                 <p class="text-muted mt-4">
                   {% for c in app.user.comptes %}
-                  <span class="badge badge-info ms-auto mb-auto compte-carte-double" data-id="{{ c.id }}" data-name="{{ c.name }}">{{ c.name }}</span>
+                  <span id="badge_compte{{c.id}}" class="badge badge-info ms-auto mb-auto compte-carte-double" data-id="{{ c.id }}" data-principal="{{ (c.principal ? '1' : '0') }}" data-name="{{ c.name }}">{{ c.name }}</span>
                   {% endfor %}
                 </p>
               </div>
@@ -87,6 +90,7 @@
 {% block javaScripts %}
   <script src="{{ asset('assets/js/plugins/countup.min.js') }}"></script>
   <script>
+    var showingOnlyPrincipal = false;  // état du filtre
     function callCopieMGO(event) {
         event.preventDefault();
         const mgo = event.currentTarget.getAttribute('data-mgo');
@@ -122,10 +126,44 @@
         });
     }
 
+    function toggleBadgePrincipal(event) {
+        toggleBtn = event.currentTarget;
+        showingOnlyPrincipal = !showingOnlyPrincipal;
+
+        var badges = document.querySelectorAll('.compte-carte-double');
+
+        badges.forEach(function(badge) {
+          var isPrincipal = badge.getAttribute('data-principal') === '1';
+
+          if (showingOnlyPrincipal) {
+            // On cache ceux qui ne sont pas principaux
+            if (!isPrincipal) {
+              badge.style.display = 'none';
+            }
+          } else {
+            // On affiche tous
+            badge.style.display = '';
+          }
+        });
+
+        // Change l'icône du bouton selon l'état
+        var icon = toggleBtn.querySelector('i');
+        if (showingOnlyPrincipal) {
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+          toggleBtn.setAttribute('title', 'Afficher tous les comptes');
+        } else {
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+          toggleBtn.setAttribute('title', 'Afficher uniquement les comptes principaux');
+        }
+    }
+
     function initEvent() {
       document.querySelectorAll('[id^="copierMGO"]').forEach(button => {
           button.addEventListener('click', callCopieMGO);
       });
+      document.getElementById('togglePrincipalBtn').addEventListener('click', toggleBadgePrincipal);
 
       $('#carte_double').on('change', callComptePossede);
     }
@@ -170,6 +208,67 @@
               MGOM.notify(error, 'error');
           });
     }
+
+    function togglePrincipal(element) {
+        var compteId = element.getAttribute('data-id');
+        if (!compteId) return;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/compte/toggle-principal/' + compteId, true);
+
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data.success) {
+                            updateIcon(element, data.principal);
+                        } else {
+                            MGOM.notify((data.error || 'Impossible de changer l’état principal.'), 'error');
+                        }
+                    } catch(e) {
+                        MGOM.notify("Réponse invalide du serveur.", 'error');
+                    }
+                } else {
+                    alert('Erreur de communication avec le serveur (statut ' + xhr.status + ').');
+                }
+            }
+        };
+
+        xhr.send(null);
+    }
+
+    function updateIcon(element, isPrincipal) {
+        element.classList.toggle('text-warning', isPrincipal);
+        element.classList.toggle('text-secondary', !isPrincipal);
+
+        element.classList.toggle('opacity-100', isPrincipal);
+        element.classList.toggle('opacity-30', !isPrincipal);
+
+        element.setAttribute('title', isPrincipal ? 'Compte principal' : 'Définir comme principal');
+        element.setAttribute('aria-pressed', isPrincipal ? 'true' : 'false');
+        element.style.cursor = 'pointer';
+
+        // Ajout de l’animation flashy
+        element.classList.add('flashy');
+        // Retire la classe après la fin de l’animation (0.8s * 2 itérations = 1.6s)
+        setTimeout(function() {
+            element.classList.remove('flashy');
+        }, 1600);
+
+        // Mise à jour du badge correspondant
+        var compteId = element.getAttribute('data-id');
+        if (!compteId) return;
+
+        var badge = document.getElementById('badge_compte' + compteId);
+        if (!badge) return;
+
+        // Met à jour l'attribut data-principal
+        badge.setAttribute('data-principal', (isPrincipal ? "1" : "0"));
+    }
     
     function onPageLoad() {
       initCount();
@@ -179,4 +278,19 @@
     
     window.addEventListener('load', onPageLoad);
   </script>
+{% endblock %}
+
+{% block styleSheets %}
+<style>
+.opacity-30 { opacity: 0.3; }
+.opacity-100 { opacity: 1; }
+@keyframes flash {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 8px gold); }
+}
+
+.flashy {
+  animation: flash 0.8s ease-in-out 2;
+}
+</style>
 {% endblock %}
