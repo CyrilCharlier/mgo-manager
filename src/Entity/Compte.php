@@ -22,6 +22,9 @@ class Compte
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $mgo = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $principal = null;
+
     #[ORM\ManyToOne(inversedBy: 'comptes')]
     #[ORM\JoinColumn(nullable: false)]
     private User $user;
@@ -182,6 +185,18 @@ class Compte
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+    
+    public function isPrincipal(): ?bool
+    {
+        return $this->principal;
+    }
+
+    public function setPrincipal(?bool $principal): static
+    {
+        $this->principal = $principal;
 
         return $this;
     }
