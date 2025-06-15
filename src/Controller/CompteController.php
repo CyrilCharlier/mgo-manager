@@ -206,7 +206,7 @@ final class CompteController extends AbstractController
     #[Route('/compte/{id}/edit', name: 'app_compte_edit')]
     public function compteEdit(Request $request, Compte $c, EntityManagerInterface $em): Response
     {
-        if($$this->getCurrentUser() != $c->getUser()) {
+        if($this->getCurrentUser() != $c->getUser()) {
             return $this->redirectToRoute('app_dashboard');
         }
 
