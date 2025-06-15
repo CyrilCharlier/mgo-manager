@@ -217,7 +217,7 @@ const MGOM =  {
         // Événement de sauvegarde automatique quand focus perdu
         MGOM.quillInstance.on('selection-change', function(range) {
             if (range === null) {
-                const contenuModifie = editor.querySelector('.ql-editor').innerHTML;
+                const contenuModifie = editor.querySelector('.ql-editor').innerHTML.trim();
 
                 // Revenir à l’affichage normal
                 const affichage = document.createElement('div');

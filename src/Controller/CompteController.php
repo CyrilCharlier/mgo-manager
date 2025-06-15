@@ -505,9 +505,6 @@ final class CompteController extends AbstractController
         EntityManagerInterface $em      // Injection automatique de l'EntityManager
     ): JsonResponse {
         $user = $this->getCurrentUser();
-        if (!$user) {
-            return $this->json(['error' => 'Unauthorized'], 401);
-        }
 
         // Vérifie que le compte appartient bien à l’utilisateur connecté
         if ($compte->getUser() !== $user) {
