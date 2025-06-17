@@ -171,7 +171,7 @@ const MGOM =  {
                         }
 
                         // Ajoute la classe d'animation
-                        const countContainer = document.getElementById('notifContainer');
+                        const notifContainer = document.getElementById('notifContainer');
                         notifContainer.classList.add('pulse-glow');
 
                         notifContainer.addEventListener('animationend', () => {
