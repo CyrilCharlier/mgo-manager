@@ -38,17 +38,18 @@
                     </div>
                 </div>
             </div>
-            {#<div class="col-lg-6 mb-3">
+            <div class="col-lg-6 mb-3">
                 <div class="card card-frame">
                     <div class="card-body">
                         <h3>Charge Album</h3>
                         <button class="btn btn-primary"
+                            disabled
                             data-bs-toggle="modal"
                             data-bs-target="#confirmTraitement"
                             data-url="{{path('app_admin_charge_starwars')}}">STARWARS</button>
                     </div>
                 </div>
-            </div>#}
+            </div>
             <div class="col-lg-6 mb-3">
                 <div class="card card-frame">
                     <div class="card-body">
@@ -108,6 +109,18 @@
                     </div>
                 </div>
             </div>
+            <div class="col-lg-6 mb-3">
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <h3>Purge historique</h3>
+                        (Garde les 1000 derniers par user)<br>
+                        <button class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmPurge"
+                            data-url="{{path('app_admin_historique_cleanup')}}">Lancer la purge</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 </div>
@@ -128,6 +141,23 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="confirmPurge" tabindex="-1" aria-labelledby="confirmPurgeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="confirmPurgeLabel">Confirmation de lancement</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir lancer ce traitement ? Cette action est <strong>irréversible</strong>.
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <a id="confirmPurgeBtn" href="#" class="btn btn-danger">Lancer</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block javaScripts %}
@@ -143,8 +173,20 @@
                 confirmBtn.setAttribute('href', url);
             });
         }
+        function initConfirmPurge() {
+            const modal = document.getElementById('confirmPurge');
+            const confirmBtn = document.getElementById('confirmPurgeBtn');
+
+            modal.addEventListener('show.bs.modal', event => {
+                const triggerBtn = event.relatedTarget;
+                const url = triggerBtn.getAttribute('data-url');
+
+                confirmBtn.setAttribute('href', url);
+            });
+        }
         function onPageLoad() {
             initConfirmTraitement();
+            initConfirmPurge();
         }
 
         window.addEventListener('load', onPageLoad);
