@@ -12,8 +12,12 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
 use Symfony\Component\Validator\Constraints\PasswordStrength;
 
+/**
+ * @extends AbstractType<array>
+ */
 class ChangePasswordForm extends AbstractType
 {
+    /** @phpstan-ignore-next-line */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -53,6 +57,8 @@ class ChangePasswordForm extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'data_class' => null, // explicit
+        ]);
     }
 }
