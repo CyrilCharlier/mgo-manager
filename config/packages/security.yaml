@@ -25,10 +25,14 @@ security:
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800
+                path: /
+                #always_remember_me: true
             logout:
                 path: app_logout
             switch_user:
                 role: ROLE_ADMIN  # seuls les admins peuvent impersonate
+            custom_authenticator: App\Security\AppCustomAuthenticator
+            entry_point: App\Security\AppCustomAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
