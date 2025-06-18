@@ -4,6 +4,22 @@
 {% block mainContent %}
     <div class="container-fluid">
       <section class="px-md-4">
+        {% if app.user.mail is empty %}
+        <div class="col-lg-4 mt-2 mb-4">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <i class="material-symbols-rounded text-danger me-2" style="font-size: 2rem;">priority_high</i>
+              <h5 class="mb-0">Important</h5>
+              <i class="material-symbols-rounded text-danger me-2" style="font-size: 2rem;">priority_high</i>
+            </div>
+            <div class="card-body pt-0">
+              <p class="text-muted mt-4">
+                Votre profil ne possède pas de mail, pensez à la préciser pour récupérer votre mot de passe le cas échéant.
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
         <div class="row mt-lg-4 mt-2">
           {% if album is not null %}
               {% for c in app.user.comptes %}

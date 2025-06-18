@@ -1,0 +1,43 @@
+{% extends 'base.security.html.twig' %}
+
+{% block mainContent %}
+
+  <div class="row">
+    <div class="col-lg-4 col-md-8 col-12 mx-auto">
+      <div class="card z-index-0 fadeIn3 fadeInBottom">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg py-3 pe-1">
+            <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">Nouveau mot de passe</h4>
+          </div>
+        </div>
+        <div class="card-body">
+          {{ form_start(resetForm) }}
+
+            {% for flash_error in app.flashes('reset_password_error') %}
+              <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+            {% endfor %}
+
+            <div class="input-group input-group-dynamic mb-3">
+              <label class="form-label">Nouveau mot de passe</label>
+              {{ form_widget(resetForm.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="input-group input-group-dynamic mb-3">
+              <label class="form-label">Confirmation du mot de passe</label>
+              {{ form_widget(resetForm.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            <div class="text-center">
+              <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">Réinitialiser le mot de passe</button>
+            </div>
+
+            <p class="text-sm mt-3 mb-0">Vous vous souvenez de votre mot de passe ? <a href="{{ path('app_login') }}" class="text-dark font-weight-bolder">Se connecter</a></p>
+
+          {{ form_end(resetForm) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+

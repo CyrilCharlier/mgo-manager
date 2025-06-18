@@ -50,6 +50,19 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true" style="z-index:10000;">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content bg-dark text-white border-secondary">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="userModalTitle">Modifier le profil</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="userModalBody">
+                        <div class="text-center text-muted">Chargement...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
         {% if is_granted('IS_IMPERSONATOR') %}
         <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) ~ '?_switch_user=_exit' }}"
         class="impersonation-exit-btn-dark">

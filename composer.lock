@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a9035399eba4042eabd6336016f66bed",
+    "content-hash": "e1605f1e546e2d485334b4e2b3ba888d",
     "packages": [
         {
             "name": "composer/semver",
@@ -4186,6 +4186,84 @@
             "time": "2025-04-07T19:09:28+00:00"
         },
         {
+            "name": "symfony/lock",
+            "version": "v7.2.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/lock.git",
+                "reference": "69599a1d602a6c66fc69cdf733839480d01a06be"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/lock/zipball/69599a1d602a6c66fc69cdf733839480d01a06be",
+                "reference": "69599a1d602a6c66fc69cdf733839480d01a06be",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "psr/log": "^1|^2|^3"
+            },
+            "conflict": {
+                "doctrine/dbal": "<3.6",
+                "symfony/cache": "<6.4"
+            },
+            "require-dev": {
+                "doctrine/dbal": "^3.6|^4",
+                "predis/predis": "^1.1|^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Lock\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jérémy Derussé",
+                    "email": "jeremy@derusse.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Creates and manages locks, a mechanism to provide exclusive access to a shared resource",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "cas",
+                "flock",
+                "locking",
+                "mutex",
+                "redlock",
+                "semaphore"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/lock/tree/v7.2.6"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-04-17T22:02:25+00:00"
+        },
+        {
             "name": "symfony/mailer",
             "version": "v7.2.6",
             "source": {
@@ -7524,6 +7602,54 @@
                 }
             ],
             "time": "2025-04-04T10:10:11+00:00"
+        },
+        {
+            "name": "symfonycasts/reset-password-bundle",
+            "version": "v1.23.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SymfonyCasts/reset-password-bundle.git",
+                "reference": "bde42fe5956e0cd523931da886ee41ab660c45b2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SymfonyCasts/reset-password-bundle/zipball/bde42fe5956e0cd523931da886ee41ab660c45b2",
+                "reference": "bde42fe5956e0cd523931da886ee41ab660c45b2",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=8.1.10",
+                "symfony/config": "^5.4 | ^6.0 | ^7.0",
+                "symfony/dependency-injection": "^5.4 | ^6.0 | ^7.0",
+                "symfony/deprecation-contracts": "^2.2 | ^3.0",
+                "symfony/http-kernel": "^5.4 | ^6.0 | ^7.0"
+            },
+            "require-dev": {
+                "doctrine/annotations": "^1.0",
+                "doctrine/doctrine-bundle": "^2.8",
+                "doctrine/orm": "^2.13",
+                "symfony/framework-bundle": "^5.4 | ^6.0 | ^7.0",
+                "symfony/phpunit-bridge": "^5.4 | ^6.0 | ^7.0",
+                "symfony/process": "^6.4 | ^7.0 | ^7.1",
+                "symfonycasts/internal-test-helpers": "dev-main"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "SymfonyCasts\\Bundle\\ResetPassword\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony bundle that adds password reset functionality.",
+            "support": {
+                "issues": "https://github.com/SymfonyCasts/reset-password-bundle/issues",
+                "source": "https://github.com/SymfonyCasts/reset-password-bundle/tree/v1.23.1"
+            },
+            "time": "2024-12-09T19:04:36+00:00"
         },
         {
             "name": "twig/extra-bundle",

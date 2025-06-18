@@ -54,6 +54,7 @@ const MGOM =  {
         MGOM.initModalCompte();
         MGOM.initSelect2();
         MGOM.initDeleteNotification();
+        MGOM.initModalUser();
 
         var win = navigator.platform.indexOf('Win') > -1;
         if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -121,6 +122,37 @@ const MGOM =  {
                     document.querySelector('select[name$="[image]"]').value = el.dataset.image;
                 });
             });
+          })
+          .catch(err => {
+            console.error(err);
+            modalBody.innerHTML = '<div class="text-danger">Erreur de chargement.</div>';
+          });
+      });
+    },
+    initModalUser: function() {
+      const modal = document.getElementById('userModal');
+      const modalBody = document.getElementById('userModalBody');
+
+      if (!modal || !modalBody) return;
+
+      modal.addEventListener('show.bs.modal', event => {
+        const trigger = event.relatedTarget;
+        const url = trigger.getAttribute('data-url');
+        const title = trigger.getAttribute('data-title');
+
+        if (!url) return;
+
+        // Affiche un loader temporaire
+        modalBody.innerHTML = '<div class="text-center text-muted">Chargement...</div>';
+
+        // Charge le formulaire
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(response => {
+            if (!response.ok) throw new Error('Erreur lors du chargement du formulaire');
+            return response.text();
+          })
+          .then(html => {
+            modalBody.innerHTML = html;
           })
           .catch(err => {
             console.error(err);

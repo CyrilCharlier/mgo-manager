@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping\OrderBy;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -55,6 +56,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Historique::class, mappedBy: 'user', orphanRemoval: true)]
     #[OrderBy(['horodatage' => 'DESC'])]
     private Collection $historiques;
+
+    #[ORM\Column(length: 180, unique: true, nullable: true)]
+    #[Assert\Email]
+    private ?string $mail = null;
 
     public function __construct()
     {
@@ -222,6 +227,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $historique->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getMail(): ?string
+    {
+        return $this->mail;
+    }
+
+    public function setMail(?string $mail): static
+    {
+        $this->mail = $mail;
 
         return $this;
     }
