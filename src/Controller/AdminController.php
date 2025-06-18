@@ -22,7 +22,7 @@ final class AdminController extends AbstractController
     #[Route('/cgu', name: 'app_cgu')]
     public function cgu(): Response
     {
-        return $this->render('admin/CGU.html.twig');
+        return $this->render('admin/cgu.html.twig');
     }
     
     #[Route('/admin', name: 'app_admin')]
