@@ -38,7 +38,7 @@
                                     {% for c in s.cartes %}
                                     <tr>
                                         <td class="text-center text-primary">{{c.num}}</td>
-                                        <td class="text-primary">{{c.name}}</td>
+                                        <td class="text-primary">{{c.getNameStyle}}</td>
                                         {% for cpte in app.user.comptes %}
                                         <td class="text-center">
                                         {% if cpte.getCarteObtenue(c) is not null and cpte.getCarteObtenue(c).nombre > 1 %}
