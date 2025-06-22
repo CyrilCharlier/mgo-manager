@@ -182,10 +182,13 @@
           button.addEventListener('click', callCopieMGO);
       });
       document.getElementById('togglePrincipalBtn').addEventListener('click', toggleBadgePrincipal);
-      document.getElementById('genComptePagePublique').addEventListener('click', function (e) {
-        const button = e.target.closest('button[data-url]');
-        document.location = button.dataset.url;
-      })
+
+      document.querySelectorAll('button[id^="genComptePagePublique"]').forEach(button => {
+          button.addEventListener('click', function (e) {
+            const button = e.target.closest('button[data-url]');
+            document.location = button.dataset.url;
+          });
+      });
 
       $('#carte_double').on('change', callComptePossede);
     }

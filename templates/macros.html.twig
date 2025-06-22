@@ -39,7 +39,7 @@
                                 data-bs-toggle="modal"
                                 data-bs-target="#accountModal">Modifier</button>
                             <button class="dropdown-item"
-                                id="genComptePagePublique"
+                                id="genComptePagePublique{{compte.id}}"
                                 data-url="{{ path('app_compte_acces_publique', {'id': compte.id}) }}">(Re)Génére la page publique</button>
                             <button class="dropdown-item text-danger"
                                 data-bs-toggle="modal"

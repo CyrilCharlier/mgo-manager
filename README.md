@@ -23,6 +23,7 @@
 - ✅ Multi-comptes par utilisateur
 - ✅ Historique des actions
 - ✅ Interface responsive (PC / mobile)
+- ✅ Page publique pour partager son avancée
 - 🔄 Export CSV (à venir)
 - 🔄 Statistiques utilisateurs (à venir)
 
