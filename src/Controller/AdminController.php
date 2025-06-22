@@ -160,7 +160,7 @@ final class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/historique/cleanup', name: 'app_admin_historique_cleanup')]
+    #[Route('/admin/cleanup', name: 'app_admin_cleanup')]
     public function cleanupHistorique(EntityManagerInterface $em): Response
     {
         $conn = $em->getConnection();
@@ -177,6 +177,21 @@ final class AdminController extends AbstractController
             if (!empty($idsToDelete)) {
                 $placeholders = implode(',', array_fill(0, count($idsToDelete), '?'));
                 $conn->executeStatement("DELETE FROM historique WHERE id IN ($placeholders)", $idsToDelete);
+                $deletedCount += count($idsToDelete);
+            }
+        }
+
+        $userIds = $conn->fetchFirstColumn('SELECT DISTINCT user_id FROM notification');
+
+        foreach ($userIds as $userId) {
+            $idsToDelete = $conn->fetchFirstColumn(
+                'SELECT id FROM notification WHERE user_id = :userId ORDER BY id DESC LIMIT 100000 OFFSET 1000',
+                ['userId' => $userId]
+            );
+
+            if (!empty($idsToDelete)) {
+                $placeholders = implode(',', array_fill(0, count($idsToDelete), '?'));
+                $conn->executeStatement("DELETE FROM notification WHERE id IN ($placeholders)", $idsToDelete);
                 $deletedCount += count($idsToDelete);
             }
         }
