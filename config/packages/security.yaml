@@ -45,7 +45,7 @@ security:
     access_control:
         - { path: ^/(_(profiler|wdt)|css|assets|images|js), roles: PUBLIC_ACCESS }
         - { path: ^/(login|register|reset-password), roles: PUBLIC_ACCESS }
-        - { path: ^/(cgu), roles: PUBLIC_ACCESS }
+        - { path: ^/(public|cgu), roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/, roles: ROLE_USER }
 
