@@ -55,6 +55,7 @@ const MGOM =  {
         MGOM.initSelect2();
         MGOM.initDeleteNotification();
         MGOM.initModalUser();
+        MGOM.initDropdownNotif();
 
         var win = navigator.platform.indexOf('Win') > -1;
         if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -174,6 +175,12 @@ const MGOM =  {
     },
     initDeleteNotification: function() {
         const buttons = document.querySelectorAll('.delete-notification-btn');
+        const btnDelAll = document.getElementById('deleteAllNotification');
+
+        btnDelAll.addEventListener('click', function() {
+            window.location = '/notification/delete';
+        });
+
 
 	    buttons.forEach(btn => {
 		    btn.addEventListener('click', function () {
@@ -219,6 +226,30 @@ const MGOM =  {
                 });
             });
         });
+    },
+    initDropdownNotif: function() {
+        if (document.querySelector('.notification-scroll')) {
+            const container = document.querySelector('.notification-scroll');
+            const ps = new PerfectScrollbar(container, {
+                wheelPropagation: false
+            });
+        }
+
+        const dropdown = document.querySelector('#dropdownMenuButton'); // ou ton bouton cloche
+
+        dropdown.addEventListener('shown.bs.dropdown', function () {
+            const container = document.querySelector('.notification-scroll');
+            if (container) {
+                if (!container._psInstance) {
+                    container._psInstance = new PerfectScrollbar(container, {
+                        wheelPropagation: false
+                    });
+                } else {
+                    container._psInstance.update();
+                }
+            }
+        });
+
     },
 
     activerEditionQuill: function(element) {

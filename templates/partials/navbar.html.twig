@@ -47,6 +47,7 @@
 						</span>
 					</a>
 					<ul class="dropdown-menu dropdown-menu-end p-2 ms-n4 border border-primary rounded dropdown-glow-pink" aria-labelledby="dropdownMenuButton">
+						<div class="notification-scroll p-2">
 						{% for n in app.user.notifications %}
 						<li class="mb-2" id="notification-{{ n.id }}">
 							<a class="dropdown-item border-radius-md p-2 d-flex align-items-start justify-content-between w-100 mw-100" href="javascript:;">
@@ -66,6 +67,15 @@
 							</a>
 						</li>
 						{% endfor %}
+						</div>
+						{% if app.user.notifications is not empty %}
+						<!-- Fin de la liste scrollable -->
+						<div class="notification-footer text-center p-3 border-top border-light bg-dark">
+							<button class="btn btn-danger px-4 py-2 rounded-pill mb-0" id="deleteAllNotification">
+								<i class="fas fa-trash-alt me-1"></i> Supprimer toutes les notifications
+							</button>
+						</div>
+						{% endif %}
 					</ul>
 				</li>
 				<li class="nav-item d-xl-none ps-3 pe-0 d-flex align-items-center">

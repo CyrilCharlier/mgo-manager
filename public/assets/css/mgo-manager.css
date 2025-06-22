@@ -1,3 +1,7 @@
+.main-content {
+    overflow: visible !important;
+}
+
 /* Toast styles */
 .notyf__toast--success {
     background-color: #2e7d32 !important;
@@ -342,4 +346,22 @@ body {
   backdrop-filter: blur(2px);
   animation: pulseGlow 2s infinite ease-in-out;
   transition: box-shadow 0.3s ease-in-out;
+}
+
+.notification-scroll {
+  max-height: 300px; /* ajuste selon ton besoin */
+  overflow: hidden; /* nécessaire pour perfect-scrollbar */
+  position: relative;
+}
+
+.notification-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: #1e1e1e; /* ou autre couleur selon ton thème */
+  z-index: 10;
+}
+
+.btn-danger:hover {
+  background-color: #e53935 !important;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
 }

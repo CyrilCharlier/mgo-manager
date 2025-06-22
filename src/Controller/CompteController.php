@@ -233,10 +233,10 @@ final class CompteController extends AbstractController
         ]);
     }
 
-    #[Route('/notification/delete', name: 'app_notification_delete')]
+    #[Route('/notification/delete', name: 'app_notification_delete_all')]
     public function notificationDelete(EntityManagerInterface $em): Response
     {
-        $notifications = $$this->getCurrentUser()->getNotifications();
+        $notifications = $this->getCurrentUser()->getNotifications();
         foreach ($notifications as $notification) {
             $em->remove($notification);
         }
