@@ -11,6 +11,7 @@ use App\Entity\Transfert;
 use App\Form\CompteForm;
 use App\Form\TransfertForm;
 use App\Repository\AlbumRepository;
+use App\Repository\CompteRepository;
 use App\Repository\HistoriqueRepository;
 use App\Service\Calcul;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Uid\Uuid;
 
 final class CompteController extends AbstractController
 {
@@ -261,7 +263,7 @@ final class CompteController extends AbstractController
     #[Route('/{id}', name: 'app_compte_accueil', requirements: ['id' => '\d+'])]
     public function index(Compte $compte, AlbumRepository $albumRepository, Security $security): Response
     {
-        $u = $security->getUser();
+        $u = $this->getCurrentUser();
         if($u != $compte->getUser()) {
             return $this->redirectToRoute('app_login');
         }
@@ -524,4 +526,37 @@ final class CompteController extends AbstractController
             'principal' => $nouvelEtat,
         ]);
     }
+
+    #[Route('/compte/{id}/pagepublique', name: 'app_compte_acces_publique')]
+    public function activePagePublique(Compte $compte, AuthorizationCheckerInterface $authChecker, EntityManagerInterface $em): Response
+    {
+        $u = $this->getCurrentUser();
+        if($u != $compte->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $compte->setPublicToken( Uuid::v4()->toRfc4122());
+        $em->persist($compte);
+        $em->flush();
+
+        return $this->redirectToRoute('app_dashboard');
+    }
+
+    #[Route('/public/compte/{token}', name: 'app_compte_public')]
+    public function viewPagePublique(string $token, CompteRepository $cr, AlbumRepository $ar): Response
+    {
+        $compte = $cr->findOneBy(['public_token' => $token]);
+        $album = $ar->findOneBy(['active' => true]);
+
+        if (!$compte) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('compte/public.html.twig', [
+            'compte' => $compte,
+            'album' => $album,
+        ]);
+    }
+
+    
 }

@@ -44,6 +44,9 @@ class Compte
     #[ORM\Column(length: 150, nullable: true)]
     private ?string $image = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $public_token = null;
+
     public function __construct()
     {
         $this->historiques = new ArrayCollection();
@@ -197,6 +200,18 @@ class Compte
     public function setPrincipal(?bool $principal): static
     {
         $this->principal = $principal;
+
+        return $this;
+    }
+
+    public function getPublicToken(): ?string
+    {
+        return $this->public_token;
+    }
+
+    public function setPublicToken(?string $public_token): static
+    {
+        $this->public_token = $public_token;
 
         return $this;
     }

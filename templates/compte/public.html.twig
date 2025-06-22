@@ -1,0 +1,168 @@
+{% extends "base.html.twig" %}
+
+{% block mainContent %}
+<input type="hidden" id="compte_actif" value="{{ compte.id }}" />
+<div class="container-fluid">
+    <section class="px-md-4">
+        <div class="mb-3 text-start">
+            <div class="form-check form-switch d-inline-flex align-items-center">
+                <input class="form-check-input me-2" type="checkbox" role="switch" id="toggle_cartes_obtenues" style="margin-top: 0.1rem;">
+                <label class="form-check-label d-flex align-items-center" for="toggle_cartes_obtenues" id="toggle_cartes_obtenues_label">
+                <i id="icone_oeil" class="material-symbols-rounded" style="font-size: 1.1rem; line-height: 1;">visibility</i>
+                </label>
+            </div>
+        </div>
+        <div class="row">
+{% for s in album.sets %}
+            <div data-set-id="{{ s.id }}" class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
+                <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
+                     {{ s.page }} - {{ s.name }} - 
+                    <i class="material-symbols-rounded align-middle text-xs ms-1" style="vertical-align: text-bottom;">style</i>
+                    {{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }} / {{ s.cartes|length }}
+                </div>
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <div class="text-xs">
+                            <table id="mainTable{{ s.id }}" class="table table-sm table-hover mb-0 text-xs">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center"><i class="material-symbols-rounded text-sm" style="color: #facc15 !important;">star</i></th>
+                                        <th>Nom</th>
+                                        <th class="text-center">Double</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in s.cartes %}
+                                    {% set carteObtenue = compte.getCarteObtenue(c) %}
+                                    <tr class="ligne-carte ligne-carte-{{ c.id }}" data-iscarteobtenue="{{ carteObtenue is empty ? '0' : '1' }}">
+                                        <td class="text-center text-xs"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>
+                                            <span id="nbetoile_carte{{c.id}}">{{c.nbetoile}}</span>
+                                            <i id="nbetoile_etoile_carte{{c.id}}" class="material-symbols-rounded text-sm{% if c.golden %} etoile-golden etoile-golden-{{ c.id }}{% endif %}"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>star</i>
+                                        </td>
+                                        <td id="nom_carte{{ c.id }}" class="text-{{ carteObtenue is empty ? 'danger' : 'success' }}">{{c.num}} - {{c.nameStyle}}</td>
+                                        <td class="text-center"> 
+                                            <span class="badge badge-pill {% if c.golden %}badge-warning{% else %}badge-info{% endif %}" id="double_carte_{{c.id}}">{{ carteObtenue is empty ? '0' : (compte.getCarteObtenue(c).nombre-1) }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block javaScripts %}
+<script>
+    var cacheCO = false;
+
+    function getCompte() {
+        return document.getElementById('compte_actif').value;
+    }
+
+    function callToggleCarteObtenue() {
+        const trElements = document.querySelectorAll('tr[data-iscarteobtenue="1"]');
+        const icone = document.getElementById('icone_oeil');
+
+        trElements.forEach(function(tr) {
+            if (!cacheCO) {
+                tr.classList.add('d-none');
+            } else {
+                tr.classList.remove('d-none');
+            }
+        });
+
+        document.querySelectorAll('[data-set-id]').forEach(col => {
+            const visibleRows = Array.from(col.querySelectorAll('.ligne-carte')).filter(row => {
+                return getComputedStyle(row).display !== 'none';
+            });
+
+            const doitCacher = (!cacheCO && visibleRows.length === 0);
+
+            col.style.display = doitCacher ? 'none' : '';
+            col.classList.toggle('col-hidden', doitCacher);
+        });
+
+        // Change l’icône dynamiquement
+        icone.classList.add('animate');
+        setTimeout(() => {
+            icone.textContent = (!cacheCO) ? 'visibility_off' : 'visibility';
+            cacheCO = !cacheCO;
+            icone.classList.remove('animate');
+        }, 150);
+    }
+
+    function onPageLoad()
+    {
+        document.getElementById('toggle_cartes_obtenues').addEventListener('click', callToggleCarteObtenue);
+    }
+    window.addEventListener('load', onPageLoad);
+</script>
+{% endblock %}
+
+{% block styleSheets %}
+<style>
+table.table td,
+table.table th {
+  vertical-align: middle !important;
+}
+
+.badge-pill {
+  padding: 0.375rem 0.75rem !important;  
+  font-size: 0.875rem !important;        
+  line-height: 1.5 !important;           
+  height: 2rem !important;                
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+  border-radius: 10rem !important;        /* conserver forme pill */
+}
+
+.dark-version .table > :not(caption) > * > *.text-success {
+    color: #4CAF50 !important; /* vert */
+}
+
+.dark-version .table > :not(caption) > * > *.text-danger {
+    color: #F44335 !important; /* rouge */
+}
+
+.entete-flottante {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@media (max-width: 576px) {
+  .entete-flottante {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+.col-transition {
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.col-hidden {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.overflow-visible {
+  overflow: visible !important;
+}
+
+</style>
+{% endblock %}

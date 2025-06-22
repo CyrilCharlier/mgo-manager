@@ -38,6 +38,9 @@
                                 data-title="Modifier un compte"
                                 data-bs-toggle="modal"
                                 data-bs-target="#accountModal">Modifier</button>
+                            <button class="dropdown-item"
+                                id="genComptePagePublique"
+                                data-url="{{ path('app_compte_acces_publique', {'id': compte.id}) }}">(Re)Génére la page publique</button>
                             <button class="dropdown-item text-danger"
                                 data-bs-toggle="modal"
                                 data-bs-target="#confirmDeleteModal"
@@ -49,8 +52,15 @@
                 <p class="text-lg mb-0"> Tu as <span id="etoilesDoubles{{compte.id}}" countTo="{{ etoilesDoubles }}"></span> <i class="ms-1 fa-solid fa-star text-warning"></i> </p>
                 <div class="row">
                     <div class="col-6">
-                    <h6 class="text-sm mb-0">&nbsp;</h6>
-                    <p class="text-secondary text-sm font-weight-normal mb-0"><a href="{{ path('app_compte_accueil', {'id': compte.id}) }}">Détails</a></p>
+                        <h6 class="text-sm mb-0">&nbsp;</h6>
+                        <p class="text-secondary text-sm font-weight-normal mb-0">
+                            <a href="{{ path('app_compte_accueil', {'id': compte.id}) }}">Détails</a>
+                            {% if compte.publicToken %}
+                            <a href="{{ path('app_compte_public', {'token': compte.publicToken}) }}" target="_blank" class="ms-2" title="Voir la page publique">
+                                <i class="fa-solid fa-eye text-secondary"></i>
+                            </a>
+                            {% endif %}
+                        </p>
                     </div>
                     <div class="col-6 text-end">
                     <h6 class="text-sm mb-0">{{ nombreCartes }} / {{ albumTotalCarte }}<i class="ms-2 fa-solid fa-object-ungroup"></i></h6>

@@ -108,7 +108,7 @@
 {% block javaScripts %}
   <script src="{{ asset('assets/js/plugins/countup.min.js') }}"></script>
   <script>
-    var showingOnlyPrincipal = false;  // état du filtre
+    var showingOnlyPrincipal = false;
     function callCopieMGO(event) {
         event.preventDefault();
         const mgo = event.currentTarget.getAttribute('data-mgo');
@@ -182,6 +182,10 @@
           button.addEventListener('click', callCopieMGO);
       });
       document.getElementById('togglePrincipalBtn').addEventListener('click', toggleBadgePrincipal);
+      document.getElementById('genComptePagePublique').addEventListener('click', function (e) {
+        const button = e.target.closest('button[data-url]');
+        document.location = button.dataset.url;
+      })
 
       $('#carte_double').on('change', callComptePossede);
     }
