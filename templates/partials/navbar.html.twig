@@ -28,6 +28,7 @@
 					</span>
 				</div>#}&nbsp;
 			</div>
+			{% if app.request.attributes.get('_route') != 'app_compte_public' %}
 			<ul class="navbar-nav justify-content-end">
 				<li class="nav-item d-flex align-items-center">
 					<a href="{{ path('app_logout') }}" class="nav-link text-white font-weight-bold px-0">
@@ -96,6 +97,7 @@
 				</li>#}
 				
 			</ul>
+			{% endif %}
 		</div>
 	</div>
 </nav>
