@@ -1,4 +1,4 @@
-{% macro renderCompte(compte, etoilesDoubles, nombreCartes, albumTotalCarte) %}
+{% macro renderCompte(compte, etoilesDoubles, nombreCartes, albumTotalCarte, isPublic = true) %}
 {% set percent = (nombreCartes / albumTotalCarte) * 100 %}
     <div class="col-lg-4 col-md-6 mb-4">
         <div class="card">
@@ -28,25 +28,25 @@
                         </div>
                     </div>
                     <div class="ms-auto">
-                    <div class="dropdown">
-                        <button class="btn btn-link text-secondary ps-0 pe-2" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-ellipsis-v text-lg"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end me-sm-n4 me-n3 dropdown-glow-pink" aria-labelledby="navbarDropdownMenuLink">
-                            <button class="dropdown-item"
-                                data-url="{{ path('app_compte_edit', {'id': compte.id}) }}"
-                                data-title="Modifier un compte"
-                                data-bs-toggle="modal"
-                                data-bs-target="#accountModal">Modifier</button>
-                            <button class="dropdown-item"
-                                id="genComptePagePublique{{compte.id}}"
-                                data-url="{{ path('app_compte_acces_publique', {'id': compte.id}) }}">(Re)Génére la page publique</button>
-                            <button class="dropdown-item text-danger"
-                                data-bs-toggle="modal"
-                                data-bs-target="#confirmDeleteModal"
-                                data-url="{{ path('app_compte_delete', {'id': compte.id}) }}">Supprimer</button>
+                        <div class="dropdown">
+                            <button class="btn btn-link text-secondary ps-0 pe-2" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-ellipsis-v text-lg"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end me-sm-n4 me-n3 dropdown-glow-pink" aria-labelledby="navbarDropdownMenuLink">
+                                <button class="dropdown-item"
+                                    data-url="{{ path('app_compte_edit', {'id': compte.id}) }}"
+                                    data-title="Modifier un compte"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#accountModal">Modifier</button>
+                                <button class="dropdown-item"
+                                    id="genComptePagePublique{{compte.id}}"
+                                    data-url="{{ path('app_compte_acces_publique', {'id': compte.id}) }}">(Re)Génére la page publique</button>
+                                <button class="dropdown-item text-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmDeleteModal"
+                                    data-url="{{ path('app_compte_delete', {'id': compte.id}) }}">Supprimer</button>
+                            </div>
                         </div>
-                    </div>
                     </div>
                 </div>
                 <p class="text-lg mb-0"> Tu as <span id="etoilesDoubles{{compte.id}}" countTo="{{ etoilesDoubles }}"></span> <i class="ms-1 fa-solid fa-star text-warning"></i> </p>
@@ -63,12 +63,52 @@
                         </p>
                     </div>
                     <div class="col-6 text-end">
-                    <h6 class="text-sm mb-0">{{ nombreCartes }} / {{ albumTotalCarte }}<i class="ms-2 fa-solid fa-object-ungroup"></i></h6>
-                    <p>
-                        <div class="progress progress-md">
-                        <div class="progress-bar bg-gradient-danger w-{{ (percent / 10)|round(0, 'common') * 10 }}" role="progressbar" aria-valuenow="{{percent}}" aria-valuemin="0" aria-valuemax="100"></div>
+                        <h6 class="text-sm mb-0">{{ nombreCartes }} / {{ albumTotalCarte }}<i class="ms-2 fa-solid fa-object-ungroup"></i></h6>
+                        <p>
+                            <div class="progress progress-md">
+                            <div class="progress-bar bg-gradient-danger w-{{ (percent / 10)|round(0, 'common') * 10 }}" role="progressbar" aria-valuenow="{{percent}}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro renderComptePublic(compte, etoilesDoubles, nombreCartes, albumTotalCarte) %}
+{% set percent = (nombreCartes / albumTotalCarte) * 100 %}
+    <div class="col-lg-12 mb-4">
+        <div class="card">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center">
+                    <!-- Avatar -->
+                    <div class="avatar avatar-xl bg-gradient-dark border-radius-xl p-2 me-3">
+                        {% if compte.image %}
+                            <img src="{{ asset('assets/img/mgo_caracter/' ~ compte.image) }}" alt="avatar">
+                        {% else %}
+                            <img src="{{ asset('assets/img/mgo_caracter/NutcrackerDreams.webp') }}" alt="avatar">
+                        {% endif %}
+                    </div>
+
+                    <!-- Nom + étoiles -->
+                    <div class="me-4">
+                        <h6 class="mb-1">{{ compte.name }} - {% if compte.mgo is empty %} MGO-... {% else %}{{ compte.mgo }}{% endif %}</h6>
+                        <p class="text-sm mb-0">
+                            Tu as <span id="etoilesDoubles{{compte.id}}" countTo="{{ etoilesDoubles }}"></span>
+                            <i class="ms-1 fa-solid fa-star text-warning"></i>
+                        </p>
+                    </div>
+
+                    <!-- Progression -->
+                    <div class="flex-grow-1">
+                        <h6 class="text-sm mb-1 text-end">
+                            {{ nombreCartes }} / {{ albumTotalCarte }}
+                            <i class="ms-2 fa-solid fa-object-ungroup"></i>
+                        </h6>
+                        <div class="progress progress-md mt-1">
+                            <div class="progress-bar bg-gradient-danger w-{{ (percent / 10)|round(0, 'common') * 10 }}"></div>
                         </div>
-                    </p>
                     </div>
                 </div>
             </div>

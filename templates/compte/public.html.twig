@@ -1,7 +1,12 @@
 {% extends "base.html.twig" %}
+{% import 'macros.html.twig' as macros %}
 
 {% block mainContent %}
-<input type="hidden" id="compte_actif" value="{{ compte.id }}" />
+<div id="progressionBadge" 
+    class="badge bg-info p-2" 
+    style="z-index: 2000;">
+    Compte consulté  : {{ compte.name }}
+</div>
 <div class="container-fluid">
     <section class="px-md-4">
         <div class="mb-3 text-start">
@@ -13,12 +18,13 @@
             </div>
         </div>
         <div class="row">
+{{ macros.renderComptePublic(compte, etoilesDoublesParCompte[compte.id], nombreCartesObtenuesParCompte[compte.id], album.getTotalCarte) }}
+
 {% for s in album.sets %}
             <div data-set-id="{{ s.id }}" class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
                 <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
-                     {{ s.page }} - {{ s.name }} - 
-                    <i class="material-symbols-rounded align-middle text-xs ms-1" style="vertical-align: text-bottom;">style</i>
-                    {{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }} / {{ s.cartes|length }}
+                    <span class="me-2">{{ s.page }} - {{ s.name }}</span>
+                    <span class="badge bg-light text-dark">{{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }} / {{ s.cartes|length }}</span>
                 </div>
                 <div class="card card-frame">
                     <div class="card-body">
@@ -58,13 +64,9 @@
 {% endblock %}
 
 {% block javaScripts %}
+<script src="{{ asset('assets/js/plugins/countup.min.js') }}"></script>
 <script>
     var cacheCO = false;
-
-    function getCompte() {
-        return document.getElementById('compte_actif').value;
-    }
-
     function callToggleCarteObtenue() {
         const trElements = document.querySelectorAll('tr[data-iscarteobtenue="1"]');
         const icone = document.getElementById('icone_oeil');
@@ -97,9 +99,14 @@
         }, 150);
     }
 
+    function initCount() {
+      MGOM.animeCount('etoilesDoubles{{compte.id}}', document.getElementById("etoilesDoubles{{compte.id}}").getAttribute("countTo"));
+    }
+
     function onPageLoad()
     {
         document.getElementById('toggle_cartes_obtenues').addEventListener('click', callToggleCarteObtenue);
+        initCount();
     }
     window.addEventListener('load', onPageLoad);
 </script>
@@ -121,7 +128,7 @@ table.table th {
   align-items: center !important;
   justify-content: center !important;
   vertical-align: middle !important;
-  border-radius: 10rem !important;        /* conserver forme pill */
+  border-radius: 10rem !important;
 }
 
 .dark-version .table > :not(caption) > * > *.text-success {
@@ -163,6 +170,17 @@ table.table th {
 .overflow-visible {
   overflow: visible !important;
 }
-
+#progressionBadge {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%) scale(1);
+    max-width: 300px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    border-radius: 0.25rem;
+    transition: transform 0.3s ease;
+    font-size: 0.7rem;
+}
 </style>
 {% endblock %}

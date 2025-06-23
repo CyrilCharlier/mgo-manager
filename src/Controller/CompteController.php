@@ -543,7 +543,7 @@ final class CompteController extends AbstractController
     }
 
     #[Route('/public/compte/{token}', name: 'app_compte_public')]
-    public function viewPagePublique(string $token, CompteRepository $cr, AlbumRepository $ar): Response
+    public function viewPagePublique(string $token, CompteRepository $cr, Calcul $calcul, AlbumRepository $ar): Response
     {
         $compte = $cr->findOneBy(['public_token' => $token]);
         $album = $ar->findOneBy(['active' => true]);
@@ -552,9 +552,14 @@ final class CompteController extends AbstractController
             return $this->redirectToRoute('app_dashboard');
         }
 
+        $etoilesDoublesParCompte[$compte->getId()] = $calcul->calculerEtoilesDoublees($compte, $album);
+        $nombreCartesObtenuesParCompte[$compte->getId()] = $calcul->calculerNombreCartesObtenuesSurAlbum($compte, $album);
+
         return $this->render('compte/public.html.twig', [
             'compte' => $compte,
             'album' => $album,
+            'etoilesDoublesParCompte' => $etoilesDoublesParCompte,
+            'nombreCartesObtenuesParCompte' => $nombreCartesObtenuesParCompte,
         ]);
     }
 

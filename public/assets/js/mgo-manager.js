@@ -177,55 +177,57 @@ const MGOM =  {
         const buttons = document.querySelectorAll('.delete-notification-btn');
         const btnDelAll = document.getElementById('deleteAllNotification');
 
-        btnDelAll.addEventListener('click', function() {
-            window.location = '/notification/delete';
-        });
+        if(btnDelAll) {
+            btnDelAll.addEventListener('click', function() {
+                window.location = '/notification/delete';
+            });
 
 
-	    buttons.forEach(btn => {
-		    btn.addEventListener('click', function () {
-			    const notifId = this.dataset.id;
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const notifId = this.dataset.id;
 
-			    fetch(`/notifications/${notifId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        // Supprimer visuellement
-                        const el = document.getElementById(`notification-${notifId}`);
-                        el.classList.add('fade');
-                        setTimeout(() => el.remove(), 300);
-
-                        // Décrémente le compteur
-                        const countEl = document.getElementById('countNotif');
-                        if (countEl) {
-                            let count = parseInt(countEl.textContent);
-                            if (!isNaN(count) && count > 0) {
-                                countEl.textContent = count - 1;
-                            }
+                    fetch(`/notifications/${notifId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json',
                         }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // Supprimer visuellement
+                            const el = document.getElementById(`notification-${notifId}`);
+                            el.classList.add('fade');
+                            setTimeout(() => el.remove(), 300);
 
-                        // Ajoute la classe d'animation
-                        const notifContainer = document.getElementById('notifContainer');
-                        notifContainer.classList.add('pulse-glow');
+                            // Décrémente le compteur
+                            const countEl = document.getElementById('countNotif');
+                            if (countEl) {
+                                let count = parseInt(countEl.textContent);
+                                if (!isNaN(count) && count > 0) {
+                                    countEl.textContent = count - 1;
+                                }
+                            }
 
-                        notifContainer.addEventListener('animationend', () => {
-                            notifContainer.classList.remove('pulse-glow');
-                            
-                            // Enchaîner avec un petit shake
-                            notifContainer.classList.add('shake');
+                            // Ajoute la classe d'animation
+                            const notifContainer = document.getElementById('notifContainer');
+                            notifContainer.classList.add('pulse-glow');
+
                             notifContainer.addEventListener('animationend', () => {
-                                notifContainer.classList.remove('shake');
+                                notifContainer.classList.remove('pulse-glow');
+                                
+                                // Enchaîner avec un petit shake
+                                notifContainer.classList.add('shake');
+                                notifContainer.addEventListener('animationend', () => {
+                                    notifContainer.classList.remove('shake');
+                                }, { once: true });
                             }, { once: true });
-                        }, { once: true });
-                    }
+                        }
+                    });
                 });
             });
-        });
+        }
     },
     initDropdownNotif: function() {
         if (document.querySelector('.notification-scroll')) {
@@ -236,20 +238,20 @@ const MGOM =  {
         }
 
         const dropdown = document.querySelector('#dropdownMenuButton'); // ou ton bouton cloche
-
-        dropdown.addEventListener('shown.bs.dropdown', function () {
-            const container = document.querySelector('.notification-scroll');
-            if (container) {
-                if (!container._psInstance) {
-                    container._psInstance = new PerfectScrollbar(container, {
-                        wheelPropagation: false
-                    });
-                } else {
-                    container._psInstance.update();
+        if(dropdown) {
+            dropdown.addEventListener('shown.bs.dropdown', function () {
+                const container = document.querySelector('.notification-scroll');
+                if (container) {
+                    if (!container._psInstance) {
+                        container._psInstance = new PerfectScrollbar(container, {
+                            wheelPropagation: false
+                        });
+                    } else {
+                        container._psInstance.update();
+                    }
                 }
-            }
-        });
-
+            });
+        }
     },
 
     activerEditionQuill: function(element) {

@@ -21,9 +21,8 @@
 {% for s in album.sets %}
             <div data-set-id="{{ s.id }}" class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
                 <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
-                     {{ s.page }} - {{ s.name }} - 
-                    <i class="material-symbols-rounded align-middle text-xs ms-1" style="vertical-align: text-bottom;">style</i>
-                    {{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }} / {{ s.cartes|length }}
+                    <span class="me-2">{{ s.page }} - {{ s.name }}</span>
+                    <span class="badge bg-light text-dark">{{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }} / {{ s.cartes|length }}</span>
                 </div>
                 <div class="card card-frame">
                     <div class="card-body">
