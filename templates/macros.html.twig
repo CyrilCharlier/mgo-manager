@@ -65,8 +65,8 @@
                     <div class="col-6 text-end">
                         <h6 class="text-sm mb-0">{{ nombreCartes }} / {{ albumTotalCarte }}<i class="ms-2 fa-solid fa-object-ungroup"></i></h6>
                         <p>
-                            <div class="progress progress-md">
-                            <div class="progress-bar bg-gradient-danger w-{{ (percent / 10)|round(0, 'common') * 10 }}" role="progressbar" aria-valuenow="{{percent}}" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress progress-md mt-1">
+                                <div class="progress-bar bg-gradient-danger" style="width: {{ percent }}%"></div>
                             </div>
                         </p>
                     </div>
@@ -107,7 +107,7 @@
                             <i class="ms-2 fa-solid fa-object-ungroup"></i>
                         </h6>
                         <div class="progress progress-md mt-1">
-                            <div class="progress-bar bg-gradient-danger w-{{ (percent / 10)|round(0, 'common') * 10 }}"></div>
+                            <div class="progress-bar bg-gradient-danger" style="width: {{ percent }}%"></div>
                         </div>
                     </div>
                 </div>
