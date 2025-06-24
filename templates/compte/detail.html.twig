@@ -320,7 +320,7 @@
         const badge = document.getElementById('progressionBadge');
 
         if (badge) {
-            badge.textContent = `Progression : ${cartesObtenues} / ${totalCartes}`;
+            badge.textContent = `Progression {{ compte.name }} : ${cartesObtenues} / ${totalCartes}`;
 
             // Pour relancer l'animation à chaque update
             badge.classList.remove('animate-scale');
