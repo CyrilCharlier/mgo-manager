@@ -4,25 +4,26 @@
 {% block mainContent %}
     <div class="container-fluid">
       <section class="px-md-4">
-        {% if app.user.mail is empty %}
-        <div class="row mb-4">
-          <div class="col-lg-4">
-            <div class="card">
-              <div class="card-header d-flex justify-content-between align-items-center">
-                <i class="material-symbols-rounded text-danger me-2" style="font-size: 2rem;">priority_high</i>
-                <h5 class="mb-0">Important</h5>
-                <i class="material-symbols-rounded text-danger me-2" style="font-size: 2rem;">priority_high</i>
-              </div>
-              <div class="card-body pt-0">
-                <p class="text-muted mt-4">
-                  <a href="javascript:;" data-url="{{ path('app_profile') }}" data-title="Modifier le profil" data-bs-toggle="modal" data-bs-target="#userModal"
-                      class="text-decoration-underline text-body text-hover-primary transition">Votre profil</a> ne possède pas de mail, pensez à la préciser pour récupérer votre mot de passe le cas échéant.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
+{% if app.user.mail is empty %}
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+  <div class="toast show align-items-center text-white bg-primary border-0 shadow-lg" style="background-color: #e91e63 !important;" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="material-symbols-rounded me-2">priority_high</i>
+        <a href="javascript:;" 
+           data-url="{{ path('app_profile') }}" 
+           data-title="Modifier le profil" 
+           data-bs-toggle="modal" 
+           data-bs-target="#userModal"
+           class="text-white text-decoration-underline text-hover-primary transition">
+          Votre profil
+        </a> ne possède pas de mail. Ajoutez-en un pour pouvoir récupérer votre mot de passe.
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+{% endif %}
         <div class="scroll-container d-flex flex-nowrap overflow-auto pb-3 gap-3">
           {% if album is not null %}
               {% for c in app.user.comptes %}
