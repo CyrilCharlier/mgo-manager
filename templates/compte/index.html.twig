@@ -2,7 +2,7 @@
 {% import 'macros.html.twig' as macros %}
 
 {% block mainContent %}
-    <div class="container-fluid">
+    <div class="container-fluid"  style="overflow: visible;">
       <section class="px-md-4">
         {% if app.user.mail is empty %}
         <div class="row mt-lg-4 mt-2">
@@ -22,10 +22,12 @@
           </div>
         </div>
         {% endif %}
-        <div class="row mt-lg-4 mt-2">
+        <div class="scroll-container d-flex flex-nowrap overflow-auto pb-3 gap-3">
           {% if album is not null %}
               {% for c in app.user.comptes %}
+                <div style="min-width: 300px; max-width: 320px;">
                   {{ macros.renderCompte(c, etoilesDoublesParCompte[c.id], nombreCartesObtenuesParCompte[c.id], album.getTotalCarte) }}
+                </div>
               {% endfor %}
           {% else %}
               <div class="alert alert-warning">Aucun album actif.</div>
@@ -53,8 +55,8 @@
         </div>
         {% if app.user.comptes|length != 0 %}
         <div class="row">
-          <div class="col-lg-4 col-md-6">
-            <div class="card" id="password">
+          <div class="col-lg-4 col-md-6 mt-4">
+            <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Qui possède ...</h5>
                 <button id="togglePrincipalBtn" class="btn btn-sm btn-info" type="button" title="Afficher uniquement les comptes principaux">
@@ -181,7 +183,7 @@
                 color: "rgba(255, 255, 255, 0.2)"
               },
               ticks: {
-                color: "#ccc"
+                display: false
               }
             }
           }
@@ -397,6 +399,32 @@
 
 .flashy {
   animation: flash 0.8s ease-in-out 2;
+}
+.object-fit-contain {
+  object-fit: contain;
+}
+.scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+.code-mgo {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.code-mgo i {
+  flex-shrink: 0;
 }
 </style>
 {% endblock %}
