@@ -82,6 +82,22 @@
               </div>
             </div>
           </div>
+          <div class="col-md-6">
+            <div class="card z-index-2 mt-4">
+              <div class="card-header p-3 pt-2">
+                <div class="icon icon-lg icon-shape bg-gradient-success shadow-success text-center border-radius-xl mt-n4 me-3 float-start">
+                  <i class="material-symbols-rounded opacity-10">multiline_chart</i>
+                </div>
+                <h6 class="mb-0">Progression</h6>
+                <p class="mb-0 text-sm">22 pages</p>
+              </div>
+              <div class="card-body p-5 pt-0">
+                <div class="chart">
+                  <canvas id="radar-chart" class="chart-canvas" height="100"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         {% endif %}
       </section>
@@ -107,8 +123,42 @@
 
 {% block javaScripts %}
   <script src="{{ asset('assets/js/plugins/countup.min.js') }}"></script>
+  <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
   <script>
     var showingOnlyPrincipal = false;
+    function initChart() {
+      var ctxR = document.getElementById("radar-chart").getContext("2d");
+
+      new Chart(ctxR, {
+        type: "radar",
+        data: {
+          labels: {{ album.sets|map(set => set.name)|json_encode|raw }},
+          datasets: [
+            {% for compte in app.user.comptes %}
+            {
+              label: "{{ compte.name|e('js') }}",
+              backgroundColor: "rgba({{ 50 + loop.index0 * 40 }}, 99, 255, 0.2)",
+              borderColor: "rgba({{ 50 + loop.index0 * 40 }}, 99, 255, 1)",
+              pointBackgroundColor: "rgba({{ 50 + loop.index0 * 40 }}, 99, 255, 1)",
+              data: [
+                {% for s in album.sets %}
+                  {{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+              ]
+            }{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          ]
+        },
+        options: {
+          plugins: {
+            legend: {
+              display: false,
+            }
+          }
+        }
+      });
+    }
+
     function callCopieMGO(event) {
         event.preventDefault();
         const mgo = event.currentTarget.getAttribute('data-mgo');
@@ -299,6 +349,7 @@
       initCount();
       initEvent();
       initConfirmDelete();
+      initChart();
     }
     
     window.addEventListener('load', onPageLoad);
