@@ -85,13 +85,13 @@
           <div class="col-md-6">
             <div class="card z-index-2 mt-4">
               <div class="card-header p-3 pt-2">
-                <div class="icon icon-lg icon-shape bg-gradient-success shadow-success text-center border-radius-xl mt-n4 me-3 float-start">
+                <div class="icon icon-lg icon-shape bg-gradient-dark shadow-dark text-center border-radius-xl mt-n4 me-3 float-start">
                   <i class="material-symbols-rounded opacity-10">multiline_chart</i>
                 </div>
                 <h6 class="mb-0">Progression</h6>
                 <p class="mb-0 text-sm">22 pages</p>
               </div>
-              <div class="card-body p-5 pt-0">
+              <div class="card-body p-1 pt-0">
                 <div class="chart">
                   <canvas id="radar-chart" class="chart-canvas" height="100"></canvas>
                 </div>
@@ -126,6 +126,14 @@
   <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
   <script>
     var showingOnlyPrincipal = false;
+    const radarColors = [
+      { bg: "rgba(255, 99, 132, 0.2)", border: "rgba(255, 99, 132, 1)" },   // rouge
+      { bg: "rgba(54, 162, 235, 0.2)", border: "rgba(54, 162, 235, 1)" },   // bleu
+      { bg: "rgba(255, 206, 86, 0.2)", border: "rgba(255, 206, 86, 1)" },   // jaune
+      { bg: "rgba(75, 192, 192, 0.2)", border: "rgba(75, 192, 192, 1)" },   // turquoise
+      { bg: "rgba(153, 102, 255, 0.2)", border: "rgba(153, 102, 255, 1)" }, // violet
+    ];
+
     function initChart() {
       var ctxR = document.getElementById("radar-chart").getContext("2d");
 
@@ -135,24 +143,46 @@
           labels: {{ album.sets|map(set => set.name)|json_encode|raw }},
           datasets: [
             {% for compte in app.user.comptes %}
-            {
-              label: "{{ compte.name|e('js') }}",
-              backgroundColor: "rgba({{ 50 + loop.index0 * 40 }}, 99, 255, 0.2)",
-              borderColor: "rgba({{ 50 + loop.index0 * 40 }}, 99, 255, 1)",
-              pointBackgroundColor: "rgba({{ 50 + loop.index0 * 40 }}, 99, 255, 1)",
-              data: [
-                {% for s in album.sets %}
-                  {{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }}{% if not loop.last %}, {% endif %}
-                {% endfor %}
-              ]
-            }{% if not loop.last %}, {% endif %}
+            (function() {
+              const color = radarColors[{{ loop.index0 }} % radarColors.length];
+              return {
+                label: "{{ compte.name|e('js') }}",
+                backgroundColor: color.bg,
+                borderColor: color.border,
+                pointBackgroundColor: color.border,
+                data: [
+                  {% for s in album.sets %}
+                    {{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }}{% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                ]
+              };
+            })(){% if not loop.last %}, {% endif %}
             {% endfor %}
           ]
         },
         options: {
           plugins: {
             legend: {
-              display: false,
+              display: true,
+              labels: {
+                color: "#fff" // couleur du texte de légende en mode dark
+              }
+            }
+          },
+          scales: {
+            r: {
+              pointLabels: {
+                color: "#fff" // labels autour du radar
+              },
+              grid: {
+                color: "rgba(255, 255, 255, 0.1)"
+              },
+              angleLines: {
+                color: "rgba(255, 255, 255, 0.2)"
+              },
+              ticks: {
+                color: "#ccc"
+              }
             }
           }
         }
