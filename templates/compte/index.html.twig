@@ -69,7 +69,7 @@
                   <select id="carte_double" class="form-control select2" style="width: 100%">
                     <option value="0">Sélectionner une carte</option>
                     {% for s in albumActif.sets %}
-                    <optgroup label="{{ s.name }}">
+                    <optgroup label="{{ s.page }} - {{ s.name }}">
                       {% for c in s.cartes %}
                       <option value="{{ c.id }}">{{ c.nameStyle }}</option>
                       {% endfor %}
@@ -92,7 +92,6 @@
                   <i class="material-symbols-rounded opacity-10">multiline_chart</i>
                 </div>
                 <h6 class="mb-0">Progression</h6>
-                <p class="mb-0 text-sm">22 pages</p>
               </div>
               <div class="card-body p-1 pt-0">
                 <div class="chart">
