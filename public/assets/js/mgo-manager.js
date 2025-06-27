@@ -271,7 +271,7 @@ const MGOM =  {
 
             // Gestion des sous-menus bootstrap collapse
             // Trouve le lien parent avec data-bs-toggle="collapse" qui contrôle ce sous-menu
-            const parentToggle = link.closest('ul.nav').closest('div.collapse') // le div.collapse du sous-menu
+            const parentToggle = link.closest('ul.navbar-nav').closest('div.collapse') // le div.collapse du sous-menu
                                 ?.previousElementSibling; // lien <a> qui ouvre ce sous-menu
 
             if (parentToggle && parentToggle.getAttribute('data-bs-toggle') === 'collapse') {
@@ -288,6 +288,39 @@ const MGOM =  {
                 }
             }
             }
+        });
+    },
+    initTooltip: function () {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    },
+
+    filtrerParType : function(btn) {
+        // toggle active
+        document.querySelectorAll('[data-filtre-type]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // filtre
+        const type = btn.dataset.filtreType;
+        document.getElementById('filtreRecherche').dataset.typeFiltre = type;
+
+        MGOM.filtrerTimeline();
+    },
+
+    filtrerTimeline : function() {
+        const recherche = document.getElementById('filtreRecherche').value.toLowerCase();
+        const type = document.getElementById('filtreRecherche').dataset.typeFiltre || 'all';
+
+        document.querySelectorAll('.timeline-block[data-type]').forEach(block => {
+            const texte = block.innerText.toLowerCase();
+            const typeBlock = block.dataset.type;
+
+            const matchTexte = texte.includes(recherche);
+            const matchType = (type === 'all') || (type === typeBlock);
+
+            block.style.display = (matchTexte && matchType) ? '' : 'none';
         });
     },
 

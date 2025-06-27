@@ -8,6 +8,29 @@
   display: block;
 }
 
+.rotate-icon {
+  transition: transform 0.3s ease;
+}
+
+button[aria-expanded="true"] .rotate-icon {
+  transform: rotate(180deg);
+}
+
+.mgom-collapse {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+}
+
+.mgom-collapse.open {
+  max-height: 999px; /* suffit à couvrir une journée */
+  opacity: 1;
+}
+
+.toggle-collapse-btn[aria-expanded="true"] .rotate-icon {
+  transform: rotate(180deg);
+}
 </style>
 {% endblock %}
 
@@ -22,28 +45,62 @@
                         <h6 class="text-white">Historique</h6>
                     </div>
                     <div class="card-body p-3">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control form-control-sm" placeholder="Rechercher une action..." oninput="MGOM.filtrerTimeline()" id="filtreRecherche">
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-outline-light active" data-filtre-type="all" onclick="MGOM.filtrerParType(this)">Tous</button>
+                                <button class="btn btn-outline-light" data-filtre-type="creation" onclick="MGOM.filtrerParType(this)">Créations</button>
+                                <button class="btn btn-outline-light" data-filtre-type="transfert" onclick="MGOM.filtrerParType(this)">Transferts</button>
+                                <button class="btn btn-outline-light" data-filtre-type="ajout" onclick="MGOM.filtrerParType(this)">Ajouts</button>
+                                <button class="btn btn-outline-light" data-filtre-type="retrait" onclick="MGOM.filtrerParType(this)">Retraits</button>
+                                </div>
+                            </div>
+                        </div>
                         <div class="timeline timeline-dark timeline-one-side" data-timeline-axis-style="dotted">
                             {% for date, items in groupedHistoriques %}
+                            {% set collapseId = 'collapse-' ~ loop.index %}
                             <div class="timeline-block d-flex align-items-start mb-3">
                                 <span class="timeline-step bg-primary p-3">
                                     <i class="material-symbols-rounded text-white text-sm opacity-10">
                                         calendar_today
                                     </i>
                                 </span>
-                                <div class="timeline-content pt-1">
-                                    <h5 class="text-white text-sm font-weight-bold mb-0">{{ date }}</h5>
+                                <div class="timeline-content pt-1 w-100">
+                                    <h5 class="text-white text-sm font-weight-bold mb-0 d-inline-flex align-items-center gap-2">
+                                        {{ date }}
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-light py-0 px-1 toggle-collapse-btn"
+                                            data-target="#{{ collapseId }}">
+                                            <i class="material-symbols-rounded fs-6 rotate-icon">expand_more</i>
+                                        </button>
+                                    </h5>
                                 </div>
                             </div>
+                            <div class="mgom-collapse {% if loop.first %}open{% endif %}" id="{{ collapseId }}">
                             {% for historique in items %}
-                            <div class="timeline-block mb-3">
+                            {% set type =
+                                historique.icone == 'add_card' ? 'ajout' :
+                                (historique.icone == 'do_not_disturb_on' ? 'retrait' :
+                                (historique.icone == 'swap_horiz' ? 'transfert' :
+                                (historique.icone == 'manage_accounts' ? 'modification' :
+                                (historique.icone == 'person_add' ? 'creation' : 'autre'))))
+                            %}
+                            <div class="timeline-block mb-3" data-type="{{ type }}">
                                 <span class="timeline-step bg-info p-3">
                                     <i class="material-symbols-rounded text-white text-sm opacity-10">
                                         {{ historique.icone }}
                                     </i>
                                 </span>
                                 <div class="timeline-content pt-1">
-                                    <h6 class="text-white text-sm font-weight-bold mb-0">{{ historique.titre }}</h6>
-                                    <p class="text-secondary text-xs mt-1 mb-0">{{ historique.horodatage|date('d.m.Y H:i') }}</p>
+                                    <h6 class="text-white text-sm font-weight-bold mb-0 d-inline-block"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Effectué à {{ historique.horodatage|date('H:i:s') }}">
+                                        {{ historique.titre }}
+                                    </h6>
                                     <p class="text-sm text-white mt-3 mb-2">
                                         {{ historique.description }}
                                     </p>
@@ -63,6 +120,7 @@
                                 </div>
                             </div>
                             {% endfor %}
+                            </div>
                             {% endfor %}
 
                         </div>
@@ -75,4 +133,20 @@
         </div>
     </section>
 </div>
+{% endblock %}
+
+{% block javaScripts %}
+<script>
+document.querySelectorAll('.toggle-collapse-btn').forEach(function (btn) {
+  const targetId = btn.getAttribute('data-target');
+  const content = document.querySelector(targetId);
+
+  btn.addEventListener('click', function () {
+    const isOpen = content.classList.contains('open');
+
+    content.classList.toggle('open');
+    btn.setAttribute('aria-expanded', !isOpen);
+  });
+});
+</script>
 {% endblock %}
