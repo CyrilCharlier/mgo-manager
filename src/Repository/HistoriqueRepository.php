@@ -20,13 +20,13 @@ class HistoriqueRepository extends ServiceEntityRepository
     /**
      * @return array<int, Historique>
      */
-    public function findLast100ByUser(User $user): array
+    public function findLastXByUser(User $user, int $nb = 100): array
     {
         return $this->createQueryBuilder('h')
             ->where('h.user = :user')
             ->setParameter('user', $user)
             ->orderBy('h.horodatage', 'DESC')
-            ->setMaxResults(100)
+            ->setMaxResults($nb)
             ->getQuery()
             ->getResult();
     }
