@@ -1,5 +1,5 @@
 {% extends "base.html.twig" %}
-{% import 'macros.html.twig' as macros %}
+{% import 'macros/comptes.html.twig' as comptes %}
 
 {% block mainContent %}
 <div id="progressionBadge" 
@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="row">
-{{ macros.renderComptePublic(compte, etoilesDoublesParCompte[compte.id], nombreCartesObtenuesParCompte[compte.id], album.getTotalCarte) }}
+{{ comptes.renderComptePublic(compte, etoilesDoublesParCompte[compte.id], nombreCartesObtenuesParCompte[compte.id], album.getTotalCarte) }}
 
 {% for s in album.sets %}
             <div data-set-id="{{ s.id }}" class="col-lg-6 position-relative mb-3 col-transition overflow-visible">

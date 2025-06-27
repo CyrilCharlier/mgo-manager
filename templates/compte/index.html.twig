@@ -1,5 +1,5 @@
 {% extends "base.html.twig" %}
-{% import 'macros.html.twig' as macros %}
+{% import 'macros/comptes.html.twig' as comptes %}
 
 {% block mainContent %}
     <div class="container-fluid">
@@ -28,7 +28,7 @@
           {% if album is not null %}
               {% for c in app.user.comptes %}
                 <div style="min-width: 300px; max-width: 320px;">
-                  {{ macros.renderCompte(c, etoilesDoublesParCompte[c.id], nombreCartesObtenuesParCompte[c.id], album.getTotalCarte) }}
+                  {{ comptes.renderCompte(c, etoilesDoublesParCompte[c.id], nombreCartesObtenuesParCompte[c.id], album.getTotalCarte) }}
                 </div>
               {% endfor %}
           {% else %}
