@@ -9,13 +9,14 @@
 <input type="hidden" id="compte_actif" value="{{ compte.id }}" />
 <div class="container-fluid">
     <section class="px-md-4">
-        <div class="mb-3 text-start">
+        <div class="mb-3 text-start d-flex align-items-center gap-2">
             <div class="form-check form-switch d-inline-flex align-items-center">
                 <input class="form-check-input me-2" type="checkbox" role="switch" id="toggle_cartes_obtenues" style="margin-top: 0.1rem;">
                 <label class="form-check-label d-flex align-items-center" for="toggle_cartes_obtenues" id="toggle_cartes_obtenues_label">
-                <i id="icone_oeil" class="material-symbols-rounded" style="font-size: 1.1rem; line-height: 1;">visibility</i>
+                    <i id="icone_oeil" class="material-symbols-rounded" style="font-size: 1.1rem; line-height: 1;">visibility</i>
                 </label>
             </div>
+            <input type="text" id="search_carte" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Rechercher une carte..." style="max-width: 300px;">
         </div>
         <div class="row">
 {% for s in album.sets %}
@@ -179,6 +180,48 @@
 
     function getCompte() {
         return document.getElementById('compte_actif').value;
+    }
+
+    // Fonction debounce générique
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    // Ta fonction de recherche
+    function filterCartes() {
+        const searchTerm = document.getElementById('search_carte').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('td[id^="nom_carte"]');
+        
+        // Retirer les anciennes surbrillances
+        document.querySelectorAll('.highlight-search').forEach(el => el.classList.remove('highlight-search'));
+
+        rows.forEach(td => {
+            const text = td.textContent.toLowerCase();
+            if (searchTerm && text.includes(searchTerm)) {
+                td.classList.add('highlight-search');
+                // Scroll vers la première correspondance
+                td.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+
+    function initEvent() {
+        document.querySelectorAll('button[id^="minus_carte_"]').forEach(button => {
+            button.addEventListener('click', callCarteEnleve);
+        });
+        document.querySelectorAll('button[id^="plus_carte_"]').forEach(button => {
+            button.addEventListener('click', callCarteAjout);
+        });
+        document.getElementById('toggle_cartes_obtenues').addEventListener('click', callToggleCarteObtenue);
+        setTimeout(() => {
+            animateBadge();
+        }, 50);
+        const debouncedFilterCartes = debounce(filterCartes, 300);
+        document.getElementById('search_carte').addEventListener('input', debouncedFilterCartes);
     }
 
     function toggleCarteStyle(idCarte, isObtenue) {
@@ -403,20 +446,9 @@
 
     function onPageLoad()
     {
-        document.querySelectorAll('button[id^="minus_carte_"]').forEach(button => {
-            button.addEventListener('click', callCarteEnleve);
-        });
-
-        document.querySelectorAll('button[id^="plus_carte_"]').forEach(button => {
-            button.addEventListener('click', callCarteAjout);
-        });
-
-        document.getElementById('toggle_cartes_obtenues').addEventListener('click', callToggleCarteObtenue);
+        initEvent();
         updateProgressionBadge();
-        // ⏱️ Petite pause pour laisser le DOM se stabiliser avant d’animer
-        setTimeout(() => {
-            animateBadge();
-        }, 50);
+        
         {% if is_granted("ROLE_ADMIN") %}
         initModalPage();
         {% endif %}
@@ -578,6 +610,19 @@ table.table th {
 
 .overflow-visible {
   overflow: visible !important;
+}
+
+.highlight-search {
+  background-color: rgba(233, 30, 99, 0.2) !important;
+  color: inherit !important;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+#search_carte:focus {
+  box-shadow: 0 0 6px rgba(233, 30, 99, 0.7);
+  border-color: rgb(233, 30, 99);
+  outline: none;
 }
 
 </style>
