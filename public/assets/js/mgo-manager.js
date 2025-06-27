@@ -56,6 +56,7 @@ const MGOM =  {
         MGOM.initDeleteNotification();
         MGOM.initModalUser();
         MGOM.initDropdownNotif();
+        MGOM.initMenu();
 
         var win = navigator.platform.indexOf('Win') > -1;
         if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -252,6 +253,42 @@ const MGOM =  {
                 }
             });
         }
+    },
+    initMenu: function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('ul.navbar-nav a.nav-link');
+
+        navLinks.forEach(link => {
+            const linkPath = link.getAttribute('href');
+
+            // Ignore les liens sans href ou "javascript:;"
+            if (!linkPath || linkPath.startsWith('javascript')) return;
+
+            // Si le lien est actif (strict ou commence par)
+            if (currentPath === linkPath) {
+            // Ajout classes active
+            link.classList.add('active', 'bg-gradient-primary');
+
+            // Gestion des sous-menus bootstrap collapse
+            // Trouve le lien parent avec data-bs-toggle="collapse" qui contrôle ce sous-menu
+            const parentToggle = link.closest('ul.nav').closest('div.collapse') // le div.collapse du sous-menu
+                                ?.previousElementSibling; // lien <a> qui ouvre ce sous-menu
+
+            if (parentToggle && parentToggle.getAttribute('data-bs-toggle') === 'collapse') {
+                // Supprime la classe "collapsed" du lien parent (qui ouvre le sous-menu)
+                parentToggle.classList.remove('collapsed');
+
+                // Met aria-expanded à true
+                parentToggle.setAttribute('aria-expanded', 'true');
+
+                // Ajoute la classe "show" au div.collapse (le sous-menu)
+                const collapseDiv = document.getElementById(parentToggle.getAttribute('href').substring(1));
+                if (collapseDiv) {
+                collapseDiv.classList.add('show');
+                }
+            }
+            }
+        });
     },
 
     activerEditionQuill: function(element) {
