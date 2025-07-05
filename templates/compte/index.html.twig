@@ -139,11 +139,17 @@
 
     function initChart() {
       var ctxR = document.getElementById("radar-chart").getContext("2d");
+      var labels = {{ album.sets|map(set => (set.page~' - '~set.name))|json_encode|raw }};
+      console.log(labels)
 
       new Chart(ctxR, {
         type: "radar",
         data: {
-          labels: {{ album.sets|map(set => (set.page~' - '~set.name))|json_encode|raw }},
+          labels: [
+              {% for set in album.sets %}
+                  "{{ set.page ~ ' - ' ~ set.name }}"{% if not loop.last %},{% endif %}
+              {% endfor %}
+          ],
           datasets: [
             {% for compte in app.user.comptes %}
             (function() {
@@ -183,8 +189,11 @@
               angleLines: {
                 color: "rgba(255, 255, 255, 0.2)"
               },
+              min: 0,
+              max: 9,
               ticks: {
-                display: false
+                display: false,
+                stepSize: 1
               }
             }
           }
