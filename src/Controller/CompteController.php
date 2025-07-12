@@ -188,7 +188,7 @@ final class CompteController extends AbstractController
         ]);
     }
 
-    #[Route('/compte/transfert/{fromid}/{toid}/{idcarte}', name: 'app_compte_transfert')]
+    #[Route('/compte/transfert/{fromid}/{toid}/{idcarte}', name: 'app_compte_transfert_api')]
     public function compteTransfertApi(CompteRepository $compteRepository, CarteRepository $carteRepository, EntityManagerInterface $em, Security $security, $fromid, $toid, $idcarte): JsonResponse
     {
         $u = $security->getUser();
