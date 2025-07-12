@@ -45,7 +45,17 @@
                                         {% for cpte2 in app.user.comptes %}
                                             {% if cpte.id == cpte2.id %}{% else %}
                                                 {% if cpte2.getCarteObtenue(c) is null %}
-                                                <button type="button" id="transfert_carte_{{c.id}}_{{cpte.id}}_{{cpte2.id}}" data-idcarte="{{c.id}}" data-idcompte="{{cpte.id}}" data-idcompte2="{{cpte2.id}}" class="waves-effect waves-light btn btn-primary btn-xs">
+                                                <button
+                                                    type="button"
+                                                    id="transfert_carte_{{c.id}}_{{cpte.id}}_{{cpte2.id}}"
+                                                    data-id-carte="{{c.id}}"
+                                                    data-name-carte="{{c.name}}"
+                                                    data-name-compte-from="{{cpte.name}}"
+                                                    data-id-compte-from="{{cpte.id}}"
+                                                    data-id-compte-to="{{cpte2.id}}"
+                                                    data-name-compte-to="{{cpte2.name}}"
+                                                    class="waves-effect waves-light btn btn-primary btn-xs"
+                                                    >
                                                 {{cpte2.name}}
                                                 </button><br>
                                                 {% endif %}
@@ -66,6 +76,89 @@
         </div>
     </section>
 </div>
+
+<div class="modal fade" id="confirmTransfertModal" tabindex="-1" aria-labelledby="confirmTransfertLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-white border-secondary">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmTransfertLabel">Confirmer le transfert</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body" id="confirmTransfertBody">
+        <!-- Message ici -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="confirmTransfertBtn">Confirmer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javaScripts %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = new bootstrap.Modal(document.getElementById('confirmTransfertModal'));
+    const modalBody = document.getElementById('confirmTransfertBody');
+    const confirmBtn = document.getElementById('confirmTransfertBtn');
+
+    let currentButton = null;
+
+    document.querySelectorAll('button[id^="transfert_carte_"]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            currentButton = btn;
+
+            const idCarte = btn.dataset.idCarte;
+            const nameCarte = btn.dataset.nameCarte;
+            const fromName = btn.dataset.nameCompteFrom;
+            const toName = btn.dataset.nameCompteTo;
+
+            modalBody.textContent = `Confirmer le transfert de la carte ${nameCarte} de ${fromName} vers ${toName} ?`;
+
+            // Afficher la modale
+            modal.show();
+        });
+    });
+
+    confirmBtn.addEventListener('click', function () {
+        if (!currentButton) return;
+
+        const idCarte = currentButton.dataset.idCarte;
+        const fromId = currentButton.dataset.idCompteFrom;
+        const toId = currentButton.dataset.idCompteTo;
+
+        fetch(`/compte/transfert/${fromId}/${toId}/${idCarte}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                MGOM.notify(data.message, 'info');
+                currentButton.classList.add('explode');
+                currentButton.addEventListener('animationend', () => {
+                    currentButton.remove();
+                }, { once: true });
+            } else {
+                MGOM.notify(data.message, 'error');
+            }
+        })
+        .catch(() => {
+            MGOM.notify('Une erreur est survenue lors du transfert.', 'error');
+        })
+        .finally(() => {
+            modal.hide();
+            currentButton = null;
+        });
+    });
+});
+</script>
+
 {% endblock %}
 
 {% block styleSheets %}
@@ -92,5 +185,25 @@ table.table th {
   z-index: 2;
   pointer-events: none; /* pour éviter de bloquer les clics */
 }
+
+@keyframes explode {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5) rotate(15deg);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(0) rotate(90deg);
+        opacity: 0;
+    }
+}
+
+.explode {
+    animation: explode 0.5s ease-out forwards;
+}
+
 </style>
 {% endblock %}
