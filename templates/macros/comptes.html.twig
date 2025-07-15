@@ -18,32 +18,39 @@
                                 data-id="{{ compte.id }}"
                                 aria-pressed="{{ compte.principal ? 'true' : 'false' }}"
                                 title="{{ compte.principal ? 'Compte principal' : 'Définir comme principal' }}"
+                                data-bs-toggle="tooltip"
                                 onclick="togglePrincipal(this)"
                                 onkeydown="if(event.key==='Enter' || event.key===' ') { togglePrincipal(this); event.preventDefault(); }">
                             </i>
                         </div>
                         <div class="avatar-group code-mgo">
-                            {% if compte.mgo is empty %} MGO-... {% else %}{{ compte.mgo }}<i id="copierMGO{{compte.id}}" data-mgo="{{ compte.mgo }}" style="cursor: pointer;" class="ms-2 fa-solid fa-copy"></i>{% endif %}
+                            {% if compte.mgo is empty %} MGO-... {% else %}{{ compte.mgo }}<i id="copierMGO{{compte.id}}" data-mgo="{{ compte.mgo }}" style="cursor: pointer;" class="ms-2 fa-solid fa-copy" data-bs-toggle="tooltip" title="Copier le MGO"></i>{% endif %}
                         </div>
                     </div>
-                    <div class="ms-auto">
+                   <div class="ms-auto">
                         <div class="dropdown">
                             <button class="btn btn-link text-secondary ps-0 pe-2" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fa fa-ellipsis-v text-lg"></i>
+                                <i class="fa fa-ellipsis-v text-lg"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end me-sm-n4 me-n3 dropdown-glow-pink" aria-labelledby="navbarDropdownMenuLink">
                                 <button class="dropdown-item"
                                     data-url="{{ path('app_compte_edit', {'id': compte.id}) }}"
                                     data-title="Modifier un compte"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#accountModal">Modifier</button>
+                                    data-bs-target="#accountModal">
+                                    <i class="fas fa-edit me-2 text-secondary"></i> Modifier
+                                </button>
                                 <button class="dropdown-item"
                                     id="genComptePagePublique{{compte.id}}"
-                                    data-url="{{ path('app_compte_acces_publique', {'id': compte.id}) }}">(Re)Génére la page publique</button>
+                                    data-url="{{ path('app_compte_acces_publique', {'id': compte.id}) }}">
+                                    <i class="fa-solid fa-eye me-2 text-info"></i> (Re)Génére la page publique
+                                </button>
                                 <button class="dropdown-item text-danger"
                                     data-bs-toggle="modal"
                                     data-bs-target="#confirmDeleteModal"
-                                    data-url="{{ path('app_compte_delete', {'id': compte.id}) }}">Supprimer</button>
+                                    data-url="{{ path('app_compte_delete', {'id': compte.id}) }}">
+                                    <i class="fas fa-trash-alt me-2 text-danger"></i> Supprimer
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -54,8 +61,12 @@
                         <p class="text-secondary text-sm font-weight-normal mb-0">
                             <a href="{{ path('app_compte_accueil', {'id': compte.id}) }}">Détails</a>
                             {% if compte.publicToken %}
-                            <a href="{{ path('app_compte_public', {'token': compte.publicToken}) }}" target="_blank" class="ms-2" title="Voir la page publique">
-                                <i class="fa-solid fa-eye text-secondary"></i>
+                            <a href="{{ path('app_compte_public', {'token': compte.publicToken}) }}"
+                                target="_blank"
+                                class="ms-2"
+                                data-bs-toggle="tooltip"
+                                title="Voir la page publique">
+                                    <i class="fa-solid fa-eye text-info"></i>
                             </a>
                             {% endif %}
                         </p>
