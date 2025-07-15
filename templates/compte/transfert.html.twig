@@ -32,7 +32,7 @@
                                         <th>Carte</th>
                                         {% for cpte in app.user.comptes %}
                                         <th class="text-center" data-bs-toggle="tooltip" title="{{ cpte.name }}">
-                                            {{ cpte.name|slice(0, 5) }}…
+                                            {{ cpte.name }}
                                         </th>
                                         {% endfor %}
                                     </tr>
@@ -61,7 +61,7 @@
                                                     title="{{ cpte2.name }}"
                                                     class="waves-effect waves-light btn btn-primary btn-xs"
                                                     >
-                                                {{ cpte2.name|slice(0, 6) }}
+                                                {{ cpte2.name }}
                                                 </button><br>
                                                 {% endif %}
                                             {% endif %}
