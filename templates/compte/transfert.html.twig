@@ -44,7 +44,8 @@
                                         <td class="text-primary">{{c.getNameStyle}}</td>
                                         {% for cpte in app.user.comptes %}
                                         <td class="text-center">
-                                        {% if cpte.getCarteObtenue(c) is not null and cpte.getCarteObtenue(c).nombre > 1 %}
+                                        {% set carteObtenue = cpte.getCarteObtenue(c) %}
+                                        {% if carteObtenue is not null and carteObtenue.nombre > 1 and (not c.isGolden or c.isTransferable) %}
                                         {% for cpte2 in app.user.comptes %}
                                             {% if cpte.id == cpte2.id %}{% else %}
                                                 {% if cpte2.getCarteObtenue(c) is null %}
