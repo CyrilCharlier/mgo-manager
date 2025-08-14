@@ -18,6 +18,8 @@ nelmio_security:
             script-src:
                 - "'self'"
                 - "https://cdn.jsdelivr.net"
+                - "https://www.clarity.ms"
+                - "https://buttons.github.io"
                 - "https://www.google.com"
                 - "https://code.jquery.com"
                 - "https://cdn.quilljs.com"
