@@ -39,6 +39,9 @@ nelmio_security:
             img-src:
                 - "'self'"
                 - "data:"
+            connect-src:
+                - "'self'"
+                - "https://*.clarity.ms"
             frame-src:
                 - "https://www.google.com"
             object-src:
