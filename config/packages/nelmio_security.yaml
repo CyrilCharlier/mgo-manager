@@ -27,6 +27,7 @@ nelmio_security:
                 - "https://cdnjs.cloudflare.com"
                 - "https://fonts.googleapis.com"
                 - "https://cdn.quilljs.com"
+                - "'unsafe-inline'"
             font-src:
                 - "'self'"
                 - "https://fonts.gstatic.com"
