@@ -21,12 +21,14 @@ nelmio_security:
                 - "https://www.google.com"
                 - "https://code.jquery.com"
                 - "https://cdn.quilljs.com"
+                - "'nonce-{nonce}'"
             style-src:
                 - "'self'"
                 - "https://cdn.jsdelivr.net"
                 - "https://cdnjs.cloudflare.com"
                 - "https://fonts.googleapis.com"
                 - "https://cdn.quilljs.com"
+                - "'nonce-{nonce}'"
             font-src:
                 - "'self'"
                 - "https://fonts.gstatic.com"
