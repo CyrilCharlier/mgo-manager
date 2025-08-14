@@ -92,7 +92,7 @@
 {% endblock %}
 
 {% block javaScripts %}
-<script nonce="{{ csp_nonce('script') }}">
+<script>
     var cacheCO = false;
 
     {% if is_granted("ROLE_ADMIN") %}
@@ -458,7 +458,7 @@
 {% endblock %}
 
 {% block styleSheets %}
-<style nonce="{{ csp_nonce('style') }}">
+<style>
 table.table td,
 table.table th {
   vertical-align: middle !important;

@@ -1,7 +1,7 @@
 {% extends "base.html.twig" %}
 
 {% block styleSheets %}
-<style nonce="{{ csp_nonce('style') }}">
+<style>
 .timeline-one-side .timeline-content {
   width: 100% !important;
   max-width: none !important;
@@ -136,7 +136,7 @@ button[aria-expanded="true"] .rotate-icon {
 {% endblock %}
 
 {% block javaScripts %}
-<script nonce="{{ csp_nonce('script') }}">
+<script>
 document.querySelectorAll('.toggle-collapse-btn').forEach(function (btn) {
   const targetId = btn.getAttribute('data-target');
   const content = document.querySelector(targetId);

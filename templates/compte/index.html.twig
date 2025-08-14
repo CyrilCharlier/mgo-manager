@@ -127,7 +127,7 @@
 {% block javaScripts %}
   <script src="{{ asset('assets/js/plugins/countup.min.js') }}"></script>
   <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
-  <script nonce="{{ csp_nonce('script') }}">
+  <script>
     var showingOnlyPrincipal = false;
     const radarColors = [
       { bg: "rgba(255, 99, 132, 0.2)", border: "rgba(255, 99, 132, 1)" },   // rouge
@@ -392,7 +392,7 @@
 {% endblock %}
 
 {% block styleSheets %}
-<style nonce="{{ csp_nonce('style') }}">
+<style>
 .opacity-30 { opacity: 0.3; }
 .opacity-100 { opacity: 1; }
 @keyframes flash {

@@ -161,7 +161,7 @@
 {% endblock %}
 
 {% block javaScripts %}
-    <script nonce="{{ csp_nonce('script') }}">
+    <script>
         function initConfirmTraitement() {
             const modal = document.getElementById('confirmTraitement');
             const confirmBtn = document.getElementById('confirmTraitementBtn');
@@ -194,7 +194,7 @@
 {% endblock %}
 
 {% block styleSheets %}
-<style nonce="{{ csp_nonce('style') }}">
+<style>
 .btn-dark-action {
     display: inline-flex;
     align-items: center;

@@ -85,7 +85,7 @@
 {% endblock %}
 
 {% block javaScripts %}
-<script nonce="{{ csp_nonce('script') }}">
+<script>
     function callCarteAjout(event) {
         event.preventDefault();
         var compte = document.getElementById('compte').value;
