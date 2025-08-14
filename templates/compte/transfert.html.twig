@@ -105,8 +105,7 @@
 {% endblock %}
 
 {% block javaScripts %}
-
-<script>
+<script nonce="{{ csp_nonce('script') }}">
 document.addEventListener('DOMContentLoaded', function () {
     const modal = new bootstrap.Modal(document.getElementById('confirmTransfertModal'));
     const modalBody = document.getElementById('confirmTransfertBody');
@@ -169,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
 {% endblock %}
 
 {% block styleSheets %}
-<style>
+<style nonce="{{ csp_nonce('script') }}">
 table.table td,
 table.table th {
   vertical-align: middle !important;

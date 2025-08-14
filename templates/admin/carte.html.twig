@@ -71,7 +71,7 @@
 {% endblock %}
 
 {% block javaScripts %}
-<script>
+<script nonce="{{ csp_nonce('script') }}">
     function initModalPage () {
         const modal = document.getElementById('carteModal');
         const modalBody = document.getElementById('carteModalBody');
@@ -201,7 +201,7 @@
 {% endblock %}
 
 {% block styleSheets %}
-<style>
+<style nonce="{{ csp_nonce('script') }}">
 .highlight {
     background-color: rgba(0, 123, 255, 0.25) !important; /* bleu clair semi-transparent */
     transition: background-color 0.6s ease;

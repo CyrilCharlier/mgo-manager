@@ -65,7 +65,7 @@
 
 {% block javaScripts %}
 <script src="{{ asset('assets/js/plugins/countup.min.js') }}"></script>
-<script>
+<script nonce="{{ csp_nonce('script') }}">
     var cacheCO = false;
     function callToggleCarteObtenue() {
         const trElements = document.querySelectorAll('tr[data-iscarteobtenue="1"]');
@@ -113,7 +113,7 @@
 {% endblock %}
 
 {% block styleSheets %}
-<style>
+<style nonce="{{ csp_nonce('script') }}">
 table.table td,
 table.table th {
   vertical-align: middle !important;
