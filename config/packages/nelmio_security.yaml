@@ -1,4 +1,10 @@
 nelmio_security:
+    forced_ssl:
+        enabled: true                  # force HTTPS
+        hsts_max_age: 31536000         # durée HSTS en secondes (1 an)
+        hsts_subdomains: true          # applique HSTS aux sous-domaines
+        hsts_preload: true             # ajoute l’en-tête preload
+
     csp:
         enabled: true
 
