@@ -47,6 +47,9 @@ class Compte
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $public_token = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $joueur = null;
+
     public function __construct()
     {
         $this->historiques = new ArrayCollection();
@@ -212,6 +215,18 @@ class Compte
     public function setPublicToken(?string $public_token): static
     {
         $this->public_token = $public_token;
+
+        return $this;
+    }
+
+    public function getJoueur(): ?string
+    {
+        return $this->joueur;
+    }
+
+    public function setJoueur(?string $joueur): static
+    {
+        $this->joueur = $joueur;
 
         return $this;
     }

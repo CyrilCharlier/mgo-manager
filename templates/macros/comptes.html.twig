@@ -4,7 +4,11 @@
         <div class="card">
             <div class="card-body p-3">
                 <div class="d-flex mt-n2">
-                    <div class="avatar avatar-xl bg-gradient-dark border-radius-xl p-2 shadow-lg" style="overflow: visible; height: 80px; width: 80px;">
+                    <div
+                        class="avatar avatar-xl bg-gradient-dark border-radius-xl p-2 shadow-lg"
+                        style="overflow: visible; height: 80px; width: 80px;"
+                        data-bs-toggle="tooltip"
+                        title="{{ compte.joueur }}">
                         <img src="{{ asset('assets/img/mgo_caracter/' ~ compte.image|default('NutcrackerDreams.webp')) }}"
                             alt="avatar"
                             class="w-100 h-100 object-fit-contain"
@@ -12,7 +16,7 @@
                     </div>
                     <div class="ms-3 my-auto">
                         <div class="d-flex align-items-center">
-                            <h6 class="mb-0 me-2">{{ compte.name }} ({{ etoilesDoubles }})</h6>
+                            <h6 class="mb-0 me-2" data-bs-toggle="tooltip" title="{{ compte.joueur }}">{{ compte.name }} ({{ etoilesDoubles }})</h6>
                             <i class="fa-solid fa-crown ms-1 {{ compte.principal ? 'text-warning opacity-100' : 'text-secondary opacity-30' }}"
                                 role="button" tabindex="0"
                                 data-id="{{ compte.id }}"

@@ -9,6 +9,13 @@
     </div>
     <div class="col-md-12">
         <div class="input-group input-group-static mb-4">
+            <label for="compte_form_joueur">Joueur</label>
+            {{form_widget(form.joueur, {'attr': {'class':'form-control', 'onfocus': 'focused(this)', 'onfocusout': 'defocused(this)'}})}}
+            {{form_errors(form.joueur)}}
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="input-group input-group-static mb-4">
             <label for="compte_form_mgo">MGO</label>
             {{form_widget(form.mgo, {'attr': {'class':'form-control'}})}}
         </div>

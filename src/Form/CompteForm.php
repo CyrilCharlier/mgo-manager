@@ -17,6 +17,7 @@ class CompteForm extends AbstractType
     {
         $builder
             ->add('name')
+            ->add('joueur')
             ->add('mgo')
             ->add('image', ChoiceType::class, [
                 'choices' => [
