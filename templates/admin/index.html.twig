@@ -7,6 +7,30 @@
             <div class="col-lg-6 mb-3">
                 <div class="card card-frame">
                     <div class="card-body">
+                        <h3>Charge Album</h3>
+                        <button class="btn btn-primary"
+                            disabled
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmTraitement"
+                            data-url="{{path('app_admin_charge_starwars')}}">STARWARS</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-3">
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <h3>Purge</h3>
+                        Garde les 1000 historiques derniers par user et les 50 dernières notifications.<br>
+                        <button class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmPurge"
+                            data-url="{{path('app_admin_cleanup')}}">Lancer la purge</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 mb-3">
+                <div class="card card-frame">
+                    <div class="card-body">
                         <table class="table table-sm table-hover mb-0 text-center">
                             <thead>
                                 <tr>
@@ -38,19 +62,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 mb-3">
-                <div class="card card-frame">
-                    <div class="card-body">
-                        <h3>Charge Album</h3>
-                        <button class="btn btn-primary"
-                            disabled
-                            data-bs-toggle="modal"
-                            data-bs-target="#confirmTraitement"
-                            data-url="{{path('app_admin_charge_starwars')}}">STARWARS</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 mb-3">
+            <div class="col-lg-12 mb-3">
                 <div class="card card-frame">
                     <div class="card-body">
                         <table class="table table-sm table-hover mb-0 text-center">
@@ -69,7 +81,7 @@
                                         {% for role in user.roles %}
                                             {% set badgeClass = 
                                                 role == 'ROLE_ADMIN' ? 'badge-danger' :
-                                                role == 'ROLE_MODERATOR' ? 'badge-warning' :
+                                                role == 'ROLE_ADMIN_GROUPE' ? 'badge-warning' :
                                                 role == 'ROLE_USER' ? 'badge-info' :
                                                 'badge-secondary'
                                             %}
@@ -97,6 +109,19 @@
                                                     <i class="mdi mdi-account-off"></i> Retirer admin
                                                 </a>
                                             {% endif %}
+                                            <!-- Bouton pour ajouter ROLE_ADMIN_GROUPE -->
+                                            {% if 'ROLE_ADMIN_GROUPE' not in user.roles %}
+                                                <a href="{{ path('app_admin_add_admin_groupe_role', {id: user.id}) }}" 
+                                                    class="btn-dark-action">
+                                                    <i class="mdi mdi-account-key"></i> Promeut ADM GRP
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ path('app_admin_del_admin_groupe_role', { id: user.id }) }}"
+                                                    class="btn-dark-warning"
+                                                    title="Retirer ROLE_ADMIN à {{ user.username }}">
+                                                    <i class="mdi mdi-account-off"></i> Retirer ADM GRP
+                                                </a>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% else %}
@@ -106,18 +131,6 @@
                                 {% endfor %}
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 mb-3">
-                <div class="card card-frame">
-                    <div class="card-body">
-                        <h3>Purge</h3>
-                        Garde les 1000 historiques derniers par user et les 50 dernières notifications.<br>
-                        <button class="btn btn-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#confirmPurge"
-                            data-url="{{path('app_admin_cleanup')}}">Lancer la purge</button>
                     </div>
                 </div>
             </div>

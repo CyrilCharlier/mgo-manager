@@ -81,6 +81,28 @@ final class AdminController extends AbstractController
         return $this->redirectToRoute('app_admin');
     }
 
+    #[Route('/admin/user/{id}/add-role-admin-groupe', name: 'app_admin_add_admin_groupe_role')]
+    public function addAdminGroupeRole(User $user, EntityManagerInterface $em): Response
+    {
+        if (!in_array('ROLE_ADMIN_GROUPE', $user->getRoles(), true)) {
+            $user->setRoles(array_merge($user->getRoles(), ['ROLE_ADMIN_GROUPE']));
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_admin');
+    }
+
+    #[Route('/admin/user/{id}/demote-admin-groupe', name: 'app_admin_del_admin_groupe_role')]
+    public function demoteUserAdminGroupe(User $user, EntityManagerInterface $em): Response
+    {
+        if (in_array('ROLE_ADMIN_GROUPE', $user->getRoles())) {
+            $user->setRoles(array_filter($user->getRoles(), fn($r) => $r !== 'ROLE_ADMIN_GROUPE'));
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_admin');
+    }
+
     #[Route('/admin/album/{id}/active', name: 'app_admin_active_album', methods: ['GET'])]
     public function albumActif(Album $album, AlbumRepository $albumRepository, EntityManagerInterface $em): Response
     {

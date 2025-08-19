@@ -77,7 +77,7 @@
                                 class="ms-2 btn-publication"
                                 data-id="{{ compte.id }}"
                                 data-bs-toggle="tooltip"
-                                title="{{ compte.aPublieAujourdHui() ? 'Publication déjà faite aujourd\'hui' : 'Faire la publication du jour' }}">
+                                title="{{ compte.aPublieAujourdHui() ? 'Publication déjà faite aujourd\'hui' : 'N\'a pas fait la publication du jour' }}">
                                 {% if compte.aPublieAujourdHui() %}
                                     <i class="fa-solid fa-calendar-day text-success"></i> {# Vert = publication faite #}
                                 {% else %}
