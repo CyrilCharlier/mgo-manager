@@ -26,15 +26,15 @@
 {% endif %}
         <div class="scroll-container d-flex flex-nowrap overflow-auto pb-3 gap-3">
           {% if album is not null %}
-              {% for c in app.user.comptes %}
-                <div style="min-width: 300px; max-width: 320px;">
+              {% for c in userComptes %}
+                <div style="min-width: 300px; max-width: 350px;">
                   {{ comptes.renderCompte(c, etoilesDoublesParCompte[c.id], nombreCartesObtenuesParCompte[c.id], album.getTotalCarte) }}
                 </div>
               {% endfor %}
           {% else %}
               <div class="alert alert-warning">Aucun album actif.</div>
           {% endif %}
-          {% if app.user.comptes|length == 0 %}
+          {% if userComptes|length == 0 %}
             <div class="card bg-gradient-dark border border-primary border-2 shadow-lg" id="create-account-hint">
               <div class="card-header pb-0 d-flex align-items-center">
                 <i class="material-symbols-rounded text-primary me-2" style="font-size: 2rem;">rocket_launch</i>
@@ -55,7 +55,7 @@
             </div>
           {% endif %}
         </div>
-        {% if app.user.comptes|length != 0 %}
+        {% if userComptes|length != 0 %}
         <div class="row">
           <div class="col-lg-4 col-md-6 mt-4">
             <div class="card">
@@ -79,7 +79,7 @@
                   </select>
                 </div>
                 <p class="text-muted mt-4">
-                  {% for c in app.user.comptes %}
+                  {% for c in userComptes %}
                   <span id="badge_compte{{c.id}}" class="badge badge-info ms-auto mb-auto compte-carte-double" data-id="{{ c.id }}" data-principal="{{ (c.principal ? '1' : '0') }}" data-name="{{ c.name }}">{{ c.name }}</span>
                   {% endfor %}
                 </p>
@@ -151,7 +151,7 @@
               {% endfor %}
           ],
           datasets: [
-            {% for compte in app.user.comptes %}
+            {% for compte in userComptes %}
             (function() {
               const color = radarColors[{{ loop.index0 }} % radarColors.length];
               return {

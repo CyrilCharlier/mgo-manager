@@ -16,6 +16,16 @@ class AlbumRepository extends ServiceEntityRepository
         parent::__construct($registry, Album::class);
     }
 
+    public function findAlbumWithSetsAndCartesActive(): ?Album
+    {
+        return $this->createQueryBuilder('a')
+            ->leftJoin('a.sets', 's')->addSelect('s')
+            ->leftJoin('s.cartes', 'c')->addSelect('c')
+            ->andWhere('a.active = true')
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return Album[] Returns an array of Album objects
     //     */

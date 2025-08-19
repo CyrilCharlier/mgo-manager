@@ -50,13 +50,14 @@ final class CompteController extends AbstractController
     }
 
     #[Route('/', name: 'app_dashboard')]
-    public function accueil(Calcul $calcul, AlbumRepository $albumRepository): Response
+    public function accueil(Calcul $calcul, AlbumRepository $albumRepository, CompteRepository $compteRepository): Response
     {
-        $album = $albumRepository->findOneBy(['active' => true]);
+        $album = $albumRepository->findAlbumWithSetsAndCartesActive();
+        $comptes = $compteRepository->findByUserWithCartesAndAlbum($this->getCurrentUser());
         $etoilesDoublesParCompte = [];
         $nombreCartesObtenuesParCompte = [];
 
-        foreach ($this->getCurrentUser()->getComptes() as $compte)
+        foreach ($comptes as $compte)
         {
             $etoilesDoublesParCompte[$compte->getId()] = $calcul->calculerEtoilesDoublees($compte, $album);
             $nombreCartesObtenuesParCompte[$compte->getId()] = $calcul->calculerNombreCartesObtenuesSurAlbum($compte, $album);
@@ -64,6 +65,7 @@ final class CompteController extends AbstractController
 
         return $this->render('compte/index.html.twig', [
             'album' => $album,
+            'userComptes' => $comptes,
             'etoilesDoublesParCompte' => $etoilesDoublesParCompte,
             'nombreCartesObtenuesParCompte' => $nombreCartesObtenuesParCompte,
         ]);
