@@ -263,6 +263,27 @@
         }
     }
 
+    function enregistrePublicationDuJour(event) {
+      btn = event.currentTarget;
+
+      const id = btn.dataset.id;
+
+        fetch(`/publication/jour/${id}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                this.querySelector('i').classList.remove('text-danger');
+                this.querySelector('i').classList.add('text-success');
+            }
+            MGOM.notify(data.message);
+        });
+    }
+
     function initEvent() {
       document.querySelectorAll('[id^="copierMGO"]').forEach(button => {
           button.addEventListener('click', callCopieMGO);
@@ -274,6 +295,10 @@
             const button = e.target.closest('button[data-url]');
             document.location = button.dataset.url;
           });
+      });
+
+      document.querySelectorAll('.btn-publication').forEach(btn => {
+        btn.addEventListener('click', enregistrePublicationDuJour);
       });
 
       $('#carte_double').on('change', callComptePossede);

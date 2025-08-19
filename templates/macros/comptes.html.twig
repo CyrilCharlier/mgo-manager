@@ -16,7 +16,7 @@
                     </div>
                     <div class="ms-3 my-auto">
                         <div class="d-flex align-items-center">
-                            <h6 class="mb-0 me-2" data-bs-toggle="tooltip" title="{{ compte.joueur }}">{{ compte.name }} ({{ etoilesDoubles }})</h6>
+                            <h6 class="mb-0 me-2" data-bs-toggle="tooltip" title="{{ compte.joueur }}">{{ compte.name }}</h6>
                             <i class="fa-solid fa-crown ms-1 {{ compte.principal ? 'text-warning opacity-100' : 'text-secondary opacity-30' }}"
                                 role="button" tabindex="0"
                                 data-id="{{ compte.id }}"
@@ -73,6 +73,17 @@
                                     <i class="fa-solid fa-eye text-info"></i>
                             </a>
                             {% endif %}
+                            <a href="javascript:;"
+                                class="ms-2 btn-publication"
+                                data-id="{{ compte.id }}"
+                                data-bs-toggle="tooltip"
+                                title="{{ compte.aPublieAujourdHui() ? 'Publication déjà faite aujourd\'hui' : 'Faire la publication du jour' }}">
+                                {% if compte.aPublieAujourdHui() %}
+                                    <i class="fa-solid fa-calendar-day text-success"></i> {# Vert = publication faite #}
+                                {% else %}
+                                    <i class="fa-solid fa-calendar-day text-danger"></i> {# Rouge = pas faite #}
+                                {% endif %}
+                            </a>
                         </p>
                     </div>
                     <div class="col-6 text-end">

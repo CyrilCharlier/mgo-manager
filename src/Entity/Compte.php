@@ -50,10 +50,17 @@ class Compte
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $joueur = null;
 
+    /**
+     * @var Collection<int, Publication>
+     */
+    #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'compte', orphanRemoval: true)]
+    private Collection $publications;
+
     public function __construct()
     {
         $this->historiques = new ArrayCollection();
         $this->carteObtenues = new ArrayCollection();
+        $this->publications = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -229,5 +236,45 @@ class Compte
         $this->joueur = $joueur;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Publication>
+     */
+    public function getPublications(): Collection
+    {
+        return $this->publications;
+    }
+
+    public function addPublication(Publication $publication): static
+    {
+        if (!$this->publications->contains($publication)) {
+            $this->publications->add($publication);
+            $publication->setCompte($this);
+        }
+
+        return $this;
+    }
+
+    public function removePublication(Publication $publication): static
+    {
+        if ($this->publications->removeElement($publication)) {
+            // set the owning side to null (unless already changed)
+            if ($publication->getCompte() === $this) {
+                $publication->setCompte(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function aPublieAujourdHui(): bool
+    {
+        foreach ($this->publications as $pub) {
+            if ($pub->getDate()->format('Y-m-d') === (new \DateTime())->format('Y-m-d')) {
+                return true;
+            }
+        }
+        return false;
     }
 }
