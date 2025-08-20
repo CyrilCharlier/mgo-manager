@@ -44,39 +44,39 @@ final class CarteObtenueListener
 
         $em = $args->getObjectManager();
         $user = $entity->getCompte()->getUser();
+        if(!is_null($user)) {
+            $notificationsToPersist = [];
+            foreach ($user->getComptes() as $compte) {
+                if ($compte->getId() !== $entity->getCompte()->getId()) {
+                    if ($compte->getCarteObtenue($entity->getCarte()) === null && $entity->getNombre() > 1) {
+                        $notification = new Notification();
+                        $notification->setIcone('fa-solid fa-gift');
+                        $notification->setTexte(sprintf(
+                            '%s peut donner la carte "%s" à %s',
+                            $entity->getCompte()->getName(),
+                            $entity->getCarte()->getName(),
+                            $compte->getName()
+                        ));
+                        $notification->setUser($user);
 
-        $notificationsToPersist = [];
-
-        foreach ($user->getComptes() as $compte) {
-            if ($compte->getId() !== $entity->getCompte()->getId()) {
-                if ($compte->getCarteObtenue($entity->getCarte()) === null && $entity->getNombre() > 1) {
-                    $notification = new Notification();
-                    $notification->setIcone('fa-solid fa-gift');
-                    $notification->setTexte(sprintf(
-                        '%s peut donner la carte "%s" à %s',
-                        $entity->getCompte()->getName(),
-                        $entity->getCarte()->getName(),
-                        $compte->getName()
-                    ));
-                    $notification->setUser($user);
-
-                    $notificationsToPersist[] = $notification;
-                    $this->logger->debug(sprintf(
-                        '>>>>>> %s peut donner la carte "%s" à %s',
-                        $entity->getCompte()->getName(),
-                        $entity->getCarte()->getName(),
-                        $compte->getName()
-                    ));
+                        $notificationsToPersist[] = $notification;
+                        $this->logger->debug(sprintf(
+                            '>>>>>> %s peut donner la carte "%s" à %s',
+                            $entity->getCompte()->getName(),
+                            $entity->getCarte()->getName(),
+                            $compte->getName()
+                        ));
+                    }
                 }
             }
-        }
 
-        // Persiste toutes les notifications en une fois
-        if (!empty($notificationsToPersist)) {
-            foreach ($notificationsToPersist as $notif) {
-                $em->persist($notif);
+            // Persiste toutes les notifications en une fois
+            if (!empty($notificationsToPersist)) {
+                foreach ($notificationsToPersist as $notif) {
+                    $em->persist($notif);
+                }
+                $em->flush();
             }
-            $em->flush();
         }
     }
 }

@@ -452,12 +452,15 @@ final class CompteController extends AbstractController
     ): Response
     {
         $u = $this->getCurrentUser();
-        if($u != $compte->getUser())
+        if(!$compte->isGroupe())
         {
-            return $this->json([
-                'success' => false,
-                'message' => 'Vous ne pouvez pas enlever une carte pour un autre compte que le vôtre.'
-            ]);
+            if($u != $compte->getUser())
+            {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Vous ne pouvez pas enlever une carte pour un autre compte que le vôtre.'
+                ]);
+            }
         }
         if(is_null($compte->getCarteObtenue($c))){
             return $this->json([
@@ -515,11 +518,13 @@ final class CompteController extends AbstractController
     ): Response
     {
         $u = $this->getCurrentUser();
-        if($u != $compte->getUser()) {
-            return $this->json([
-                'success' => false,
-                'message' => 'Vous ne pouvez pas marquer une carte obtenue pour un autre compte que le vôtre'
-            ]);
+        if(!$compte->isGroupe()) {
+            if($u != $compte->getUser()) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Vous ne pouvez pas marquer une carte obtenue pour un autre compte que le vôtre'
+                ]);
+            }
         }
         $co = $compte->getCarteObtenue($c);
         if(is_null($co)){

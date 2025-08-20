@@ -292,7 +292,7 @@
         var btn = caller.currentTarget;
         var idCompte = getCompte();
         var idCarte = btn.getAttribute('data-idcarte');
-        var url = idCompte+'/carte/obtenuemoins/'+idCarte;
+        var url = '/'+idCompte+'/carte/obtenuemoins/'+idCarte;
         MGOM.fetchData(url, 'GET')
             .then(data => {
                 if(data.success) {
