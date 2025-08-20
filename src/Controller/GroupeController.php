@@ -32,6 +32,13 @@ use Symfony\Component\Uid\Uuid;
 #[IsGranted('ROLE_ADMIN_GROUPE')]
 final class GroupeController extends AbstractController
 {
+    private MailerInterface $mailer;
+
+    public function __construct(MailerInterface $mailer)
+    {
+        $this->mailer = $mailer;
+    }
+
     /**
      * Get the currently authenticated user.
      *
@@ -77,6 +84,34 @@ final class GroupeController extends AbstractController
             'userComptes' => $comptes,
             'etoilesDoublesParCompte' => $etoilesDoublesParCompte,
             'nombreCartesObtenuesParCompte' => $nombreCartesObtenuesParCompte,
+        ]);
+    }
+
+    #[Route('/groupe/compte/add', name: 'app_groupe_compte_add')]
+    public function compteAdd(Request $request, EntityManagerInterface $em): Response
+    {
+        $compte = new Compte();
+        $form = $this->createForm(CompteForm::class, $compte, [
+            'action' => $this->generateUrl('app_groupe_compte_add'),
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $compte = $form->getData();
+            $compte->setIsGroupe(true);
+            $em->persist($compte);
+            $em->flush();
+
+            $email = (new Email())
+                ->from('mgo@charlier.cloud')
+                ->to('cyril.charlier@gmail.com')
+                ->subject('[MGO] Création compte MGO')
+                ->text('Compte '.$compte->getName().' de Groupe créé avec succés par ' .$this->getCurrentUser()->getUsername());
+            $this->mailer->send($email);
+
+            return $this->redirectToRoute('app_groupe_list');
+        }
+        return $this->render('compte/form.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 
