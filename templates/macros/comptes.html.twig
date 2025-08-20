@@ -77,7 +77,7 @@
                                     <i class="fa-solid fa-eye text-info"></i>
                             </a>
                             {% endif %}
-                            {% if is_granted('ROLE_GROUPE_ADMIN') %}
+                            {% if is_granted('ROLE_ADMIN_GROUPE') %}
                             <a href="javascript:;"
                                 class="ms-2 btn-publication"
                                 data-id="{{ compte.id }}"

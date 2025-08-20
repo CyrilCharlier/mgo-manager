@@ -29,7 +29,7 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Uid\Uuid;
 
-#[IsGranted('ROLE_GROUPE_ADMIN')]
+#[IsGranted('ROLE_ADMIN_GROUPE')]
 final class GroupeController extends AbstractController
 {
     /**

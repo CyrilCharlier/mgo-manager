@@ -295,7 +295,7 @@ final class CompteController extends AbstractController
         }
 
         $form = $this->createForm(CompteForm::class, $c, [
-            'is_groupe_admin' => $this->isGranted('ROLE_GROUPE_ADMIN'),
+            'is_admin_groupe' => $this->isGranted('ROLE_ADMIN_GROUPE'),
             'action' => $this->generateUrl('app_compte_edit', ['id' => $c->getId()]),
         ]);
         $form->handleRequest($request);

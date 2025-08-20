@@ -42,7 +42,7 @@ class CompteForm extends AbstractType
                 'label' => 'Image de profil',
             ]);
 
-        if ($options['is_groupe_admin']) {
+        if ($options['is_admin_groupe']) {
             $builder->add('isGroupe');
         }
     }
@@ -52,7 +52,7 @@ class CompteForm extends AbstractType
         $resolver->setDefaults([
             'data_class' => Compte::class,
             'csrf_protection' => true,
-            'is_groupe_admin' => false,
+            'is_admin_groupe' => false,
         ]);
     }
 }
