@@ -1,0 +1,360 @@
+{% extends "base.html.twig" %}
+{% import 'macros/comptes.html.twig' as comptes %}
+
+{% block mainContent %}
+    <div class="container-fluid">
+      <section class="px-md-4">
+        <div class="scroll-container d-flex flex-nowrap overflow-auto pb-3 gap-3">
+          {% if album is not null %}
+              {% for c in userComptes %}
+                <div style="min-width: 300px; max-width: 350px;">
+                  {{ comptes.renderCompte(c, etoilesDoublesParCompte[c.id], nombreCartesObtenuesParCompte[c.id], album.getTotalCarte, true) }}
+                </div>
+              {% endfor %}
+          {% else %}
+              <div class="alert alert-warning">Aucun album actif.</div>
+          {% endif %}
+          {% if userComptes|length == 0 %}
+            <div class="card bg-gradient-dark border border-primary border-2 shadow-lg" id="create-account-hint">
+              <div class="card-header pb-0 d-flex align-items-center">
+                <i class="material-symbols-rounded text-primary me-2" style="font-size: 2rem;">rocket_launch</i>
+                <h5 class="mb-0 text-white">En route vers les étoiles...</h5>
+              </div>
+              <div class="card-body text-white">
+                <p class="mb-4">
+                  Pour explorer les cartes et échanger avec vos comptes, vous devez d’abord <strong>créer un compte Monopoly GO Manager.</strong>
+                </p>
+                <a href="#" class="btn btn-primary btn-block btn-lg"
+                    data-url="{{ path('app_compte_add') }}"
+                    data-title="Ajouter un compte"
+                    data-bs-toggle="modal"
+                    data-bs-target="#accountModal">
+                  🚀 Créer un compte maintenant
+                </a>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        {% if userComptes|length != 0 %}
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mt-4">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Qui possède ...</h5>
+                <button id="togglePrincipalBtn" class="btn btn-sm btn-info" type="button" title="Afficher uniquement les comptes principaux">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="card-body pt-0">
+                <div class="input-group input-group-outline">
+                  <select id="carte_double" class="form-control select2" style="width: 100%">
+                    <option value="0">Sélectionner une carte</option>
+                    {% for s in albumActif.sets %}
+                    <optgroup label="{{ s.page }} - {{ s.name }}">
+                      {% for c in s.cartes %}
+                      <option value="{{ c.id }}">{{ c.nameStyle }}</option>
+                      {% endfor %}
+                    </optgroup>
+                    {% endfor %}
+                  </select>
+                </div>
+                <p class="text-muted mt-4">
+                  {% for c in userComptes %}
+                  <span id="badge_compte{{c.id}}" class="badge badge-info ms-auto mb-auto compte-carte-double" data-id="{{ c.id }}" data-principal="{{ (c.principal ? '1' : '0') }}" data-name="{{ c.name }}">{{ c.name }}</span>
+                  {% endfor %}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmation de suppression</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          </div>
+          <div class="modal-body">
+            Êtes-vous sûr de vouloir supprimer ce compte ? Cette action est <strong>définitive</strong>.
+          </div>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Supprimer</a>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block javaScripts %}
+  <script src="{{ asset('assets/js/plugins/countup.min.js') }}"></script>
+  <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
+  <script>
+    var showingOnlyPrincipal = false;
+
+    function callCopieMGO(event) {
+        event.preventDefault();
+        const mgo = event.currentTarget.getAttribute('data-mgo');
+
+        if (!mgo) {
+            MGOM.notify('Erreur lors de la copie', 'error');
+            return;
+        }
+
+        navigator.clipboard.writeText(mgo).then(() => {
+            MGOM.notify(mgo+' copié avec succès');
+        }).catch(err => {
+            console.error('Erreur lors de la copie :', err);
+            MGOM.notify(err, 'error');
+        });
+    }
+
+    function initConfirmDelete() {
+        const modal = document.getElementById('confirmDeleteModal');
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+
+        modal.addEventListener('show.bs.modal', event => {
+          const triggerBtn = event.relatedTarget;
+          const url = triggerBtn.getAttribute('data-url');
+
+          confirmBtn.setAttribute('href', url);
+        });
+    }
+
+    function toggleBadgePrincipal(event) {
+        toggleBtn = event.currentTarget;
+        showingOnlyPrincipal = !showingOnlyPrincipal;
+
+        var badges = document.querySelectorAll('.compte-carte-double');
+
+        badges.forEach(function(badge) {
+          var isPrincipal = badge.getAttribute('data-principal') === '1';
+
+          if (showingOnlyPrincipal) {
+            // On cache ceux qui ne sont pas principaux
+            if (!isPrincipal) {
+              badge.style.display = 'none';
+            }
+          } else {
+            // On affiche tous
+            badge.style.display = '';
+          }
+        });
+
+        // Change l'icône du bouton selon l'état
+        var icon = toggleBtn.querySelector('i');
+        if (showingOnlyPrincipal) {
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+          toggleBtn.setAttribute('title', 'Afficher tous les comptes');
+        } else {
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+          toggleBtn.setAttribute('title', 'Afficher uniquement les comptes principaux');
+        }
+    }
+
+    function enregistrePublicationDuJour(event) {
+      btn = event.currentTarget;
+
+      const id = btn.dataset.id;
+
+        fetch(`/publication/jour/${id}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                this.querySelector('i').classList.remove('text-danger');
+                this.querySelector('i').classList.add('text-success');
+            }
+            MGOM.notify(data.message);
+        });
+    }
+
+    function initEvent() {
+      document.querySelectorAll('[id^="copierMGO"]').forEach(button => {
+          button.addEventListener('click', callCopieMGO);
+      });
+      document.getElementById('togglePrincipalBtn').addEventListener('click', toggleBadgePrincipal);
+
+      document.querySelectorAll('button[id^="genComptePagePublique"]').forEach(button => {
+          button.addEventListener('click', function (e) {
+            const button = e.target.closest('button[data-url]');
+            document.location = button.dataset.url;
+          });
+      });
+
+      document.querySelectorAll('.btn-publication').forEach(btn => {
+        btn.addEventListener('click', enregistrePublicationDuJour);
+      });
+
+      $('#carte_double').on('change', callComptePossede);
+    }
+
+    function callComptePossede(event) {
+      event.preventDefault();
+      var carteid = $(this).val();
+      document.querySelectorAll('.compte-carte-double').forEach(span => {
+          span.classList.remove('badge-success');
+          span.classList.remove('badge-info');
+          span.classList.add('badge-danger');
+          span.innerText = span.dataset.name; // Réinitialise le nom d’origine
+      });
+
+      MGOM.fetchData("/recherche/carteobtenue/" + carteid)
+          .then(data => {
+              console.log('Succès:', data);
+              if (data.success) {
+                  data.message.comptes.forEach(function(compte) {
+                      document.querySelectorAll('.compte-carte-double[data-id="' + compte.id + '"]').forEach(spanCompte => {
+                          if (compte.nombre > 1) {
+                              spanCompte.innerText = compte.name + " (+" + (compte.nombre - 1) + ")";
+                              spanCompte.classList.add('badge-success');
+                              spanCompte.classList.remove('badge-danger');
+                          } else if (compte.nombre == 1) {
+                              spanCompte.innerText = compte.name;
+                              spanCompte.classList.add('badge-success');
+                              spanCompte.classList.remove('badge-danger');
+                          } else {
+                              spanCompte.innerText = compte.name;
+                              spanCompte.classList.remove('badge-success');
+                              spanCompte.classList.add('badge-danger');
+                          }
+                      });
+                  });
+              } else {
+                  MGOM.notify(data.message, 'error');
+              }
+          })
+          .catch(error => {
+              console.error('Erreur:', error);
+              MGOM.notify(error, 'error');
+          });
+    }
+
+    function togglePrincipal(element) {
+        var compteId = element.getAttribute('data-id');
+        if (!compteId) return;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/compte/toggle-principal/' + compteId, true);
+
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data.success) {
+                            updateIcon(element, data.principal);
+                        } else {
+                            MGOM.notify((data.error || 'Impossible de changer l’état principal.'), 'error');
+                        }
+                    } catch(e) {
+                        MGOM.notify("Réponse invalide du serveur.", 'error');
+                    }
+                } else {
+                    alert('Erreur de communication avec le serveur (statut ' + xhr.status + ').');
+                }
+            }
+        };
+
+        xhr.send(null);
+    }
+
+    function updateIcon(element, isPrincipal) {
+        element.classList.toggle('text-warning', isPrincipal);
+        element.classList.toggle('text-secondary', !isPrincipal);
+
+        element.classList.toggle('opacity-100', isPrincipal);
+        element.classList.toggle('opacity-30', !isPrincipal);
+
+        element.setAttribute('title', isPrincipal ? 'Compte principal' : 'Définir comme principal');
+        element.setAttribute('aria-pressed', isPrincipal ? 'true' : 'false');
+        element.style.cursor = 'pointer';
+
+        // Ajout de l’animation flashy
+        element.classList.add('flashy');
+        // Retire la classe après la fin de l’animation (0.8s * 2 itérations = 1.6s)
+        setTimeout(function() {
+            element.classList.remove('flashy');
+        }, 1600);
+
+        // Mise à jour du badge correspondant
+        var compteId = element.getAttribute('data-id');
+        if (!compteId) return;
+
+        var badge = document.getElementById('badge_compte' + compteId);
+        if (!badge) return;
+
+        // Met à jour l'attribut data-principal
+        badge.setAttribute('data-principal', (isPrincipal ? "1" : "0"));
+    }
+    
+    function onPageLoad() {
+      initEvent();
+      initConfirmDelete();
+    }
+    
+    window.addEventListener('load', onPageLoad);
+  </script>
+{% endblock %}
+
+{% block styleSheets %}
+<style>
+.opacity-30 { opacity: 0.3; }
+.opacity-100 { opacity: 1; }
+@keyframes flash {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 8px gold); }
+}
+
+.flashy {
+  animation: flash 0.8s ease-in-out 2;
+}
+.object-fit-contain {
+  object-fit: contain;
+}
+.scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+.code-mgo {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.code-mgo i {
+  flex-shrink: 0;
+}
+/* Transition douce pour les liens Bootstrap */
+.transition {
+  transition: color 0.3s ease;
+}
+
+/* Classe personnalisée pour appliquer la couleur primaire au hover */
+.text-hover-primary:hover {
+  color: #0d6efd !important;
+}
+</style>
+{% endblock %}

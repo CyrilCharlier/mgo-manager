@@ -1,12 +1,24 @@
 {{ form_start(form) }}
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-8">
         <div class="input-group input-group-static mb-4">
             <label for="compte_form_name">Compte<span class="text-danger">*</span></label>
             {{form_widget(form.name, {'attr': {'class':'form-control', 'onfocus': 'focused(this)', 'onfocusout': 'defocused(this)'}})}}
             {{form_errors(form.name)}}
         </div>
     </div>
+    {% if form.isGroupe is defined %}
+    <div class="col-md-4">
+        <div class="input-group input-group-static mb-4">
+            <div class="form-check">
+                {{ form_widget(form.isGroupe, {'attr': {'class':'form-check-input'}}) }}
+                <label class="custom-control-label" for="customCheck1">
+                    Groupe<span class="text-danger">*</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     <div class="col-md-12">
         <div class="input-group input-group-static mb-4">
             <label for="compte_form_joueur">Joueur</label>

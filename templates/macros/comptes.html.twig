@@ -1,4 +1,4 @@
-{% macro renderCompte(compte, etoilesDoubles, nombreCartes, albumTotalCarte, isPublic = true) %}
+{% macro renderCompte(compte, etoilesDoubles, nombreCartes, albumTotalCarte, isGroupe = false) %}
 {% set percent = (nombreCartes / albumTotalCarte) * 100 %}
     <div class="w-100">
         <div class="card">
@@ -63,7 +63,11 @@
                     <div class="col-6">
                         <h6 class="text-sm mb-0">&nbsp;</h6>
                         <p class="text-secondary text-sm font-weight-normal mb-0">
+                            {% if isGroupe %}
+                            <a href="{{ path('app_groupe_user', {'id': compte.id}) }}">Détails</a>
+                            {% else %}
                             <a href="{{ path('app_compte_accueil', {'id': compte.id}) }}">Détails</a>
+                            {% endif %}
                             {% if compte.publicToken %}
                             <a href="{{ path('app_compte_public', {'token': compte.publicToken}) }}"
                                 target="_blank"
@@ -73,6 +77,7 @@
                                     <i class="fa-solid fa-eye text-info"></i>
                             </a>
                             {% endif %}
+                            {% if is_granted('ROLE_GROUPE_ADMIN') %}
                             <a href="javascript:;"
                                 class="ms-2 btn-publication"
                                 data-id="{{ compte.id }}"
@@ -84,6 +89,7 @@
                                     <i class="fa-solid fa-calendar-day text-danger"></i> {# Rouge = pas faite #}
                                 {% endif %}
                             </a>
+                            {% endif %}
                         </p>
                     </div>
                     <div class="col-6 text-end">

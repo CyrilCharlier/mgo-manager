@@ -1,0 +1,629 @@
+{% extends "base.html.twig" %}
+
+{% block mainContent %}
+<div id="progressionBadge" 
+    class="badge bg-info p-2" 
+    style="z-index: 2000;">
+    Chargement...
+</div>
+<input type="hidden" id="compte_actif" value="{{ compte.id }}" />
+<div class="container-fluid">
+    <section class="px-md-4">
+        <div class="mb-3 text-start d-flex align-items-center gap-2">
+            <div class="form-check form-switch d-inline-flex align-items-center">
+                <input class="form-check-input me-2" type="checkbox" role="switch" id="toggle_cartes_obtenues" style="margin-top: 0.1rem;">
+                <label class="form-check-label d-flex align-items-center" for="toggle_cartes_obtenues" id="toggle_cartes_obtenues_label">
+                    <i id="icone_oeil" class="material-symbols-rounded" style="font-size: 1.1rem; line-height: 1;">visibility</i>
+                </label>
+            </div>
+            <input type="text" id="search_carte" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Rechercher une carte..." style="max-width: 300px;">
+        </div>
+        <div class="row">
+{% for s in album.sets %}
+            <div data-set-id="{{ s.id }}" class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
+                <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
+                    <span class="me-2">{{ s.page }} - {{ s.name }}</span>
+                    <span class="badge bg-light text-dark">{{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }} / {{ s.cartes|length }}</span>
+                </div>
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <div class="text-xs">
+                            <table id="mainTable{{ s.id }}" class="table table-sm table-hover mb-0 text-xs">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center"><i class="material-symbols-rounded text-sm" style="color: #facc15 !important;">star</i></th>
+                                        <th>Nom</th>
+                                        <th class="text-center">Double</th>
+                                        {% if is_granted("ROLE_ADMIN") %}
+                                        <th class="text-center"><i class="material-symbols-rounded text-sm">settings</i></th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in s.cartes %}
+                                    {% set carteObtenue = compte.getCarteObtenue(c) %}
+                                    <tr class="ligne-carte ligne-carte-{{ c.id }}" data-iscarteobtenue="{{ carteObtenue is empty ? '0' : '1' }}">
+                                        <td class="text-center text-xs"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>
+                                            <span id="nbetoile_carte{{c.id}}">{{c.nbetoile}}</span>
+                                            <i id="nbetoile_etoile_carte{{c.id}}" class="material-symbols-rounded text-sm{% if c.golden %} etoile-golden etoile-golden-{{ c.id }}{% endif %}"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>star</i>
+                                        </td>
+                                        <td id="nom_carte{{ c.id }}" class="text-{{ carteObtenue is empty ? 'danger' : 'success' }}">{{c.num}} - {{c.nameStyle}}</td>
+                                        <td class="text-center"> 
+                                            <button {% if carteObtenue is empty %}disabled {% endif %}type="button" data-idcarte="{{c.id}}" id="minus_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs" aria-label="Enlève une carte {{c.name}} de ton album"><i class="material-symbols-rounded text-xs">remove</i></button>
+                                            <span class="badge badge-pill {% if c.golden %}badge-warning{% else %}badge-info{% endif %}" id="double_carte_{{c.id}}">{{ carteObtenue is empty ? '0' : (compte.getCarteObtenue(c).nombre-1) }}</span>
+                                            <button type="button" data-idcarte="{{c.id}}" id="plus_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs" aria-label="Ajoute une carte {{c.name}} de ton album"><i class="material-symbols-rounded text-xs">add</i></button>
+                                        </td>
+                                        {% if is_granted("ROLE_ADMIN") %}
+                                        <td class="text-center">
+                                            <button type="button" data-idcarte="{{c.id}}" id="mod_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs"
+                                                data-url="{{ path('app_admin_carte_edit', {'id': c.id}) }}"
+                                                data-title="Modifier une carte"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#carteModal"><i class="material-symbols-rounded text-xs">edit</i></button>
+                                        </td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endfor %}
+        </div>
+    </section>
+</div>
+    {% if is_granted("ROLE_ADMIN") %}
+    <div class="modal fade" id="carteModal" tabindex="-1" aria-hidden="true" style="z-index:10000;">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark text-white border-secondary">
+          <div class="modal-header">
+              <h5 class="modal-title" id="carteModalTitle">Ajouter un compte</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="carteModalBody">
+              <div class="text-center text-muted">Chargement...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block javaScripts %}
+<script>
+    var cacheCO = false;
+
+    {% if is_granted("ROLE_ADMIN") %}
+    function initModalPage () {
+        const modal = document.getElementById('carteModal');
+        const modalBody = document.getElementById('carteModalBody');
+        const modalTitle = document.getElementById('carteModalTitle');
+
+        if (!modal || !modalBody) return;
+
+        modal.addEventListener('show.bs.modal', event => {
+            const trigger = event.relatedTarget;
+            const url = trigger.getAttribute('data-url');
+            const title = trigger.getAttribute('data-title');
+            modalTitle.innerHTML = title;
+
+            if (!url) return;
+
+            // Affiche un loader temporaire
+            modalBody.innerHTML = '<div class="text-center text-muted">Chargement...</div>';
+
+            // Charge le formulaire
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(response => {
+                    if (!response.ok) throw new Error('Erreur lors du chargement du formulaire');
+                        return response.text();
+                })
+                .then(html => {
+                    modalBody.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error(err);
+                    modalBody.innerHTML = '<div class="text-danger">Erreur de chargement.</div>';
+                });
+        });
+
+        document.addEventListener('submit', function(e) {
+            if (e.target && e.target.matches('#ajaxCarteForm')) {
+                e.preventDefault();
+                const form = e.target;
+                const action = form.getAttribute('action');
+                const method = form.getAttribute('method') || 'POST';
+
+                const formData = new FormData(form);
+
+                fetch(action, {
+                    method: method,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Mise à jour dynamique des champs dans le tableau
+                        const idC = data.data.id;
+                        const nbetoileC = data.data.nbetoile;
+                        const numC = data.data.num;
+                        const nameC = data.data.name;
+                        const goldenC = data.data.golden;
+
+                        document.getElementById('nbetoile_carte'+idC).innerHTML = nbetoileC;
+                        document.getElementById('nom_carte'+idC).innerHTML = numC+' - '+nameC;
+                        document.getElementById('double_carte_'+idC).classList.toggle('badge-warning', goldenC);
+                        document.getElementById('double_carte_'+idC).classList.toggle('badge-info', !goldenC);
+                        document.getElementById('nbetoile_carte' + idC).parentElement.style.setProperty('color', goldenC ? '#facc15' : '', 'important');
+                        document.getElementById('nbetoile_etoile_carte'+idC).style.setProperty('color', goldenC ? '#facc15' : '', 'important');
+
+                        // Ferme le modal Bootstrap 5
+                        const modalElement = document.getElementById('carteModal');
+                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        modalInstance.hide();
+                    } else {
+                        console.error('Erreur de validation côté serveur');
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur AJAX :', err);
+                });
+            }
+        });
+    }
+    {% endif %}
+
+    function getCompte() {
+        return document.getElementById('compte_actif').value;
+    }
+
+    // Fonction debounce générique
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    // Ta fonction de recherche
+    function filterCartes() {
+        const searchTerm = document.getElementById('search_carte').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('td[id^="nom_carte"]');
+        
+        // Retirer les anciennes surbrillances
+        document.querySelectorAll('.highlight-search').forEach(el => el.classList.remove('highlight-search'));
+
+        rows.forEach(td => {
+            const text = td.textContent.toLowerCase();
+            if (searchTerm && text.includes(searchTerm)) {
+                td.classList.add('highlight-search');
+                // Scroll vers la première correspondance
+                td.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+
+    function initEvent() {
+        document.querySelectorAll('button[id^="minus_carte_"]').forEach(button => {
+            button.addEventListener('click', callCarteEnleve);
+        });
+        document.querySelectorAll('button[id^="plus_carte_"]').forEach(button => {
+            button.addEventListener('click', callCarteAjout);
+        });
+        document.getElementById('toggle_cartes_obtenues').addEventListener('click', callToggleCarteObtenue);
+        setTimeout(() => {
+            animateBadge();
+        }, 50);
+        const debouncedFilterCartes = debounce(filterCartes, 300);
+        document.getElementById('search_carte').addEventListener('input', debouncedFilterCartes);
+    }
+
+    function toggleCarteStyle(idCarte, isObtenue) {
+        const nom = document.getElementById('nom_carte'+idCarte);
+        if (isObtenue) {
+            nom.classList.replace('text-danger', 'text-success');
+        } else {
+            nom.classList.replace('text-success', 'text-danger');
+        }
+    }
+
+    function flashCarte(idCarte, type = "ajout") {
+        const ligne = document.querySelector(`.ligne-carte-${idCarte}`);
+        if (ligne) {
+            ligne.classList.add(type);
+            setTimeout(() => ligne.classList.remove(type), 1500);
+        }
+    }
+    function animateGoldenStar(idCarte) {
+        console.log("Animation lancée pour l'étoile de la carte", idCarte);
+        const etoile = document.querySelector(`.etoile-golden-${idCarte}`);
+        if (etoile) {
+            etoile.classList.remove('animate');  // retire d'abord
+            // force reflow pour redémarrer l'animation
+            void etoile.offsetWidth;             
+            etoile.classList.add('animate');     // rajoute la classe pour lancer l'anim
+            setTimeout(() => etoile.classList.remove('animate'), 3000);
+        }
+    }
+
+    function callCarteAjout(caller)
+    {
+        var btn = caller.currentTarget;
+        var idCompte = getCompte();
+        var idCarte = btn.getAttribute('data-idcarte');
+
+        MGOM.fetchData('/rapide/' + idCompte + '/' + idCarte)
+            .then(data => {
+                if (data.success) {
+                    toggleCarteStyle(idCarte, true);
+                    const ligne = document.querySelector(`.ligne-carte-${idCarte}`);
+                    if (ligne) {
+                        if (ligne.getAttribute('data-iscarteobtenue') === '0') {
+                            animatePlusMinus(btn, '+1', '#28a745'); // vert
+                        }
+                        ligne.setAttribute('data-iscarteobtenue', '1');
+                        
+                    }
+                    document.getElementById('double_carte_'+idCarte).innerHTML = data.carteobtenue;
+                    document.getElementById('minus_carte_'+idCarte).disabled = false;
+                    flashCarte(idCarte, "ajout");
+                    if (document.querySelector(`.etoile-golden-${idCarte}`)) {
+                        console.log("Carte possiblement dorée :", idCarte);
+                        animateGoldenStar(idCarte);
+                    }
+                } else {
+                    MGOM.notify(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                MGOM.notify(error, 'error');
+            });
+    }
+
+    function callCarteEnleve(caller)
+    {
+        var btn = caller.currentTarget;
+        var idCompte = getCompte();
+        var idCarte = btn.getAttribute('data-idcarte');
+        var url = idCompte+'/carte/obtenuemoins/'+idCarte;
+        MGOM.fetchData(url, 'GET')
+            .then(data => {
+                if(data.success) {
+                    if(data.carteobtenue == -1) {
+                        document.getElementById('minus_carte_'+idCarte).disabled = true;
+                        toggleCarteStyle(idCarte, false);
+                    }
+                    const ligne = document.querySelector(`.ligne-carte-${idCarte}`);
+                    if (ligne) {
+                        if(data.carteobtenue == -1) {
+                            ligne.setAttribute('data-iscarteobtenue', '0');
+                            animatePlusMinus(btn, '-1', '#dc3545'); // rouge
+                        } else {
+                            ligne.setAttribute('data-iscarteobtenue', '1');
+                        }
+                    }
+                    document.getElementById('double_carte_'+idCarte).innerHTML = ( data.carteobtenue == -1 ? 0 : data.carteobtenue);
+                    flashCarte(idCarte, "retrait");
+                    if (document.querySelector(`.etoile-golden-${idCarte}`)) {
+                        console.log("Carte possiblement dorée :", idCarte);
+                        animateGoldenStar(idCarte);
+                    }
+                } else {
+                    MGOM.notify(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                MGOM.notify(error, 'error');
+            });
+    }
+
+    function callToggleCarteObtenue() {
+        const trElements = document.querySelectorAll('tr[data-iscarteobtenue="1"]');
+        const icone = document.getElementById('icone_oeil');
+
+        trElements.forEach(function(tr) {
+            if (!cacheCO) {
+                tr.classList.add('d-none');
+            } else {
+                tr.classList.remove('d-none');
+            }
+        });
+
+        document.querySelectorAll('[data-set-id]').forEach(col => {
+            const visibleRows = Array.from(col.querySelectorAll('.ligne-carte')).filter(row => {
+                return getComputedStyle(row).display !== 'none';
+            });
+
+            const doitCacher = (!cacheCO && visibleRows.length === 0);
+
+            col.style.display = doitCacher ? 'none' : '';
+            col.classList.toggle('col-hidden', doitCacher);
+        });
+
+        // Change l’icône dynamiquement
+        icone.classList.add('animate');
+        setTimeout(() => {
+            icone.textContent = (!cacheCO) ? 'visibility_off' : 'visibility';
+            cacheCO = !cacheCO;
+            icone.classList.remove('animate');
+        }, 150);
+    }
+
+    function updateProgressionBadge() {
+        const totalCartes = document.querySelectorAll('tr.ligne-carte').length;
+        const cartesObtenues = document.querySelectorAll('tr.ligne-carte[data-iscarteobtenue="1"]').length;
+        const badge = document.getElementById('progressionBadge');
+
+        if (badge) {
+            badge.textContent = `Progression {{ compte.name }} : ${cartesObtenues} / ${totalCartes}`;
+
+            // Pour relancer l'animation à chaque update
+            badge.classList.remove('animate-scale');
+            // Force reflow pour reset l'animation
+            void badge.offsetWidth;
+            badge.classList.add('animate-scale');
+        }
+    }
+
+    function animateBadge() {
+        const badge = document.getElementById('progressionBadge');
+        if (!badge) return;
+
+        badge.classList.add('animate-scale');
+
+        setTimeout(() => {
+            badge.classList.remove('animate-scale');
+        }, 300);
+    }
+
+    function animatePlusMinus(element, text, color) {
+        const badge = document.createElement('span');
+        badge.textContent = text;
+        badge.style.position = 'absolute';
+        badge.style.color = 'white';
+        badge.style.backgroundColor = color;
+        badge.style.borderRadius = '50%';
+        badge.style.padding = '0.25em 0.6em';
+        badge.style.fontWeight = 'bold';
+        badge.style.fontSize = '1.5rem';
+        badge.style.lineHeight = '1';
+        badge.style.textAlign = 'center';
+        badge.style.textShadow = '0 0 4px rgba(0,0,0,0.7)';
+        badge.style.boxShadow = `0 0 6px ${color}`;
+        badge.style.pointerEvents = 'none';
+        badge.style.userSelect = 'none';
+        badge.style.zIndex = 10000;
+
+        const startRect = element.getBoundingClientRect();
+        const endBadge = document.getElementById('progressionBadge');
+        if (!endBadge) {
+            console.warn('Badge de progression introuvable');
+            return;
+        }
+        const endRect = endBadge.getBoundingClientRect();
+
+        // Position initiale : centre de l'élément déclencheur, en absolu
+        const startX = startRect.left + startRect.width / 2 + window.scrollX;
+        const startY = startRect.top + startRect.height / 2 + window.scrollY;
+
+        badge.style.left = `${startX}px`;
+        badge.style.top = `${startY}px`;
+        badge.style.transform = 'translate(-50%, -50%)';
+
+        document.body.appendChild(badge);
+
+        // Calcul du delta vers la cible (centre du badge)
+        const endX = endRect.left + endRect.width / 2 + window.scrollX;
+        const endY = endRect.top + endRect.height / 2 + window.scrollY;
+
+        const deltaX = endX - startX;
+        const deltaY = endY - startY;
+
+        // Animation : déplacement + fade out
+        badge.animate([
+            { transform: 'translate(-50%, -50%) translate(0, 0)', opacity: 1 },
+            { transform: `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px))`, opacity: 0 }
+        ], {
+            duration: 1200,
+            easing: 'ease-in-out',
+            fill: 'forwards'
+        });
+
+        setTimeout(() => {
+            updateProgressionBadge(); // update le texte du badge principal
+            animateBadge();           // animation du badge principal
+            badge.remove();           // suppression du badge animé +1/-1
+        }, 1200);
+    }
+
+    function onPageLoad()
+    {
+        initEvent();
+        updateProgressionBadge();
+        
+        {% if is_granted("ROLE_ADMIN") %}
+        initModalPage();
+        {% endif %}
+    }
+    window.addEventListener('load', onPageLoad);
+</script>
+{% endblock %}
+
+{% block styleSheets %}
+<style>
+table.table td,
+table.table th {
+  vertical-align: middle !important;
+}
+
+.badge-pill {
+  padding: 0.375rem 0.75rem !important;  /* exemple, à ajuster */
+  font-size: 0.875rem !important;        /* taille de texte égale aux boutons */
+  line-height: 1.5 !important;            /* alignement vertical */
+  height: 2rem !important;                 /* hauteur identique au bouton */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+  border-radius: 10rem !important;        /* conserver forme pill */
+}
+
+.dark-version .table > :not(caption) > * > *.text-success {
+    color: #4CAF50 !important; /* vert */
+}
+
+.dark-version .table > :not(caption) > * > *.text-danger {
+    color: #F44335 !important; /* rouge */
+}
+
+.ligne-carte.ajout {
+    animation: highlightAjout 1.5s ease-in-out;
+}
+.ligne-carte.retrait {
+    animation: highlightRetrait 1.5s ease-in-out;
+}
+
+@keyframes highlightAjout {
+    from { background-color: #198754; } /* Vert */
+    to { background-color: transparent; }
+}
+
+@keyframes highlightRetrait {
+    from { background-color: #dc3545; } /* Rouge */
+    to { background-color: transparent; }
+}
+
+@keyframes rotate-etoile {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.etoile-golden.animate {
+    display: inline-block;
+    animation: rotate-etoile 0.6s linear infinite;
+}
+
+@keyframes moveToBadge {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--move-x), var(--move-y)) scale(0.5);
+    }
+}
+
+.anim-move-to-badge {
+    position: fixed;
+    font-weight: bold;
+    color: #28a745; /* vert pour +1, rouge pour -1 tu peux changer via JS */
+    pointer-events: none;
+    animation: moveToBadge 1s forwards;
+    z-index: 2000;
+    user-select: none;
+}
+
+@keyframes scaleUpDown {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.4);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+#progressionBadge {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%) scale(1);
+    max-width: 300px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    border-radius: 0.25rem;
+    transition: transform 0.3s ease;
+    font-size: 0.7rem;
+}
+
+#progressionBadge.animate-scale {
+    /* Garde translateX(-50%) pour centrage, grossit à 1.3x */
+    transform: translateX(-50%) scale(1.3);
+}
+
+.entete-flottante {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  z-index: 2;
+  pointer-events: none; /* pour éviter de bloquer les clics */
+}
+
+@media (max-width: 576px) {
+  .entete-flottante {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+.form-check-input {
+  width: 2rem;
+  height: 1rem;
+}
+.form-check-input:checked {
+  background-color: #3b82f6; /* Bleu info */
+  border-color: #3b82f6;
+}
+
+.icon-anim {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.icon-anim.animate {
+  transform: scale(1.3);
+  opacity: 0.5;
+}
+
+.col-transition {
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.col-hidden {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.overflow-visible {
+  overflow: visible !important;
+}
+
+.highlight-search {
+  background-color: rgba(233, 30, 99, 0.2) !important;
+  color: inherit !important;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+#search_carte:focus {
+  box-shadow: 0 0 6px rgba(233, 30, 99, 0.7);
+  border-color: rgb(233, 30, 99);
+  outline: none;
+}
+
+</style>
+{% endblock %}

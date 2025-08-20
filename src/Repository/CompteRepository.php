@@ -30,6 +30,19 @@ class CompteRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findByWithoutUserByCartesAndAlbum(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.carteObtenues', 'co')->addSelect('co')
+            ->leftJoin('co.carte', 'ca')->addSelect('ca')
+            ->leftJoin('ca.s', 's')->addSelect('s')
+            ->leftJoin('s.album', 'a')->addSelect('a')
+            ->andWhere('c.isGroupe = :isGroupe')
+            ->setParameter('isGroupe', true)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Compte[] Returns an array of Compte objects
     //     */

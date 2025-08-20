@@ -26,8 +26,8 @@ class Compte
     private ?bool $principal = null;
 
     #[ORM\ManyToOne(inversedBy: 'comptes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private User $user;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $user;
 
     /**
      * @var Collection<int, CarteObtenue>
@@ -56,11 +56,15 @@ class Compte
     #[ORM\OneToMany(targetEntity: Publication::class, mappedBy: 'compte', orphanRemoval: true)]
     private Collection $publications;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isGroupe = null;
+
     public function __construct()
     {
         $this->historiques = new ArrayCollection();
         $this->carteObtenues = new ArrayCollection();
         $this->publications = new ArrayCollection();
+        $this->user = null;
     }
 
     public function getId(): ?int
@@ -276,5 +280,17 @@ class Compte
             }
         }
         return false;
+    }
+
+    public function isGroupe(): ?bool
+    {
+        return $this->isGroupe;
+    }
+
+    public function setIsGroupe(?bool $isGroupe): static
+    {
+        $this->isGroupe = $isGroupe;
+
+        return $this;
     }
 }
