@@ -4,36 +4,24 @@
 {% block mainContent %}
     <div class="container-fluid">
       <section class="px-md-4">
-        <div class="scroll-container d-flex flex-nowrap overflow-auto pb-3 gap-3">
-          {% if album is not null %}
-              {% for c in userComptes %}
-                <div style="min-width: 300px; max-width: 350px;">
-                  {{ comptes.renderCompte(c, etoilesDoublesParCompte[c.id], nombreCartesObtenuesParCompte[c.id], album.getTotalCarte, true) }}
+        <div class="row g-3">
+            {% if album is not null %}
+                {% for c in userComptes %}
+                    <div class="col-12 col-md-4 col-xl-3">
+                        {{ comptes.renderCompte(
+                            c,
+                            etoilesDoublesParCompte[c.id],
+                            nombreCartesObtenuesParCompte[c.id],
+                            album.getTotalCarte,
+                            true
+                        ) }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-warning">Aucun album actif.</div>
                 </div>
-              {% endfor %}
-          {% else %}
-              <div class="alert alert-warning">Aucun album actif.</div>
-          {% endif %}
-          {% if userComptes|length == 0 %}
-            <div class="card bg-gradient-dark border border-primary border-2 shadow-lg" id="create-account-hint">
-              <div class="card-header pb-0 d-flex align-items-center">
-                <i class="material-symbols-rounded text-primary me-2" style="font-size: 2rem;">rocket_launch</i>
-                <h5 class="mb-0 text-white">En route vers les étoiles...</h5>
-              </div>
-              <div class="card-body text-white">
-                <p class="mb-4">
-                  Pour explorer les cartes et échanger avec vos comptes, vous devez d’abord <strong>créer un compte Monopoly GO Manager.</strong>
-                </p>
-                <a href="#" class="btn btn-primary btn-block btn-lg"
-                    data-url="{{ path('app_compte_add') }}"
-                    data-title="Ajouter un compte"
-                    data-bs-toggle="modal"
-                    data-bs-target="#accountModal">
-                  🚀 Créer un compte maintenant
-                </a>
-              </div>
-            </div>
-          {% endif %}
+            {% endif %}
         </div>
         {% if userComptes|length != 0 %}
         <div class="row">
@@ -323,18 +311,6 @@
 }
 .object-fit-contain {
   object-fit: contain;
-}
-.scroll-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.scroll-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scroll-container::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
 }
 .code-mgo {
   white-space: nowrap;
