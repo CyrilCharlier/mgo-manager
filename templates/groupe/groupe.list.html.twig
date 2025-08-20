@@ -196,7 +196,7 @@
           span.innerText = span.dataset.name; // Réinitialise le nom d’origine
       });
 
-      MGOM.fetchData("/recherche/carteobtenue/" + carteid)
+      MGOM.fetchData("/groupe/recherche/carteobtenue/" + carteid)
           .then(data => {
               console.log('Succès:', data);
               if (data.success) {

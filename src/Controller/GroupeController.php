@@ -115,4 +115,31 @@ final class GroupeController extends AbstractController
         ]);
     }
 
+    #[Route('/groupe/recherche/carteobtenue/{id}', name: 'app_recherche_care_otenue')]
+    public function rechercheCarteObtenue(Carte $carte, CompteRepository $compteRepository): Response
+    {
+        $comptesRetour = [];
+
+        foreach($compteRepository->findGroupes() as $c) {
+            $carteObtenues = $c->getCarteObtenue($carte);
+            if(!is_null($carteObtenues))
+            {
+                $comptesRetour[] = [
+                    'id' => $c->getId(), 
+                    'name' => $c->getName(), 
+                    'nombre' => $carteObtenues->getNombre()
+                ];
+            } else {
+                $comptesRetour[] = [
+                    'id' => $c->getId(), 
+                    'name' => $c->getName(), 
+                    'nombre' => 0
+                ];
+            }
+        }
+        return $this->json([
+            'success' => true,
+            'message' => ['comptes' => $comptesRetour, 'nombre' => count($comptesRetour)],
+        ]);
+    }
 }

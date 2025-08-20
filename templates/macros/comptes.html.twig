@@ -17,6 +17,7 @@
                     <div class="ms-3 my-auto">
                         <div class="d-flex align-items-center">
                             <h6 class="mb-0 me-2" data-bs-toggle="tooltip" title="{{ compte.joueur }}">{{ compte.name }}</h6>
+                            {% if not isGroupe %}
                             <i class="fa-solid fa-crown ms-1 {{ compte.principal ? 'text-warning opacity-100' : 'text-secondary opacity-30' }}"
                                 role="button" tabindex="0"
                                 data-id="{{ compte.id }}"
@@ -26,13 +27,14 @@
                                 onclick="togglePrincipal(this)"
                                 onkeydown="if(event.key==='Enter' || event.key===' ') { togglePrincipal(this); event.preventDefault(); }">
                             </i>
+                            {% endif %}
                         </div>
                         <div class="avatar-group code-mgo">
                             {% if compte.mgo is empty %} MGO-... {% else %}{{ compte.mgo }}<i id="copierMGO{{compte.id}}" data-mgo="{{ compte.mgo }}" style="cursor: pointer;" class="ms-2 fa-solid fa-copy" data-bs-toggle="tooltip" title="Copier le MGO"></i>{% endif %}
                         </div>
                     </div>
                    <div class="ms-auto">
-                        {% if compte.user is not null and compte.user is same as(app.user) %}
+                        {% if (compte.user is not null and compte.user is same as(app.user)) or compte.user is null %}
                         <div class="dropdown">
                             <button class="btn btn-link text-secondary ps-0 pe-2" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-ellipsis-v text-lg"></i>

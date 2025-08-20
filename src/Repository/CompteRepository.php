@@ -43,6 +43,15 @@ class CompteRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findGroupes(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.isGroupe = :val')
+            ->setParameter('val', true)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Compte[] Returns an array of Compte objects
     //     */
