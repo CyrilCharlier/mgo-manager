@@ -23,39 +23,6 @@
                 </div>
             {% endif %}
         </div>
-        {% if userComptes|length != 0 %}
-        <div class="row">
-          <div class="col-lg-4 col-md-6 mt-4">
-            <div class="card">
-              <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Qui possède ...</h5>
-                <button id="togglePrincipalBtn" class="btn btn-sm btn-info" type="button" title="Afficher uniquement les comptes principaux">
-                  <i class="fas fa-eye"></i>
-                </button>
-              </div>
-              <div class="card-body pt-0">
-                <div class="input-group input-group-outline">
-                  <select id="carte_double" class="form-control select2" style="width: 100%">
-                    <option value="0">Sélectionner une carte</option>
-                    {% for s in albumActif.sets %}
-                    <optgroup label="{{ s.page }} - {{ s.name }}">
-                      {% for c in s.cartes %}
-                      <option value="{{ c.id }}">{{ c.nameStyle }}</option>
-                      {% endfor %}
-                    </optgroup>
-                    {% endfor %}
-                  </select>
-                </div>
-                <p class="text-muted mt-4">
-                  {% for c in userComptes %}
-                  <span id="badge_compte{{c.id}}" class="badge badge-info ms-auto mb-auto compte-carte-double" data-id="{{ c.id }}" data-principal="{{ (c.principal ? '1' : '0') }}" data-name="{{ c.name }}">{{ c.name }}</span>
-                  {% endfor %}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
       </section>
     </div>
     <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
@@ -112,39 +79,6 @@
         });
     }
 
-    function toggleBadgePrincipal(event) {
-        toggleBtn = event.currentTarget;
-        showingOnlyPrincipal = !showingOnlyPrincipal;
-
-        var badges = document.querySelectorAll('.compte-carte-double');
-
-        badges.forEach(function(badge) {
-          var isPrincipal = badge.getAttribute('data-principal') === '1';
-
-          if (showingOnlyPrincipal) {
-            // On cache ceux qui ne sont pas principaux
-            if (!isPrincipal) {
-              badge.style.display = 'none';
-            }
-          } else {
-            // On affiche tous
-            badge.style.display = '';
-          }
-        });
-
-        // Change l'icône du bouton selon l'état
-        var icon = toggleBtn.querySelector('i');
-        if (showingOnlyPrincipal) {
-          icon.classList.remove('fa-eye');
-          icon.classList.add('fa-eye-slash');
-          toggleBtn.setAttribute('title', 'Afficher tous les comptes');
-        } else {
-          icon.classList.remove('fa-eye-slash');
-          icon.classList.add('fa-eye');
-          toggleBtn.setAttribute('title', 'Afficher uniquement les comptes principaux');
-        }
-    }
-
     function enregistrePublicationDuJour(event) {
       btn = event.currentTarget;
 
@@ -170,8 +104,7 @@
       document.querySelectorAll('[id^="copierMGO"]').forEach(button => {
           button.addEventListener('click', callCopieMGO);
       });
-      document.getElementById('togglePrincipalBtn').addEventListener('click', toggleBadgePrincipal);
-
+      
       document.querySelectorAll('button[id^="genComptePagePublique"]').forEach(button => {
           button.addEventListener('click', function (e) {
             const button = e.target.closest('button[data-url]');
@@ -182,49 +115,6 @@
       document.querySelectorAll('.btn-publication').forEach(btn => {
         btn.addEventListener('click', enregistrePublicationDuJour);
       });
-
-      $('#carte_double').on('change', callComptePossede);
-    }
-
-    function callComptePossede(event) {
-      event.preventDefault();
-      var carteid = $(this).val();
-      document.querySelectorAll('.compte-carte-double').forEach(span => {
-          span.classList.remove('badge-success');
-          span.classList.remove('badge-info');
-          span.classList.add('badge-danger');
-          span.innerText = span.dataset.name; // Réinitialise le nom d’origine
-      });
-
-      MGOM.fetchData("/groupe/recherche/carteobtenue/" + carteid)
-          .then(data => {
-              console.log('Succès:', data);
-              if (data.success) {
-                  data.message.comptes.forEach(function(compte) {
-                      document.querySelectorAll('.compte-carte-double[data-id="' + compte.id + '"]').forEach(spanCompte => {
-                          if (compte.nombre > 1) {
-                              spanCompte.innerText = compte.name + " (+" + (compte.nombre - 1) + ")";
-                              spanCompte.classList.add('badge-success');
-                              spanCompte.classList.remove('badge-danger');
-                          } else if (compte.nombre == 1) {
-                              spanCompte.innerText = compte.name;
-                              spanCompte.classList.add('badge-success');
-                              spanCompte.classList.remove('badge-danger');
-                          } else {
-                              spanCompte.innerText = compte.name;
-                              spanCompte.classList.remove('badge-success');
-                              spanCompte.classList.add('badge-danger');
-                          }
-                      });
-                  });
-              } else {
-                  MGOM.notify(data.message, 'error');
-              }
-          })
-          .catch(error => {
-              console.error('Erreur:', error);
-              MGOM.notify(error, 'error');
-          });
     }
 
     function togglePrincipal(element) {

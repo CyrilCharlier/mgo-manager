@@ -1,0 +1,158 @@
+{% extends "base.html.twig" %}
+
+{% block mainContent %}
+<div class="container-fluid">
+    <section class="px-md-4">
+        <div class="row">
+
+<div class="table-responsive">
+  <table class="table table-bordered text-center align-middle mb-0 rounded-3 shadow-lg"
+           style="background: rgba(255, 255, 255, 0.08);
+                  backdrop-filter: blur(10px);
+                  -webkit-backdrop-filter: blur(10px);">
+    <thead class="table-dark">
+      <tr>
+        <th>Compte</th>
+        {% for day in last7Days %}
+          <th>{{ day|date("d/m") }}</th>
+        {% endfor %}
+        <th>Actif ?</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for compte in userComptes %}
+        <tr>
+          <td class="fw-bold">{{ compte.name }}</td>
+
+          {# Publications par jour #}
+          {% for day in last7Days %}
+            {% set hasPublication = false %}
+            {% for pub in compte.publications %}
+              {% if pub.date|date("Y-m-d") == day|date("Y-m-d") %}
+                {% set hasPublication = true %}
+              {% endif %}
+            {% endfor %}
+            <td>
+              {% if hasPublication %}
+                <i class="fa-solid fa-check text-success"></i>
+              {% else %}
+                <i class="fa-solid fa-xmark text-danger"></i>
+              {% endif %}
+            </td>
+          {% endfor %}
+
+          {# Test activité = 4 publications minimum sur les 7 derniers jours #}
+          {% set pubCount = 0 %}
+          {% for pub in compte.publications %}
+            {% if pub.date|date("Y-m-d") in last7Days|map(day => day|date("Y-m-d")) %}
+              {% set pubCount = pubCount + 1 %}
+            {% endif %}
+          {% endfor %}
+
+          <td>
+            {% if pubCount >= 4 %}
+              <span class="badge bg-success">Actif</span>
+            {% else %}
+              <span class="badge bg-danger">Inactif</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+        </div>
+
+{% if userComptes|length != 0 %}
+<div class="row">
+    <div class="col-lg-4 col-md-6 mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Qui possède ...</h5>
+        </div>
+        <div class="card-body pt-0">
+        <div class="input-group input-group-outline">
+            <select id="carte_double" class="form-control select2" style="width: 100%">
+            <option value="0">Sélectionner une carte</option>
+            {% for s in albumActif.sets %}
+            <optgroup label="{{ s.page }} - {{ s.name }}">
+                {% for c in s.cartes %}
+                <option value="{{ c.id }}">{{ c.nameStyle }}</option>
+                {% endfor %}
+            </optgroup>
+            {% endfor %}
+            </select>
+        </div>
+        <p class="text-muted mt-4">
+            {% for c in userComptes %}
+            <span id="badge_compte{{c.id}}" class="badge badge-info ms-auto mb-auto compte-carte-double" data-id="{{ c.id }}" data-principal="{{ (c.principal ? '1' : '0') }}" data-name="{{ c.name }}">{{ c.name }}</span>
+            {% endfor %}
+        </p>
+        </div>
+    </div>
+    </div>
+</div>
+{% endif %}
+
+
+    </section>
+</div>
+{% endblock %}
+
+{% block javaScripts %}
+  <script>
+    var showingOnlyPrincipal = false;
+    function initEvent() {
+        $('#carte_double').on('change', callComptePossede);
+    }
+
+    function callComptePossede(event) {
+      event.preventDefault();
+      var carteid = $(this).val();
+      document.querySelectorAll('.compte-carte-double').forEach(span => {
+          span.classList.remove('badge-success');
+          span.classList.remove('badge-info');
+          span.classList.add('badge-danger');
+          span.innerText = span.dataset.name; // Réinitialise le nom d’origine
+      });
+
+      MGOM.fetchData("/groupe/recherche/carteobtenue/" + carteid)
+          .then(data => {
+              console.log('Succès:', data);
+              if (data.success) {
+                  data.message.comptes.forEach(function(compte) {
+                      document.querySelectorAll('.compte-carte-double[data-id="' + compte.id + '"]').forEach(spanCompte => {
+                          if (compte.nombre > 1) {
+                              spanCompte.innerText = compte.name + " (+" + (compte.nombre - 1) + ")";
+                              spanCompte.classList.add('badge-success');
+                              spanCompte.classList.remove('badge-danger');
+                          } else if (compte.nombre == 1) {
+                              spanCompte.innerText = compte.name;
+                              spanCompte.classList.add('badge-success');
+                              spanCompte.classList.remove('badge-danger');
+                          } else {
+                              spanCompte.innerText = compte.name;
+                              spanCompte.classList.remove('badge-success');
+                              spanCompte.classList.add('badge-danger');
+                          }
+                      });
+                  });
+              } else {
+                  MGOM.notify(data.message, 'error');
+              }
+          })
+          .catch(error => {
+              console.error('Erreur:', error);
+              MGOM.notify(error, 'error');
+          });
+    }
+
+    function onPageLoad() {
+      initEvent();
+    }
+    
+    window.addEventListener('load', onPageLoad);
+  </script>
+{% endblock %}

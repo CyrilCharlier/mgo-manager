@@ -115,7 +115,7 @@ final class GroupeController extends AbstractController
         ]);
     }
 
-    #[Route('/groupe/recherche/carteobtenue/{id}', name: 'app_recherche_care_otenue')]
+    #[Route('/groupe/recherche/carteobtenue/{id}', name: 'app_groupe_recherche_carte_otenue')]
     public function rechercheCarteObtenue(Carte $carte, CompteRepository $compteRepository): Response
     {
         $comptesRetour = [];
@@ -140,6 +140,27 @@ final class GroupeController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => ['comptes' => $comptesRetour, 'nombre' => count($comptesRetour)],
+        ]);
+    }
+
+    #[Route('/groupe/suivi', name: 'app_groupe_suivi')]
+    public function stat(CompteRepository $compteRepository, AlbumRepository $albumRepository): Response
+    {
+        $userComptes = $compteRepository->findByWithoutUserByCartesAndAlbum();
+        $album = $albumRepository->findAlbumWithSetsAndCartesActive();
+
+        // Générer les 7 derniers jours (aujourd'hui inclus)
+        $last7Days = [];
+        $today = new \DateTimeImmutable('today');
+        for ($i = 0; $i < 7; $i++) {
+            $last7Days[] = $today->sub(new \DateInterval("P{$i}D"));
+        }
+        $last7Days = array_reverse($last7Days); // du plus ancien au plus récent
+
+        return $this->render('groupe/groupe.stat.html.twig', [
+            'album'       => $album,
+            'userComptes' => $userComptes,
+            'last7Days'   => $last7Days,
         ]);
     }
 }
