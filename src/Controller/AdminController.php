@@ -6,13 +6,14 @@ use App\Entity\Album;
 use App\Entity\Carte;
 use App\Entity\Set;
 use App\Entity\User;
-use App\Form\AlbumForm;
 use App\Form\CarteForm;
 use App\Form\SetForm;
 use App\Repository\AlbumRepository;
 use App\Repository\UserRepository;
+use App\Service\AlbumCleanupService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -495,6 +496,14 @@ final class AdminController extends AbstractController
 
         $em->flush();
         
+        return $this->redirectToRoute('app_admin');
+    }
+
+    #[Route('/admin/cleanup-albums', name: 'admin_cleanup_albums', methods: ['GET'])]
+    public function cleanup(AlbumCleanupService $cleanupService): Response
+    {
+        $cleanupService->cleanupInactiveAlbums();
+
         return $this->redirectToRoute('app_admin');
     }
 }
