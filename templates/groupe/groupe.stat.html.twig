@@ -19,7 +19,7 @@
     <tbody>
       {% for compte in userComptes %}
         <tr>
-          <td class="fw-bold">{{ compte.name }}</td>
+          <td class="fw-bold" data-bs-toggle="tooltip" title="{{ compte.joueur }}">{{ compte.name }}</td>
 
           {# Publications par jour #}
           {% for day in last7Days %}
