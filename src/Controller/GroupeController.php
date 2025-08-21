@@ -115,6 +115,37 @@ final class GroupeController extends AbstractController
         ]);
     }
 
+    #[Route('/groupe/compte/{id}/edit', name: 'app_groupe_compte_edit')]
+    public function compteEdit(Request $request, Compte $c, EntityManagerInterface $em): Response
+    {
+        if(!$c->isGroupe()) {
+            return $this->redirectToRoute('app_groupe_list');
+        }
+
+        $form = $this->createForm(CompteForm::class, $c, [
+            'is_admin_groupe' => $this->isGranted('ROLE_ADMIN_GROUPE'),
+            'action' => $this->generateUrl('app_compte_edit', ['id' => $c->getId()]),
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $c = $form->getData();
+            $c->setUser($this->getCurrentUser());
+            $em->persist($c);
+            $h = new Historique();
+            $h->setTitre('Compte modifié');
+            $h->setDescription('Compte ['.$c->getUser()->getUsername().']['.$c->getName().']['.$c->getMGO().'] modifié.');
+            $h->setCompte($c);
+            $h->setUser($c->getUser());
+            $h->setIcone('manage_accounts');
+            $em->persist($h);
+            $em->flush();
+            return $this->redirectToRoute('app_dashboard');
+        }
+        return $this->render('compte/form.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
     #[Route('/groupe/recherche/carteobtenue/{id}', name: 'app_groupe_recherche_carte_otenue')]
     public function rechercheCarteObtenue(Carte $carte, CompteRepository $compteRepository): Response
     {
