@@ -29,13 +29,17 @@
                 {% set hasPublication = true %}
               {% endif %}
             {% endfor %}
-            <td>
-              {% if hasPublication %}
-                <i class="fa-solid fa-check text-success"></i>
-              {% else %}
-                <i class="fa-solid fa-xmark text-danger"></i>
-              {% endif %}
-            </td>
+<td class="text-center">
+    {% if hasPublication %}
+        <button class="btn-icon btn-success" disabled>
+            <i class="fa-solid fa-check"></i>
+        </button>
+    {% else %}
+        <button class="btn-icon btn-danger publier-btn" data-id="{{compte.id}}" data-date="{{ day|date('Y-m-d') }}">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    {% endif %}
+</td>
           {% endfor %}
 
           {# Test activité = 4 publications minimum sur les 7 derniers jours #}
@@ -109,6 +113,47 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   color: #eaeaea;
 }
+.btn-icon {
+    border: none;
+    background: transparent;
+    padding: 0.25rem 0.6rem;   /* augmente la largeur sans trop de hauteur */
+    font-size: 1.2rem;
+    border-radius: 0.25rem;
+    transition: background 0.3s ease, transform 0.2s ease, color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;            
+    min-width: 2rem;            /* zone cliquable horizontale */
+}
+
+.btn-icon:hover:not(:disabled) {
+    transform: scale(1.05);     /* petit zoom discret */
+}
+
+.btn-icon.btn-success {
+    color: #198754;             /* vert bootstrap */
+}
+
+.btn-icon.btn-success:hover:not(:disabled) {
+    background-color: rgba(25,135,84,0.2);
+    color: #fff;                /* icône blanche au survol */
+}
+
+.btn-icon.btn-danger {
+    color: #dc3545;             /* rouge bootstrap */
+}
+
+.btn-icon.btn-danger:hover:not(:disabled) {
+    background-color: rgba(220,53,69,0.2);
+    color: #fff;                /* icône blanche au survol */
+}
+
+/* On retire text-success / text-danger sur l'icône pour que la couleur soit héritée */
+.btn-icon i {
+    pointer-events: none;       /* pour que le clic passe bien sur le bouton */
+}
 </style>
 {% endblock %}
 
@@ -117,6 +162,37 @@
     var showingOnlyPrincipal = false;
     function initEvent() {
         $('#carte_double').on('change', callComptePossede);
+
+        document.querySelectorAll(".publier-btn").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const idCompte = btn.dataset.id;
+                const date = btn.dataset.date;
+
+                try {
+                    const response = await fetch(`/publication/jour/${idCompte}/${date}`, {
+                        method: "POST", // ou GET selon ton contrôleur
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                        }
+                    });
+
+                    if (response.ok) {
+                        btn.classList.remove('btn-danger');
+                        btn.classList.add('btn-success');
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+
+                        // Désactiver le bouton
+                        btn.disabled = true;
+                    } else {
+                        MGOM.notify(data.message, 'error');
+                    }
+                } catch (err) {
+                    console.error('Erreur:', error);
+                    MGOM.notify(error, 'error');
+                }
+            });
+        });
     }
 
     function callComptePossede(event) {
