@@ -124,7 +124,7 @@ final class GroupeController extends AbstractController
 
         $form = $this->createForm(CompteForm::class, $c, [
             'is_admin_groupe' => $this->isGranted('ROLE_ADMIN_GROUPE'),
-            'action' => $this->generateUrl('app_compte_edit', ['id' => $c->getId()]),
+            'action' => $this->generateUrl('app_groupe_compte_edit', ['id' => $c->getId()]),
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -139,7 +139,7 @@ final class GroupeController extends AbstractController
             $h->setIcone('manage_accounts');
             $em->persist($h);
             $em->flush();
-            return $this->redirectToRoute('app_dashboard');
+            return $this->redirectToRoute('app_groupe_list');
         }
         return $this->render('compte/form.html.twig', [
             'form' => $form->createView(),
