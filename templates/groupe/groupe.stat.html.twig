@@ -6,10 +6,7 @@
         <div class="row">
 
 <div class="table-responsive">
-  <table class="table table-bordered text-center align-middle mb-0 rounded-3 shadow-lg"
-           style="background: rgba(255, 255, 255, 0.08);
-                  backdrop-filter: blur(10px);
-                  -webkit-backdrop-filter: blur(10px);">
+  <table class="table text-center align-middle table-bordered table-striped table-hover table-blur mb-0 rounded-3 shadow-lg">
     <thead class="table-dark">
       <tr>
         <th>Compte</th>
@@ -99,6 +96,20 @@
 
     </section>
 </div>
+{% endblock %}
+
+{% block styleSheets %}
+<style>
+.table-blur {
+  background: rgba(15, 15, 15, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  color: #eaeaea;
+}
+</style>
 {% endblock %}
 
 {% block javaScripts %}
