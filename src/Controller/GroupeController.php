@@ -133,7 +133,7 @@ final class GroupeController extends AbstractController
             $em->persist($c);
             $h = new Historique();
             $h->setTitre('Compte modifié');
-            $h->setDescription('Compte ['.$c->getUser()->getUsername().']['.$c->getName().']['.$c->getMGO().'] modifié.');
+            $h->setDescription('Compte ['.$c->getUser()->getUsername().']['.$c->getName().']['.$c->getMGO().'] modifié par '.$this->getCurrentUser()->getUsername().'.');
             $h->setCompte($c);
             $h->setUser($c->getUser());
             $h->setIcone('manage_accounts');
@@ -144,6 +144,25 @@ final class GroupeController extends AbstractController
         return $this->render('compte/form.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    #[Route('/groupe/compte/{id}/delete', name: 'app_compte_delete')]
+    public function compteDelete(Compte $c, EntityManagerInterface $em): Response
+    {
+        if(!$c->isGroupe()) {
+            return $this->redirectToRoute('app_groupe_list');
+        }
+
+        $h = new Historique();
+        $h->setTitre('Compte Supprimé');
+        $h->setDescription('Compte ['.$c->getUser()->getUsername().']['.$c->getName().']['.$c->getMGO().'] supprimé par '.$this->getCurrentUser()->getUsername().'.');
+        $h->setCompte($c);
+        $h->setUser($c->getUser());
+        $h->setIcone('person_remove');
+        $em->persist($h);
+        $em->remove($c);
+        $em->flush();
+        return $this->redirectToRoute('app_groupe_list');
     }
 
     #[Route('/groupe/recherche/carteobtenue/{id}', name: 'app_groupe_recherche_carte_otenue')]

@@ -48,6 +48,12 @@
                                     data-bs-target="#accountModal">
                                     <i class="fas fa-edit me-2 text-secondary"></i> Modifier
                                 </button>
+                                <button class="dropdown-item text-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmDeleteModal"
+                                    data-url="{{ path('app_groupe_compte_delete', {'id': compte.id}) }}">
+                                    <i class="fas fa-trash-alt me-2 text-danger"></i> Supprimer
+                                </button>
                                 {% else %}
                                 <button class="dropdown-item"
                                     data-url="{{ path('app_compte_edit', {'id': compte.id}) }}"

@@ -277,7 +277,7 @@ final class CompteController extends AbstractController
         }
         $h = new Historique();
         $h->setTitre('Compte Supprimé');
-        $h->setDescription('Compte ['.$c->getUser()->getUsername().']['.$c->getName().']['.$c->getMGO().'] modifié.');
+        $h->setDescription('Compte ['.$c->getUser()->getUsername().']['.$c->getName().']['.$c->getMGO().'] supprimé.');
         $h->setCompte($c);
         $h->setUser($c->getUser());
         $h->setIcone('person_remove');
