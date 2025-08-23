@@ -146,7 +146,7 @@ final class GroupeController extends AbstractController
         ]);
     }
 
-    #[Route('/groupe/compte/{id}/delete', name: 'app_compte_delete')]
+    #[Route('/groupe/compte/{id}/delete', name: 'app_groupe_compte_delete')]
     public function compteDelete(Compte $c, EntityManagerInterface $em): Response
     {
         if(!$c->isGroupe()) {
