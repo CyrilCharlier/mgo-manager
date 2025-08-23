@@ -155,9 +155,9 @@ final class GroupeController extends AbstractController
 
         $h = new Historique();
         $h->setTitre('Compte Supprimé');
-        $h->setDescription('Compte ['.$c->getUser()->getUsername().']['.$c->getName().']['.$c->getMGO().'] supprimé par '.$this->getCurrentUser()->getUsername().'.');
+        $h->setDescription('Compte ['.$c->getName().']['.$c->getMGO().'] supprimé par '.$this->getCurrentUser()->getUsername().'.');
         $h->setCompte($c);
-        $h->setUser($c->getUser());
+        $h->setUser($this->getCurrentUser());
         $h->setIcone('person_remove');
         $em->persist($h);
         $em->remove($c);
