@@ -661,12 +661,13 @@ final class CompteController extends AbstractController
         $album = $albumRepository->findAlbumWithSetsAndCartesActive();
 
         foreach ($compte->getCarteObtenues() as $carteObtenue) {
-            // On remonte jusqu’à l’album via la carte -> set -> album
-            if ($carteObtenue->getCarte()->getS()->getAlbum() === $album) {
-                $em->remove($carteObtenue);
+            if($carteObtenue->getNombre()>1) {
+                if ($carteObtenue->getCarte()->getS()->getAlbum() === $album) {
+                    $carteObtenue->setNombre(1);
+                    $em->persist($carteObtenue);
+                }
             }
         }
-
         $em->flush();
 
         return $this->redirectToRoute('app_compte_accueil', ['id' => $compte->getId()]);
