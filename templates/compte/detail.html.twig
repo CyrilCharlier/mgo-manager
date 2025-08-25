@@ -40,9 +40,6 @@
                                         <th class="text-center"><i class="material-symbols-rounded text-sm" style="color: #facc15 !important;">star</i></th>
                                         <th>Nom</th>
                                         <th class="text-center">Double</th>
-                                        {% if is_granted("ROLE_ADMIN") %}
-                                        <th class="text-center"><i class="material-symbols-rounded text-sm">settings</i></th>
-                                        {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -53,21 +50,26 @@
                                             <span id="nbetoile_carte{{c.id}}">{{c.nbetoile}}</span>
                                             <i id="nbetoile_etoile_carte{{c.id}}" class="material-symbols-rounded text-sm{% if c.golden %} etoile-golden etoile-golden-{{ c.id }}{% endif %}"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>star</i>
                                         </td>
-                                        <td id="nom_carte{{ c.id }}" class="text-{{ carteObtenue is empty ? 'danger' : 'success' }}">{{c.num}} - {{c.nameStyle}}</td>
+                                        <td id="nom_carte{{ c.id }}" class="text-{{ carteObtenue is empty ? 'danger' : 'success' }}">
+    {% if is_granted('ROLE_ADMIN') %}
+        <span class="clickable-carte" 
+              data-idcarte="{{c.id}}" 
+              id="mod_carte_{{c.id}}" 
+              data-url="{{ path('app_admin_carte_edit', {'id': c.id}) }}" 
+              data-title="Modifier une carte" 
+              data-bs-toggle="modal" 
+              data-bs-target="#carteModal">
+            {{c.num}} - {{c.nameStyle}}
+        </span>
+    {% else %}
+        {{c.num}} - {{c.nameStyle}}
+    {% endif %}
+</td>
                                         <td class="text-center"> 
                                             <button {% if carteObtenue is empty %}disabled {% endif %}type="button" data-idcarte="{{c.id}}" id="minus_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs" aria-label="Enlève une carte {{c.name}} de ton album"><i class="material-symbols-rounded text-xs">remove</i></button>
                                             <span class="badge badge-pill {% if c.golden %}badge-warning{% else %}badge-info{% endif %}" id="double_carte_{{c.id}}">{{ carteObtenue is empty ? '0' : (compte.getCarteObtenue(c).nombre-1) }}</span>
                                             <button type="button" data-idcarte="{{c.id}}" id="plus_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs" aria-label="Ajoute une carte {{c.name}} de ton album"><i class="material-symbols-rounded text-xs">add</i></button>
                                         </td>
-                                        {% if is_granted("ROLE_ADMIN") %}
-                                        <td class="text-center">
-                                            <button type="button" data-idcarte="{{c.id}}" id="mod_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs"
-                                                data-url="{{ path('app_admin_carte_edit', {'id': c.id}) }}"
-                                                data-title="Modifier une carte"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#carteModal"><i class="material-symbols-rounded text-xs">edit</i></button>
-                                        </td>
-                                        {% endif %}
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -666,6 +668,23 @@ table.table th {
   border-color: rgb(233, 30, 99);
   outline: none;
 }
+{% if is_granted("ROLE_ADMIN") %}
+.clickable-carte {
+    cursor: pointer;
+    position: relative; /* nécessaire pour le pseudo-élément */
+}
 
+.clickable-carte::after {
+    content: "✏️";       /* icône stylo (tu peux changer en unicode ou image) */
+    display: none;       /* caché par défaut */
+    margin-left: 5px;    /* espace entre texte et stylo */
+    font-size: 0.9em;
+    vertical-align: middle;
+}
+
+.clickable-carte:hover::after {
+    display: inline;     /* apparaît au survol */
+}
+{% endif %}
 </style>
 {% endblock %}
