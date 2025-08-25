@@ -24,6 +24,7 @@
 - ✅ Historique des actions
 - ✅ Interface responsive (PC / mobile)
 - ✅ Page publique pour partager son avancée
+- ✅ Gestion de comptes "groupe" pour une gestion partagée
 - 🔄 Export CSV (à venir)
 - 🔄 Statistiques utilisateurs (à venir)
 
