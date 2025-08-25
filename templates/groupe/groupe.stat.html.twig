@@ -5,7 +5,7 @@
     <section class="px-md-4">
         <div class="row">
 
-<div class="table-responsive">
+<div class="table-responsive table-wrapper p-0">
   <table class="table text-center align-middle table-bordered table-striped table-hover table-blur mb-0 rounded-3 shadow-lg">
     <thead class="table-dark">
       <tr>
@@ -104,14 +104,26 @@
 
 {% block styleSheets %}
 <style>
-.table-blur {
+/* Conteneur avec l'effet glassmorphism global */
+.table-wrapper {
   background: rgba(15, 15, 15, 0.55);
-  /*backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);*/
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  color: #eaeaea;
+  padding: 1rem;
+}
+
+/* Table sans blur direct */
+.table-blur {
+  background: transparent;
+}
+
+/* Hover optimisé : on joue uniquement sur la couleur */
+.table-blur tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+  transition: background-color 0.2s ease;
 }
 .btn-icon {
     border: none;
