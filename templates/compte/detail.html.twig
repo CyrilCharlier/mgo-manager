@@ -9,14 +9,20 @@
 <input type="hidden" id="compte_actif" value="{{ compte.id }}" />
 <div class="container-fluid">
     <section class="px-md-4">
-        <div class="mb-3 text-start d-flex align-items-center gap-2">
-            <div class="form-check form-switch d-inline-flex align-items-center">
+        <div class="mb-3 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <div class="form-check form-switch d-inline-flex align-items-center">
                 <input class="form-check-input me-2" type="checkbox" role="switch" id="toggle_cartes_obtenues" style="margin-top: 0.1rem;">
                 <label class="form-check-label d-flex align-items-center" for="toggle_cartes_obtenues" id="toggle_cartes_obtenues_label">
                     <i id="icone_oeil" class="material-symbols-rounded" style="font-size: 1.1rem; line-height: 1;">visibility</i>
                 </label>
+                </div>
+                <input type="text" id="search_carte" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Rechercher une carte..." style="max-width: 300px;" />
             </div>
-            <input type="text" id="search_carte" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Rechercher une carte..." style="max-width: 300px;">
+
+            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" title="Réinitialise à 0 l'album" data-id="{{ compte.id }}" id="btnRazCompteAlbum">
+                <i class="material-symbols-rounded" style="font-size: 1.2rem; vertical-align: middle;">cleaning_services</i>
+            </button>
         </div>
         <div class="row">
 {% for s in album.sets %}
@@ -89,6 +95,25 @@
       </div>
     </div>
     {% endif %}
+
+<div class="modal fade" id="modalRazAlbum" tabindex="-1" aria-labelledby="modalRazAlbumLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title" id="modalRazAlbumLabel">Confirmer la réinitialisation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body border-secondary">
+        Êtes-vous sûr de vouloir réinitialiser cet album ? Cette action est irréversible.
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger btn-sm" id="confirmRazAlbum">Confirmer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block javaScripts %}
@@ -209,6 +234,21 @@
         });
     }
 
+    function initRazAlbum() {
+        const compteId = "{{ compte.id }}"; // ton id de compte
+        const btnRaz = document.getElementById('btnRazCompteAlbum');
+        const confirmBtn = document.getElementById('confirmRazAlbum');
+        const modal = new bootstrap.Modal(document.getElementById('modalRazAlbum'));
+
+        btnRaz.addEventListener('click', function() {
+            modal.show();
+        });
+
+        confirmBtn.addEventListener('click', function() {
+            window.location.href = `/compte/album/raz/${compteId}`;
+        });
+    };
+
     function initEvent() {
         document.querySelectorAll('button[id^="minus_carte_"]').forEach(button => {
             button.addEventListener('click', callCarteEnleve);
@@ -222,6 +262,8 @@
         }, 50);
         const debouncedFilterCartes = debounce(filterCartes, 300);
         document.getElementById('search_carte').addEventListener('input', debouncedFilterCartes);
+
+        initRazAlbum();
     }
 
     function toggleCarteStyle(idCarte, isObtenue) {

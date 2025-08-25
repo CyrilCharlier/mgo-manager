@@ -651,5 +651,24 @@ final class CompteController extends AbstractController
         ]);
     }
 
-    
+    #[Route('/compte/album/raz/{id}', name: 'app_compte_raz_compte')]
+    public function razCompte(#[MapEntity(id: 'id')] Compte $compte, AlbumRepository $albumRepository, EntityManagerInterface $em): Response
+    {
+        $u = $this->getCurrentUser();
+        if($u != $compte->getUser()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+        $album = $albumRepository->findAlbumWithSetsAndCartesActive();
+
+        foreach ($compte->getCarteObtenues() as $carteObtenue) {
+            // On remonte jusqu’à l’album via la carte -> set -> album
+            if ($carteObtenue->getCarte()->getS()->getAlbum() === $album) {
+                $em->remove($carteObtenue);
+            }
+        }
+
+        $em->flush();
+
+        return $this->redirectToRoute('app_compte_accueil', ['id' => $compte->getId()]);
+    }
 }
