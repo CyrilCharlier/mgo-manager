@@ -226,7 +226,7 @@ final class AdminController extends AbstractController
     public function chargeStarwars(EntityManagerInterface $em): Response
     {
         return $this->redirectToRoute('app_admin');
-        
+        /*
         $a = new Album();
         $a->setName('Star Wars');
         $a->setActive(false);
@@ -496,7 +496,7 @@ final class AdminController extends AbstractController
 
         $em->flush();
         
-        return $this->redirectToRoute('app_admin');
+        return $this->redirectToRoute('app_admin');*/
     }
 
     #[Route('/admin/cleanup-albums', name: 'admin_cleanup_albums', methods: ['GET'])]
