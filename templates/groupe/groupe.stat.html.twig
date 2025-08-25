@@ -71,7 +71,10 @@
     <div class="col-lg-4 col-md-6 mt-4">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Qui possède ...</h5>
+          <h5 class="mb-0">Qui possède ...</h5>
+          <button id="toggleActifInactifBtn" class="btn btn-sm btn-info" type="button" data-bs-toggle="tooltip" title="Afficher uniquement les comptes actifs">
+            <i class="fas fa-eye"></i>
+          </button>
         </div>
         <div class="card-body pt-0">
         <div class="input-group input-group-outline">
@@ -88,7 +91,20 @@
         </div>
         <p class="text-muted mt-4">
             {% for c in userComptes %}
-            <span id="badge_compte{{c.id}}" class="badge badge-info ms-auto mb-auto compte-carte-double" data-id="{{ c.id }}" data-principal="{{ (c.principal ? '1' : '0') }}" data-name="{{ c.name }}">{{ c.name }}</span>
+                {% set pubCount = 0 %}
+                {% for pub in c.publications %}
+                    {% if pub.date|date("Y-m-d") in last7Days|map(day => day|date("Y-m-d")) %}
+                        {% set pubCount = pubCount + 1 %}
+                    {% endif %}
+                {% endfor %}
+
+                <span id="badge_compte{{c.id}}"
+                      class="badge badge-info ms-auto mb-auto compte-carte-double"
+                      data-id="{{ c.id }}"
+                      data-actif="{{ pubCount >= 4 ? '1' : '0' }}"
+                      data-name="{{ c.name }}">
+                    {{ c.name }}
+                </span>
             {% endfor %}
         </p>
         </div>
@@ -163,10 +179,8 @@
     background-color: rgba(220,53,69,0.2);
     color: #fff;                /* icône blanche au survol */
 }
-
-/* On retire text-success / text-danger sur l'icône pour que la couleur soit héritée */
 .btn-icon i {
-    pointer-events: none;       /* pour que le clic passe bien sur le bouton */
+    pointer-events: none;
 }
 </style>
 {% endblock %}
@@ -221,6 +235,37 @@
         });
     }
 
+    function initToogleActifInactif() {
+      let toggleActifInactifBtn = document.getElementById("toggleActifInactifBtn");
+      let showingOnlyActifs = false;
+
+      toggleActifInactifBtn.addEventListener("click", () => {
+          showingOnlyActifs = !showingOnlyActifs;
+
+          document.querySelectorAll(".compte-carte-double").forEach(span => {
+              const isActif = span.dataset.actif === "1";
+
+              if (showingOnlyActifs) {
+                  // masquer les inactifs
+                  if (!isActif) {
+                      span.style.display = "none";
+                  }
+              } else {
+                  // réafficher tout
+                  span.style.display = "inline-block";
+              }
+          });
+          const icon = toggleActifInactifBtn.querySelector("i");
+          if (showingOnlyActifs) {
+              icon.classList.remove("fa-eye");
+              icon.classList.add("fa-eye-slash");
+          } else {
+              icon.classList.remove("fa-eye-slash");
+              icon.classList.add("fa-eye");
+          }
+      });
+    }
+
     function callComptePossede(event) {
       event.preventDefault();
       var carteid = $(this).val();
@@ -264,6 +309,7 @@
 
     function onPageLoad() {
       initEvent();
+      initToogleActifInactif();
     }
     
     window.addEventListener('load', onPageLoad);
