@@ -19,7 +19,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 #[Route('/reset-password')]
@@ -37,7 +37,7 @@ class ResetPasswordController extends AbstractController
      * Display & process form to request a password reset.
      */
     #[Route('', name: 'app_forgot_password_request')]
-    public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator, RateLimiterFactory $passwordResetLimiter): Response
+    public function request(Request $request, MailerInterface $mailer, TranslatorInterface $translator, RateLimiterFactoryInterface $passwordResetLimiter): Response
     {
         // Protection anti-abus par IP
         $limiter = $passwordResetLimiter->create($request->getClientIp());
