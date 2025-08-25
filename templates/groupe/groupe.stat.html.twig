@@ -104,23 +104,25 @@
 
 {% block styleSheets %}
 <style>
-/* Conteneur avec l'effet glassmorphism global */
 .table-wrapper {
-  background: rgba(15, 15, 15, 0.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(15, 15, 15, 0.55); 
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   padding: 1rem;
 }
-
-/* Table sans blur direct */
+.table-blur th:first-child,
+.table-blur td:first-child {
+  background-color: rgba(20, 20, 20, 0.9); /* fond sombre uni */
+  backdrop-filter: none;                   /* supprime le flou */
+  color: #fff;                             /* écriture claire */
+  position: sticky;                        /* optionnel : fixe la colonne */
+  left: 0;
+  z-index: 2;
+}
 .table-blur {
   background: transparent;
 }
-
-/* Hover optimisé : on joue uniquement sur la couleur */
 .table-blur tbody tr:hover {
   background-color: rgba(255, 255, 255, 0.07) !important;
   transition: background-color 0.2s ease;
