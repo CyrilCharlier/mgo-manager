@@ -57,9 +57,11 @@ class PublicationController extends AbstractController
         // Vérifier si une publication existe déjà à cette date
         foreach ($compte->getPublications() as $pub) {
             if ($pub->getDate()->format('Y-m-d') === $dateObj->format('Y-m-d')) {
+                $em->remove($pub);
+                $em->flush();
                 return new JsonResponse([
-                    'success' => false,
-                    'message' => 'Publication déjà enregistrée pour cette date.',
+                    'success' => true,
+                    'message' => 'Publication supprimée pour cette date.',
                 ]);
             }
         }

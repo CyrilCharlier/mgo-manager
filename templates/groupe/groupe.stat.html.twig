@@ -31,13 +31,11 @@
             {% endfor %}
 <td class="text-center {% if hasPublication %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}">
     {% if hasPublication %}
-        <button class="btn-icon btn-success" disabled>
+        <button class="btn-icon btn-success publier-btn" data-id="{{ compte.id }}" data-date="{{ day|date('Y-m-d') }}">
             <i class="fa-solid fa-check text-success"></i>
         </button>
     {% else %}
-        <button class="btn-icon btn-danger publier-btn" 
-                data-id="{{ compte.id }}" 
-                data-date="{{ day|date('Y-m-d') }}">
+        <button class="btn-icon btn-danger publier-btn" data-id="{{ compte.id }}" data-date="{{ day|date('Y-m-d') }}">
             <i class="fa-solid fa-xmark text-danger"></i>
         </button>
     {% endif %}
@@ -179,18 +177,25 @@
                     });
 
                     if (response.ok) {
-                        btn.classList.remove('btn-danger');
-                        btn.classList.add('btn-success');
-                        btn.disabled = true;
-                        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                      const isDanger = btn.classList.contains('btn-danger');
 
-                        // Désactiver le bouton
-                        btn.disabled = true;
+                      // Définir les classes et icônes selon l'état
+                      const from = isDanger ? 'btn-danger' : 'btn-success';
+                      const to   = isDanger ? 'btn-success' : 'btn-danger';
+                      const icon = isDanger 
+                          ? '<i class="fa-solid fa-check text-success"></i>' 
+                          : '<i class="fa-solid fa-xmark text-danger"></i>';
 
-                        const td = btn.closest('td');
-                        if (td) {
-                            td.classList.replace('bg-danger-subtle', 'bg-success-subtle');
-                        }
+                      btn.classList.replace(from, to);
+                      btn.innerHTML = icon;
+
+                      const td = btn.closest('td');
+                      if (td) {
+                          td.classList.replace(
+                              from === 'btn-danger' ? 'bg-danger-subtle' : 'bg-success-subtle',
+                              to === 'btn-success' ? 'bg-success-subtle' : 'bg-danger-subtle'
+                          );
+                      }
                     } else {
                         MGOM.notify(data.message, 'error');
                     }
