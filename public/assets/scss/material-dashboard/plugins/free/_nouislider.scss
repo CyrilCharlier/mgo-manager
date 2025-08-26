@@ -144,10 +144,10 @@
   background: $white;
   cursor: default;
   box-shadow: inset 0 0 1px $white, inset 0 1px 7px #EBEBEB, 0 3px 6px -3px #BBB;
-  webkit-transition: .3s ease 0s;
+  -webkit-transition: .3s ease 0s;
   -moz-transition: .3s ease 0s;
   -ms-transition: .3s ease 0s;
-  -o-transform: .3s ease 0s;
+  -o-transition: .3s ease 0s;
   transition: .3s ease 0s;
 }
 .noUi-active {
