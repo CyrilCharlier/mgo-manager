@@ -9,6 +9,8 @@ use App\Entity\User;
 use App\Form\CarteForm;
 use App\Form\SetForm;
 use App\Repository\AlbumRepository;
+use App\Repository\CarteRepository;
+use App\Repository\SetRepository;
 use App\Repository\UserRepository;
 use App\Service\AlbumCleanupService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,22 +43,22 @@ final class AdminController extends AbstractController
     }
 
     #[Route('/admin/pages', name: 'app_admin_pages')]
-    public function pages(AlbumRepository $albumRepository): Response
+    public function pages(SetRepository $setRepository): Response
     {
-        $album = $albumRepository->findOneBy(['active' => true]);
+        $sets = $setRepository->findAll();
 
         return $this->render('admin/page.html.twig', [
-            'album' => $album,
+            'sets' => $sets,
         ]);
     }
 
     #[Route('/admin/cartes', name: 'app_admin_cartes')]
-    public function cartes(AlbumRepository $albumRepository): Response
+    public function cartes(CarteRepository $carteRepository): Response
     {
-        $album = $albumRepository->findOneBy(['active' => true]);
+        $cartes = $carteRepository->findAll();
 
         return $this->render('admin/carte.html.twig', [
-            'album' => $album,
+            'cartes' => $cartes,
         ]);
     }
 

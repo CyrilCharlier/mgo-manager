@@ -23,11 +23,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for s in album.sets %}
-                            {% for c in s.cartes %}
+                            {% for c in cartes %}
                                 <tr>
-                                    <td>{{ album.name }}</td>
-                                    <td>{{ s.name }}</td>
+                                    <td>{{ c.s.album.name }}</td>
+                                    <td>{{ c.s.name }}</td>
                                     <td id="num{{c.id}}">{{ c.num }}</td>
                                     <td id="name{{c.id}}">{{ c.name }}</td>
                                     <td id="nbetoile{{c.id}}">{{ c.nbetoile }}</td>
@@ -45,7 +44,6 @@
                                             data-bs-toggle="modal"
                                             data-bs-target="#carteModal">Modifier</button></td>
                                 </tr>
-                            {% endfor %}
                             {% endfor %}
                             </tbody>
                         </table>
