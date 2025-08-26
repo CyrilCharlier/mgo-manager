@@ -28725,10 +28725,10 @@ span.flatpickr-weekday {
   background: #fff;
   cursor: default;
   box-shadow: inset 0 0 1px #fff, inset 0 1px 7px #EBEBEB, 0 3px 6px -3px #BBB;
-  webkit-transition: 0.3s ease 0s;
+  -webkit-transition: 0.3s ease 0s;
   -moz-transition: 0.3s ease 0s;
   -ms-transition: 0.3s ease 0s;
-  -o-transform: 0.3s ease 0s;
+  -o-transition: 0.3s ease 0s;
   transition: 0.3s ease 0s;
 }
 
@@ -31152,10 +31152,10 @@ span.flatpickr-weekday {
   background: #fff;
   cursor: default;
   box-shadow: inset 0 0 1px #fff, inset 0 1px 7px #EBEBEB, 0 3px 6px -3px #BBB;
-  webkit-transition: 0.3s ease 0s;
+  -webkit-transition: 0.3s ease 0s;
   -moz-transition: 0.3s ease 0s;
   -ms-transition: 0.3s ease 0s;
-  -o-transform: 0.3s ease 0s;
+  -o-transition: 0.3s ease 0s;
   transition: 0.3s ease 0s;
 }
 
