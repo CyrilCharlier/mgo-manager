@@ -185,6 +185,37 @@ final class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/carte/{id}/inline-edit', name: 'app_admin_carte_inline_edit', methods: ['POST'])]
+    public function inlineEdit(Request $request, Carte $carte, EntityManagerInterface $em): JsonResponse
+    {
+        $field = $request->request->get('field');
+        $value = $request->request->get('value');
+
+        if ($field === 'name') {
+            $carte->setName($value);
+        } else if ($field === 'num') {
+            if (!ctype_digit($value)) {
+                return new JsonResponse(['success' => false, 'error' => 'Numéro invalide']);
+            }
+            $carte->setNum($value);
+        } else if ($field === 'nbetoile') {
+            if (!ctype_digit($value)) {
+                return new JsonResponse(['success' => false, 'error' => 'Numéro invalide']);
+            }
+            $etoiles = (int) $value;
+            if ($etoiles < 1 || $etoiles > 6) {
+                return new JsonResponse(['success' => false, 'error' => 'Nombre d’étoiles invalide']);
+            }
+            $carte->setNbetoile($etoiles);
+        } else if ($field === 'golden') {
+            $carte->setGolden($value);
+        }
+
+        $em->flush();
+
+        return new JsonResponse(['success' => true, 'value' => $value]);
+    }
+
     #[Route('/admin/cleanup', name: 'app_admin_cleanup')]
     public function cleanupHistorique(EntityManagerInterface $em): Response
     {

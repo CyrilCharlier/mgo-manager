@@ -19,7 +19,6 @@
                                     <th>Nom</th>
                                     <th>Etoile</th>
                                     <th>Or</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -27,22 +26,17 @@
                                 <tr>
                                     <td>{{ c.s.album.name }}</td>
                                     <td>{{ c.s.name }}</td>
-                                    <td id="num{{c.id}}">{{ c.num }}</td>
-                                    <td id="name{{c.id}}">{{ c.name }}</td>
-                                    <td id="nbetoile{{c.id}}">{{ c.nbetoile }}</td>
+                                    <td class="editable" data-id="{{ c.id }}" data-field="num" id="num{{c.id}}">{{ c.num }}</td>
+                                    <td class="editable" data-id="{{ c.id }}" data-field="name" id="name{{c.id}}">{{ c.name }}</td>
+                                    <td class="editable" data-id="{{ c.id }}" data-field="nbetoile" id="nbetoile{{c.id}}">{{ c.nbetoile }}</td>
                                     <td>
-                                        {% if c.golden %}
-                                            <i class="material-icons text-warning" id="golden{{c.id}}">star</i>
-                                        {% else %}
-                                            <i class="material-icons text-muted" id="golden{{c.id}}">star_border</i>
-                                        {% endif %}
+                                        <i class="material-icons {% if c.golden %}text-warning{% else %}text-muted{% endif %} editable-golden"
+                                            data-id="{{ c.id }}"
+                                            data-field="golden"
+                                            style="cursor:pointer;">
+                                            {% if c.golden %}star{% else %}star_border{% endif %}
+                                        </i>
                                     </td>
-                                    <td>
-                                        <button class="waves-effect waves-light btn btn-primary btn-sm"
-                                            data-url="{{ path('app_admin_carte_edit', {'id': c.id}) }}"
-                                            data-title="Modifier une carte"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#carteModal">Modifier</button></td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -53,102 +47,10 @@
         </div>
     </section>
 </div>
-<div class="modal fade" id="carteModal" tabindex="-1" aria-hidden="true" style="z-index:10000;">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content bg-dark text-white border-secondary">
-        <div class="modal-header">
-            <h5 class="modal-title" id="carteModalTitle">Ajouter un compte</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" id="carteModalBody">
-            <div class="text-center text-muted">Chargement...</div>
-        </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block javaScripts %}
 <script>
-    function initModalPage () {
-        const modal = document.getElementById('carteModal');
-        const modalBody = document.getElementById('carteModalBody');
-        const modalTitle = document.getElementById('carteModalTitle');
-
-        if (!modal || !modalBody) return;
-
-        modal.addEventListener('show.bs.modal', event => {
-            const trigger = event.relatedTarget;
-            const url = trigger.getAttribute('data-url');
-            const title = trigger.getAttribute('data-title');
-            modalTitle.innerHTML = title;
-
-            if (!url) return;
-
-            // Affiche un loader temporaire
-            modalBody.innerHTML = '<div class="text-center text-muted">Chargement...</div>';
-
-            // Charge le formulaire
-            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(response => {
-                    if (!response.ok) throw new Error('Erreur lors du chargement du formulaire');
-                        return response.text();
-                })
-                .then(html => {
-                    modalBody.innerHTML = html;
-                })
-                .catch(err => {
-                    console.error(err);
-                    modalBody.innerHTML = '<div class="text-danger">Erreur de chargement.</div>';
-                });
-        });
-
-        document.addEventListener('submit', function(e) {
-            if (e.target && e.target.matches('#ajaxCarteForm')) {
-                e.preventDefault();
-                const form = e.target;
-                const action = form.getAttribute('action');
-                const method = form.getAttribute('method') || 'POST';
-
-                const formData = new FormData(form);
-
-                fetch(action, {
-                    method: method,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        // Mise à jour dynamique des champs dans le tableau
-                        document.querySelector(`#num${data.data.id}`).textContent = data.data.num;
-                        document.querySelector(`#name${data.data.id}`).textContent = data.data.name;
-                        document.querySelector(`#nbetoile${data.data.id}`).textContent = data.data.nbetoile;
-
-                        const goldenCell = document.getElementById('golden' + data.data.id);
-                        if (goldenCell) {
-                            data.data.golden
-                                ? goldenCell.innerHTML=`<i class="material-icons text-warning" title="Golden">star</i>`
-                                : goldenCell.innerHTML=`<i class="material-icons text-muted" title="Non golden">star_border</i>`;
-                        }
-
-                        // Ferme le modal Bootstrap 5
-                        const modalElement = document.getElementById('carteModal');
-                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                        modalInstance.hide();
-                    } else {
-                        console.error('Erreur de validation côté serveur');
-                    }
-                })
-                .catch(err => {
-                    console.error('Erreur AJAX :', err);
-                });
-            }
-        });
-    }
-
     function initSearch() {
         const input = document.getElementById('searchInput');
         const tbody = document.querySelector('table tbody');
@@ -189,9 +91,115 @@
         });
     }
 
+    function initEditInline() {
+        document.querySelectorAll("td.editable").forEach(function (cell) {
+            cell.addEventListener("click", function () {
+                if (cell.querySelector("input")) return; // déjà en édition
+
+                const oldValue = cell.innerText.trim();
+                const input = document.createElement("input");
+                if (cell.dataset.field === "num" || cell.dataset.field === "nbetoile") {
+                    input.type = "number";
+                    input.min = "1";
+                    if (cell.dataset.field === "nbetoile") input.max = "6";
+                    if (cell.dataset.field === "nu:") input.max = "9";
+                } else {
+                    input.type = "text";
+                }
+                input.value = oldValue;
+                input.className = "form-control form-control-sm";
+
+                cell.innerHTML = "";
+                cell.appendChild(input);
+                input.focus();
+
+                const save = () => {
+                    const newValue = input.value.trim();
+                    if (newValue === oldValue) {
+                        cell.innerText = oldValue;
+                        return;
+                    }
+
+                    fetch(`/admin/carte/${cell.dataset.id}/inline-edit`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: new URLSearchParams({
+                            field: cell.dataset.field,
+                            value: newValue
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            cell.innerText = data.value;
+                        } else {
+                            cell.innerText = oldValue;
+                            MGOM.notify(data.error, 'error');
+                        }
+                    })
+                    .catch(() => {
+                        cell.innerText = oldValue;
+                        MGOM.notify("Erreur réseau", 'error');
+                    });
+                };
+
+                input.addEventListener("blur", save);
+                input.addEventListener("keydown", function (e) {
+                    if (e.key === "Enter") save();
+                    if (e.key === "Escape") cell.innerText = oldValue;
+                });
+            });
+        });
+
+        document.querySelectorAll("i.editable-golden").forEach(function (elt) {
+            elt.addEventListener("click", function () {
+                const id = this.dataset.id;
+                const field = this.dataset.field;
+                const currentValue = this.textContent.trim() === "star";
+                const newValue = currentValue ? 0 : 1;
+
+                fetch(`/admin/carte/${elt.dataset.id}/inline-edit`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: new URLSearchParams({
+                        field: elt.dataset.field,
+                        value: newValue
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        if (newValue) {
+                            this.textContent = "star";
+                            this.classList.remove("text-muted");
+                            this.classList.add("text-warning");
+                        } else {
+                            this.textContent = "star_border";
+                            this.classList.remove("text-warning");
+                            this.classList.add("text-muted");
+                        }
+                    } else {
+                        cell.innerText = oldValue;
+                        MGOM.notify(data.error, 'error');
+                    }
+                })
+                .catch(() => {
+                    cell.innerText = oldValue;
+                    MGOM.notify("Erreur réseau", 'error');
+                });
+            });
+        });
+    }
+
     function onPageLoad() {
-        initModalPage();
         initSearch();
+        initEditInline();
     }
     
     window.addEventListener('load', onPageLoad);
