@@ -157,36 +157,28 @@ final class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/carte/{id}/edit', name: 'app_admin_carte_edit')]
-    public function carteEdit(Carte $c, Request $request, EntityManagerInterface $em): Response
+    #[Route('/admin/set/{id}/inline-edit', name: 'app_admin_set_inline_edit', methods: ['POST'])]
+    public function inlineEditSet(Request $request, Set $set, EntityManagerInterface $em): JsonResponse
     {
-        $s = $c->getS();
-        $form = $this->createForm(CarteForm::class, $c, [
-            'action' => $this->generateUrl('app_admin_carte_edit', ['id' => $c->getId()]),
-        ]);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $c->setS($s);
-            $em->persist($c);
-            $em->flush();
-            return $this->json([
-                'success' => true,
-                'data' => [
-                    'id' => $c->getId(),
-                    'num' => $c->getNum(),
-                    'golden' => $c->isGolden(),
-                    'name' => $c->getNameStyle(),
-                    'nbetoile' => $c->getNbetoile(),                    
-                ] 
-            ]);
+        $field = $request->request->get('field');
+        $value = $request->request->get('value');
+
+        if ($field === 'name') {
+            $set->setName($value);
+        } else if ($field === 'page') {
+            if (!ctype_digit($value)) {
+                return new JsonResponse(['success' => false, 'error' => 'Numéro invalide']);
+            }
+            $set->setPage($value);
         }
-        return $this->render('admin/form.carte.html.twig', [
-            'form' => $form->createView(),
-        ]);
+
+        $em->flush();
+
+        return new JsonResponse(['success' => true, 'value' => $value]);
     }
 
     #[Route('/admin/carte/{id}/inline-edit', name: 'app_admin_carte_inline_edit', methods: ['POST'])]
-    public function inlineEdit(Request $request, Carte $carte, EntityManagerInterface $em): JsonResponse
+    public function inlineEditCarte(Request $request, Carte $carte, EntityManagerInterface $em): JsonResponse
     {
         $field = $request->request->get('field');
         $value = $request->request->get('value');

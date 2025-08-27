@@ -13,22 +13,14 @@
                                     <th>Album</th>
                                     <th>Page</th>
                                     <th>Nom</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {% for s in sets %}
                                 <tr>
                                     <td>{{ s.album.name }}</td>
-                                    <td id="page{{s.id}}">{{ s.page }}</td>
-                                    <td id="name{{s.id}}">{{ s.name }}</td>
-                                    <td>
-                                        <button class="waves-effect waves-light btn btn-primary btn-sm"
-                                            data-url="{{ path('app_admin_set_edit', {'id': s.id}) }}"
-                                            data-title="Modifier une page"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#pageModal">Modifier</button>
-                                    </td>
+                                    <td class="editable" data-id="{{ s.id }}" data-field="page" id="page{{s.id}}">{{ s.page }}</td>
+                                    <td class="editable" data-id="{{ s.id }}" data-field="name"id="name{{s.id}}">{{ s.name }}</td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -39,97 +31,75 @@
         </div>
     </section>
 </div>
-<div class="modal fade" id="pageModal" tabindex="-1" aria-hidden="true" style="z-index:10000;">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content bg-dark text-white border-secondary">
-        <div class="modal-header">
-            <h5 class="modal-title" id="pageModalTitle">Modification d'une page</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" id="pageModalBody">
-            <div class="text-center text-muted">Chargement...</div>
-        </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block javaScripts %}
 <script>
-    function initModalPage () {
-        const modal = document.getElementById('pageModal');
-        const modalBody = document.getElementById('pageModalBody');
-        const modalTitle = document.getElementById('pageModalTitle');
+    function initEditInline() {
+        document.querySelectorAll("td.editable").forEach(function (cell) {
+            cell.addEventListener("click", function () {
+                if (cell.querySelector("input")) return; // déjà en édition
 
-        if (!modal || !modalBody) return;
+                const oldValue = cell.innerText.trim();
+                const input = document.createElement("input");
+                if (cell.dataset.field === "page") {
+                    input.type = "number";
+                    input.min = "1";
+                    input.max = "25";
+                } else {
+                    input.type = "text";
+                }
+                input.value = oldValue;
+                input.className = "form-control form-control-sm";
 
-        modal.addEventListener('show.bs.modal', event => {
-            const trigger = event.relatedTarget;
-            const url = trigger.getAttribute('data-url');
-            const title = trigger.getAttribute('data-title');
-            modalTitle.innerHTML = title;
+                cell.innerHTML = "";
+                cell.appendChild(input);
+                input.focus();
 
-            if (!url) return;
-
-            // Affiche un loader temporaire
-            modalBody.innerHTML = '<div class="text-center text-muted">Chargement...</div>';
-
-            // Charge le formulaire
-            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(response => {
-                    if (!response.ok) throw new Error('Erreur lors du chargement du formulaire');
-                        return response.text();
-                })
-                .then(html => {
-                    modalBody.innerHTML = html;
-                })
-                .catch(err => {
-                    console.error(err);
-                    modalBody.innerHTML = '<div class="text-danger">Erreur de chargement.</div>';
-                });
-        });
-
-        document.addEventListener('submit', function(e) {
-            if (e.target && e.target.matches('#ajaxSetForm')) {
-                e.preventDefault();
-                const form = e.target;
-                const action = form.getAttribute('action');
-                const method = form.getAttribute('method') || 'POST';
-
-                const formData = new FormData(form);
-
-                fetch(action, {
-                    method: method,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        // Mise à jour dynamique des champs dans le tableau
-                        document.querySelector(`#page${data.data.id}`).textContent = data.data.page;
-                        document.querySelector(`#name${data.data.id}`).textContent = data.data.name;
-
-                        // Ferme le modal Bootstrap 5
-                        const modalElement = document.getElementById('pageModal');
-                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                        modalInstance.hide();
-                    } else {
-                        console.error('Erreur de validation côté serveur');
+                const save = () => {
+                    const newValue = input.value.trim();
+                    if (newValue === oldValue) {
+                        cell.innerText = oldValue;
+                        return;
                     }
-                })
-                .catch(err => {
-                    console.error('Erreur AJAX :', err);
-                });
-            }
-        });
 
+                    fetch(`/admin/set/${cell.dataset.id}/inline-edit`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: new URLSearchParams({
+                            field: cell.dataset.field,
+                            value: newValue
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            cell.innerText = data.value;
+                        } else {
+                            cell.innerText = oldValue;
+                            MGOM.notify(data.error, 'error');
+                        }
+                    })
+                    .catch(() => {
+                        cell.innerText = oldValue;
+                        MGOM.notify("Erreur réseau", 'error');
+                    });
+                };
+
+                input.addEventListener("blur", save);
+                input.addEventListener("keydown", function (e) {
+                    if (e.key === "Enter") save();
+                    if (e.key === "Escape") cell.innerText = oldValue;
+                });
+            });
+        });
     }
 
     function onPageLoad() {
-        initModalPage();
+        initEditInline();
     }
     
     window.addEventListener('load', onPageLoad);
