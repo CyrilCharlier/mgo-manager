@@ -156,6 +156,34 @@ final class AdminController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+    
+    #[Route('/admin/carte/{id}/edit', name: 'app_admin_carte_edit')]
+    public function carteEdit(Carte $c, Request $request, EntityManagerInterface $em): Response
+    {
+        $s = $c->getS();
+        $form = $this->createForm(CarteForm::class, $c, [
+            'action' => $this->generateUrl('app_admin_carte_edit', ['id' => $c->getId()]),
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $c->setS($s);
+            $em->persist($c);
+            $em->flush();
+            return $this->json([
+                'success' => true,
+                'data' => [
+                    'id' => $c->getId(),
+                    'num' => $c->getNum(),
+                    'golden' => $c->isGolden(),
+                    'name' => $c->getNameStyle(),
+                    'nbetoile' => $c->getNbetoile(),                    
+                ] 
+            ]);
+        }
+        return $this->render('admin/form.carte.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
 
     #[Route('/admin/set/{id}/inline-edit', name: 'app_admin_set_inline_edit', methods: ['POST'])]
     public function inlineEditSet(Request $request, Set $set, EntityManagerInterface $em): JsonResponse
