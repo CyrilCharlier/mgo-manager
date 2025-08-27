@@ -24,7 +24,7 @@
   </div>
 </div>
 {% endif %}
-        <div class="scroll-container d-flex flex-nowrap overflow-auto pb-3 gap-3">
+        <div class="scroll-container d-flex flex-nowrap pb-3 gap-3">
           {% if album is not null %}
               {% for c in userComptes %}
                 <div style="min-width: 300px; max-width: 350px;">
@@ -463,5 +463,17 @@
 .text-hover-primary:hover {
   color: #0d6efd !important;
 }
+/* Forcer le scroll horizontal uniquement */
+.scroll-container {
+  overflow-x: auto;
+  overflow-y: hidden;            /* <- clé pour enlever la barre verticale */
+  scrollbar-gutter: stable both-edges; /* optionnel, évite les décalages */
+}
+
+/* Tu gardes ta personnalisation du scroll horizontal */
+.scroll-container::-webkit-scrollbar { height: 6px; }
+
+/* Et on masque explicitement la verticale au cas où */
+.scroll-container::-webkit-scrollbar:vertical { width: 0; }
 </style>
 {% endblock %}
