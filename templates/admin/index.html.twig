@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <section class="px-md-4">
         <div class="row">
-            <div class="col-lg-6 mb-3">
+            {#<div class="col-lg-6 mb-3">
                 <div class="card card-frame">
                     <div class="card-body">
                         <h3>Charge Album</h3>
@@ -15,8 +15,8 @@
                             data-url="{{path('app_admin_charge_starwars')}}">STARWARS</button>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-6 mb-3">
+            </div>#}
+            <div class="col-lg-12 mb-3">
                 <div class="card card-frame">
                     <div class="card-body">
                         <h3>Purge</h3>
@@ -57,7 +57,14 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="/admin/album/{{a.id}}/active" class="btn btn-primary btn-sm ">Active</a>
+                                        <a href="/admin/album/{{a.id}}/active" class="btn btn-primary btn-sm">Active</a>
+                                        <button 
+                                            class="btn btn-sm btn-primary init-album" 
+                                            data-album-id="{{ a.id }}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#initAlbumModal">
+                                            Initialiser
+                                        </button>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -141,7 +148,7 @@
         </div>
     </section>
 </div>
-<div class="modal fade" id="confirmTraitement" tabindex="-1" aria-labelledby="confirmTraitementLabel" aria-hidden="true">
+{#<div class="modal fade" id="confirmTraitement" tabindex="-1" aria-labelledby="confirmTraitementLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white border-secondary">
             <div class="modal-header border-0">
@@ -157,7 +164,7 @@
             </div>
         </div>
     </div>
-</div>
+</div>#}
 <div class="modal fade" id="confirmPurge" tabindex="-1" aria-labelledby="confirmPurgeLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white border-secondary">
@@ -175,11 +182,45 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="initAlbumModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="initAlbumForm">
+      <div class="modal-content bg-dark border-secondary">
+        <div class="modal-header">
+          <h5 class="modal-title">Initialiser l'album</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="albumId" id="albumId">
+          <div class="mb-3 text-center">
+            <label for="nbSets" class="form-label fw-bold">
+                Nombre de sets à créer
+            </label>
+            <input type="number" 
+                    class="form-control form-control-lg text-center border border-light bg-dark text-white" 
+                    id="nbSets" 
+                    name="nbSets" 
+                    min="1" 
+                    value="19" 
+                    required>
+            <div class="form-text">
+                Chaque set contiendra <b>9 cartes</b>.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Créer</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block javaScripts %}
     <script>
-        function initConfirmTraitement() {
+        {#function initConfirmTraitement() {
             const modal = document.getElementById('confirmTraitement');
             const confirmBtn = document.getElementById('confirmTraitementBtn');
 
@@ -189,7 +230,7 @@
 
                 confirmBtn.setAttribute('href', url);
             });
-        }
+        }#}
         function initConfirmPurge() {
             const modal = document.getElementById('confirmPurge');
             const confirmBtn = document.getElementById('confirmPurgeBtn');
@@ -201,9 +242,37 @@
                 confirmBtn.setAttribute('href', url);
             });
         }
+        function initAlbumInit() {
+            const initButtons = document.querySelectorAll(".init-album");
+            const albumIdInput = document.getElementById("albumId");
+
+            initButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    albumIdInput.value = btn.dataset.albumId;
+                });
+            });
+
+            document.getElementById("initAlbumForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                fetch("/admin/album/init", {
+                    method: "POST",
+                    body: new FormData(this)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        MGOM.notify(data.message, 'error');
+                    }
+                });
+            });
+        }
         function onPageLoad() {
-            initConfirmTraitement();
+            {# initConfirmTraitement(); #}
             initConfirmPurge();
+            initAlbumInit();
         }
 
         window.addEventListener('load', onPageLoad);

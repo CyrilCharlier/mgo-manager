@@ -121,6 +121,41 @@ final class AdminController extends AbstractController
         return $this->redirectToRoute('app_admin');
     }
 
+    #[Route('/admin/album/init', name: 'admin_album_init', methods: ['POST'])]
+    public function initAlbum(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $albumId = $request->request->get('albumId');
+        $nbSets = (int) $request->request->get('nbSets');
+
+        $album = $em->getRepository(Album::class)->find($albumId);
+        if (!$album) {
+            return new JsonResponse(['success' => false, 'message' => 'Album introuvable']);
+        }
+
+        for ($i = 1; $i <= $nbSets; $i++) {
+            $set = new Set();
+            $set->setAlbum($album);
+            $set->setName("Set $i");
+            $set->setPage($i);
+            $em->persist($set);
+
+            for ($j = 1; $j <= 9; $j++) {
+                $carte = new Carte();
+                $carte->setS($set);
+                $carte->setNum($j);
+                $carte->setNbetoile(1);
+                $carte->setGolden(false);
+                $carte->setName('.');
+                $carte->setTransferable(true);
+                $em->persist($carte);
+            }
+        }
+
+        $em->flush();
+
+        return new JsonResponse(['success' => true]);
+    }
+
     #[Route('/admin/carte/{id}/toggletransfert', name: 'app_admin_carte_toggle_transfert', methods: ['GET'])]
     public function carteToggleTransfert(Carte $c, EntityManagerInterface $em): Response
     {
