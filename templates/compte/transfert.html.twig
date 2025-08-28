@@ -9,77 +9,81 @@
                     <div class="card-body">
                         <div class="mb-3 text-start text-white">
                             <i class="material-symbols-rounded opacity-5">info</i>
-                            Dans l'enête de la colonne, c'est le compte qui peut donner la carte. Face aux noms des cartes c'est le compte qui peut recevoir.
+                            Vue par compte : chaque bloc montre les cartes que ce compte peut recevoir, avec les donneurs possibles (et leur stock de doublons).
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="row">
-{% for s in album.sets %}
+        {% set comptes = app.user.comptes|sort((a, b) => a.isPrincipal ? -1 : 1) %}
+        {% for cpte in comptes %}
             <div class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
                 <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
-                     {{ s.page }} - {{ s.name }}
+                    {{ cpte.name }}
                 </div>
                 <div class="card card-frame">
                     <div class="card-body">
                         <div class="text-xs">
                             <div class="table-responsive">
-                            <table id="mainTable{{ s.id }}" class="table table-sm table-hover mb-0 text-xs">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center">#</th>
-                                        <th>Carte</th>
-                                        {% for cpte in app.user.comptes %}
-                                        <th class="text-center" data-bs-toggle="tooltip" title="{{ cpte.name }}">
-                                            {{ cpte.name }}
-                                        </th>
-                                        {% endfor %}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for c in s.cartes %}
-                                    <tr>
-                                        <td class="text-center text-primary">{{c.num}}</td>
-                                        <td class="text-primary">{{c.getNameStyle}}</td>
-                                        {% for cpte in app.user.comptes %}
-                                        <td class="text-center">
-                                        {% set carteObtenue = cpte.getCarteObtenue(c) %}
-                                        {% if carteObtenue is not null and carteObtenue.nombre > 1 and (not c.isGolden or c.isTransferable) %}
-                                        {% for cpte2 in app.user.comptes %}
-                                            {% if cpte.id == cpte2.id %}{% else %}
-                                                {% if cpte2.getCarteObtenue(c) is null %}
-                                                <button
-                                                    type="button"
-                                                    id="transfert_carte_{{c.id}}_{{cpte.id}}_{{cpte2.id}}"
-                                                    data-id-carte="{{c.id}}"
-                                                    data-name-carte="{{c.name}}"
-                                                    data-name-compte-from="{{cpte.name}}"
-                                                    data-id-compte-from="{{cpte.id}}"
-                                                    data-id-compte-to="{{cpte2.id}}"
-                                                    data-name-compte-to="{{cpte2.name}}"
-                                                    data-bs-toggle="tooltip"
-                                                    title="{{ cpte2.name }}"
-                                                    class="waves-effect waves-light btn btn-primary btn-xs"
-                                                    >
-                                                {{ cpte2.name }}
-                                                </button><br>
+                                <table class="table table-sm table-hover mb-0 text-xs">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">#</th>
+                                            <th>Carte</th>
+                                            <th>Peut donner</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for s in album.sets %}
+                                        {% for c in s.cartes %}
+                                            {% set carteObtenue = cpte.getCarteObtenue(c) %}
+                                            {% if carteObtenue is null %}
+                                                {% set donneurs = [] %}
+                                                {% for cpte2 in comptes %}
+                                                    {% if cpte2.id != cpte.id %}
+                                                        {% set obt = cpte2.getCarteObtenue(c) %}
+                                                        {% if obt is not null and obt.nombre > 1 and (not c.isGolden or c.isTransferable) %}
+                                                            {% set donneurs = donneurs|merge([{ 'compte': cpte2, 'nombre': obt.nombre }]) %}
+                                                        {% endif %}
+                                                    {% endif %}
+                                                {% endfor %}
+
+                                                {% if donneurs|length > 0 %}
+                                                    <tr data-id-carte="{{ c.id }}" data-id-compte-to="{{ cpte.id }}">
+                                                        <td class="text-center text-primary">{{ c.num }}</td>
+                                                        <td class="text-primary">{{ c.getNameStyle }}</td>
+                                                        <td>
+                                                            {% for d in donneurs %}
+                                                                <button
+                                                                    type="button"
+                                                                    data-id-carte="{{ c.id }}"
+                                                                    data-name-carte="{{ c.name }}"
+                                                                    data-name-compte-from="{{ d.compte.name }}"
+                                                                    data-id-compte-from="{{ d.compte.id }}"
+                                                                    data-id-compte-to="{{ cpte.id }}"
+                                                                    data-name-compte-to="{{ cpte.name }}"
+                                                                    data-stock="{{ d.nombre }}"
+                                                                    class="btn btn-xs btn-primary transfert-btn"
+                                                                >
+                                                                    {{ d.compte.name }} (x{{ d.nombre - 1 }})
+                                                                </button>
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
                                                 {% endif %}
                                             {% endif %}
                                         {% endfor %}
-                                        {% endif %}
-                                        </td>
-                                        {% endfor %}
-                                    </tr>
                                     {% endfor %}
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-{% endfor %}
+        {% endfor %}
         </div>
     </section>
 </div>
@@ -101,7 +105,6 @@
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block javaScripts %}
@@ -113,18 +116,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let currentButton = null;
 
-    document.querySelectorAll('button[id^="transfert_carte_"]').forEach(function (btn) {
+    document.querySelectorAll('.transfert-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             currentButton = btn;
 
-            const idCarte = btn.dataset.idCarte;
             const nameCarte = btn.dataset.nameCarte;
             const fromName = btn.dataset.nameCompteFrom;
             const toName = btn.dataset.nameCompteTo;
 
             modalBody.textContent = `Confirmer le transfert de la carte ${nameCarte} de ${fromName} vers ${toName} ?`;
-
-            // Afficher la modale
             modal.show();
         });
     });
@@ -138,18 +138,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
         fetch(`/compte/transfert/${fromId}/${toId}/${idCarte}`, {
             method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 MGOM.notify(data.message, 'info');
-                currentButton.classList.add('explode');
-                currentButton.addEventListener('animationend', () => {
-                    currentButton.remove();
-                }, { once: true });
+
+                if (data.remaining <= 1) {
+                    // Supprimer tous les boutons du même donneur pour cette carte
+                    const selector = `.transfert-btn[data-id-carte="${idCarte}"][data-id-compte-from="${fromId}"]`;
+                    document.querySelectorAll(selector).forEach(btn => {
+                        btn.classList.add('explode');
+                        btn.addEventListener('animationend', () => btn.remove(), { once: true });
+                    });
+
+                    // Vérifier si plus aucun bouton disponible dans la ligne
+                    const row = currentButton.closest('tr');
+                    setTimeout(() => {
+                        if (row && row.querySelectorAll('.transfert-btn').length === 0) {
+                            row.classList.add('fadeout-row');
+                            row.addEventListener('animationend', () => row.remove(), { once: true });
+                        }
+                    }, 600);
+
+                } else {
+                    // Mettre à jour le stock du bouton cliqué
+                    let newStock = parseInt(currentButton.dataset.stock) - 1;
+                    currentButton.dataset.stock = newStock;
+                    currentButton.textContent = `${currentButton.dataset.nameCompteFrom} (x${newStock-1})`;
+
+                    // Explosion uniquement du bouton cliqué si on veut feedback visuel
+                    currentButton.classList.add('explode');
+                    currentButton.addEventListener('animationend', () => {
+                        currentButton.classList.remove('explode');
+                    }, { once: true });
+                }
+
             } else {
                 MGOM.notify(data.message, 'error');
             }
@@ -164,7 +189,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-
 {% endblock %}
 
 {% block styleSheets %}
@@ -189,27 +213,24 @@ table.table th {
   transform: translateX(-50%);
   font-size: 0.75rem;
   z-index: 2;
-  pointer-events: none; /* pour éviter de bloquer les clics */
+  pointer-events: none;
 }
 
+/* Effet explosion bouton */
 @keyframes explode {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.5) rotate(15deg);
-        opacity: 0.6;
-    }
-    100% {
-        transform: scale(0) rotate(90deg);
-        opacity: 0;
-    }
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5) rotate(15deg); opacity: 0.6; }
+    100% { transform: scale(0) rotate(90deg); opacity: 0; }
 }
+.explode { animation: explode 0.5s ease-out forwards; }
 
-.explode {
-    animation: explode 0.5s ease-out forwards;
+/* Effet disparition ligne */
+@keyframes fadeoutRow {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(100%); }
 }
-
+.fadeout-row {
+    animation: fadeoutRow 0.7s ease forwards;
+}
 </style>
 {% endblock %}

@@ -197,6 +197,13 @@ final class CompteController extends AbstractController
         $cFrom = $compteRepository->find($fromid);
         $cTo = $compteRepository->find($toid);
         $carte = $carteRepository->find($idcarte);
+
+        if (!$cFrom || !$cTo || !$carte) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Compte ou carte introuvable.'
+            ]);
+        }
         
         if (true) {
             if($cFrom->getUser() != $u || $cTo->getUser() != $u) {
@@ -260,7 +267,8 @@ final class CompteController extends AbstractController
 
             return $this->json([
                 'success' => true,
-                'message' => $carte->getName().' a été transférée de '.$cFrom->getName().' à '.$cTo->getName()
+                'message' => $carte->getName().' a été transférée de '.$cFrom->getName().' à '.$cTo->getName(),
+                'remaining' => $coFrom->getNombre() // <- nombre de cartes restantes après transfert
             ]);
         }
         return $this->json([
