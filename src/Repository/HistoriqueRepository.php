@@ -23,7 +23,9 @@ class HistoriqueRepository extends ServiceEntityRepository
     public function findLastXByUser(User $user, int $nb = 100): array
     {
         return $this->createQueryBuilder('h')
+            ->join('h.compte', 'c')
             ->where('h.user = :user')
+            ->orWhere('c.isGroupe = true')
             ->setParameter('user', $user)
             ->orderBy('h.horodatage', 'DESC')
             ->setMaxResults($nb)
