@@ -52,7 +52,7 @@
 
                                                 {% if donneurs|length > 0 %}
                                                     <tr data-id-carte="{{ c.id }}" data-id-compte-to="{{ cpte.id }}">
-                                                        <td class="text-center text-primary">{{ c.num }}</td>
+                                                        <td class="text-center text-primary">p{{s.page}} c{{ c.num }}</td>
                                                         <td class="text-primary">{{ c.getNameStyle }}</td>
                                                         <td>
                                                             {% for d in donneurs %}
