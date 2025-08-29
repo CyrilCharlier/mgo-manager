@@ -28,8 +28,8 @@ class Historique
     private Compte $compte;
 
     #[ORM\ManyToOne(inversedBy: 'historiques')]
-    #[ORM\JoinColumn(nullable: false)]
-    private User $user;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $user;
 
     #[ORM\Column(length: 100)]
     private string $icone;
