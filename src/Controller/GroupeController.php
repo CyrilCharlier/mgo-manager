@@ -207,10 +207,18 @@ final class GroupeController extends AbstractController
         }
         $last7Days = array_reverse($last7Days); // du plus ancien au plus récent
 
+        // Générer les 30 derniers jours (aujourd'hui inclus)
+        $last30Days = [];
+        for ($i = 0; $i < 30; $i++) {
+            $last30Days[] = $today->sub(new \DateInterval("P{$i}D"));
+        }
+        //$last30Days = array_reverse($last30Days); // du plus ancien au plus récent
+
         return $this->render('groupe/groupe.stat.html.twig', [
             'album'       => $album,
             'userComptes' => $userComptes,
             'last7Days'   => $last7Days,
+            'last30Days'  => $last30Days,
         ]);
     }
 }
