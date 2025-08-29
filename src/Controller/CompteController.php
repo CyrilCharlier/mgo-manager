@@ -191,7 +191,7 @@ final class CompteController extends AbstractController
     }
 
     #[Route('/compte/transfert/{fromid}/{toid}/{idcarte}', name: 'app_compte_transfert_api')]
-    public function compteTransfertApi(CompteRepository $compteRepository, CarteRepository $carteRepository, EntityManagerInterface $em, Security $security, $fromid, $toid, $idcarte): JsonResponse
+    public function compteTransfertApi(CompteRepository $compteRepository, CarteRepository $carteRepository, EntityManagerInterface $em, Security $security, int $fromid, int $toid, int $idcarte): JsonResponse
     {
         $u = $security->getUser();
         $cFrom = $compteRepository->find($fromid);
@@ -460,16 +460,25 @@ final class CompteController extends AbstractController
     ): Response
     {
         $u = $this->getCurrentUser();
-        if(!$compte->isGroupe())
-        {
-            if($u != $compte->getUser())
-            {
+        // 🔹 Cas où le compte est un groupe
+        if ($compte->isGroupe()) {
+            if (!$this->isGranted('ROLE_ADMIN_GROUPE')) {
+                return $this->json([
+                    'success' => false,
+                    'message' => "Vous n'avez pas le droit de modifier un compte de groupe."
+                ], 403);
+            }
+        } 
+        // 🔹 Cas où le compte n'est pas un groupe
+        else {
+            if ($u !== $compte->getUser()) {
                 return $this->json([
                     'success' => false,
                     'message' => 'Vous ne pouvez pas enlever une carte pour un autre compte que le vôtre.'
-                ]);
+                ], 403);
             }
         }
+
         if(is_null($compte->getCarteObtenue($c))){
             return $this->json([
                 'success' => false,
@@ -487,9 +496,13 @@ final class CompteController extends AbstractController
         }
         $h = new Historique();
         $h->setTitre('Carte Enlevée');
-        $h->setDescription('Carte ['.$c->getS()->getAlbum()->getName().']['.$c->getS()->getPage().' - '.$c->getS()->getName().']['.$c->getNum().' - '.$c->getName().'] enlevée du compte ['.$compte->getName().']');
+        $h->setDescription(
+            'Carte ['.$c->getS()->getAlbum()->getName().']['.$c->getS()->getPage().' - '.$c->getS()->getName().']['.$c->getNum().' - '.$c->getName().'] '
+            .'enlevée du compte ['.$compte->getName().'] '
+            .'par l’utilisateur ['.$u->getUserIdentifier().']'
+        );
         $h->setCompte($compte);
-        $h->setUser($u);
+        $h->setUser($compte->getUser());
         $h->setIcone('do_not_disturb_on');
         $em->persist($h);
         $em->flush();
@@ -526,12 +539,22 @@ final class CompteController extends AbstractController
     ): Response
     {
         $u = $this->getCurrentUser();
-        if(!$compte->isGroupe()) {
-            if($u != $compte->getUser()) {
+        // 🔹 Cas où le compte est un groupe
+        if ($compte->isGroupe()) {
+            if (!$this->isGranted('ROLE_ADMIN_GROUPE')) {
                 return $this->json([
                     'success' => false,
-                    'message' => 'Vous ne pouvez pas marquer une carte obtenue pour un autre compte que le vôtre'
-                ]);
+                    'message' => "Vous n'avez pas le droit de modifier un compte de groupe."
+                ], 403);
+            }
+        } 
+        // 🔹 Cas où le compte n'est pas un groupe
+        else {
+            if ($u !== $compte->getUser()) {
+                return $this->json([
+                    'success' => false,
+                    'message' => 'Vous ne pouvez pas ajouter une carte pour un autre compte que le vôtre.'
+                ], 403);
             }
         }
         $co = $compte->getCarteObtenue($c);
@@ -548,9 +571,13 @@ final class CompteController extends AbstractController
         }
         $h = new Historique();
         $h->setTitre('Carte Ajoutée');
-        $h->setDescription('Carte ['.$c->getS()->getAlbum()->getName().']['.$c->getS()->getPage().' - '.$c->getS()->getName().']['.$c->getNum().' - '.$c->getName().'] ajoutée sur le compte ['.$compte->getName().']');
+        $h->setDescription(
+            'Carte ['.$c->getS()->getAlbum()->getName().']['.$c->getS()->getPage().' - '.$c->getS()->getName().']['.$c->getNum().' - '.$c->getName().'] '
+            .'ajoutée au compte ['.$compte->getName().'] '
+            .'par l’utilisateur ['.$u->getUserIdentifier().']'
+        );
         $h->setCompte($compte);
-        $h->setUser($u);
+        $h->setUser($compte->getUser());
         $h->setIcone('add_card');
         $em->persist($h);
         $em->flush();
