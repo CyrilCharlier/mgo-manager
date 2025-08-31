@@ -19,7 +19,7 @@
         <div class="row">
         {% set comptes = app.user.comptes|sort((a, b) => a.isPrincipal ? -1 : 1) %}
         {% for cpte in comptes %}
-            <div class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
+            <div class="col-lg-6 position-relative mb-3 col-transition overflow-visible compte-block">
                 <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
                     {{ cpte.name }}
                 </div>
@@ -52,7 +52,7 @@
 
                                                 {% if donneurs|length > 0 %}
                                                     <tr data-id-carte="{{ c.id }}" data-id-compte-to="{{ cpte.id }}">
-                                                        <td class="text-center text-primary">p{{s.page}} c{{ c.num }}</td>
+                                                        <td class="text-center text-primary">p{{ s.page }} c{{ c.num }}</td>
                                                         <td class="text-primary">{{ c.getNameStyle }}</td>
                                                         <td>
                                                             {% for d in donneurs %}
@@ -95,9 +95,7 @@
         <h5 class="modal-title" id="confirmTransfertLabel">Confirmer le transfert</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
       </div>
-      <div class="modal-body" id="confirmTransfertBody">
-        <!-- Message ici -->
-      </div>
+      <div class="modal-body" id="confirmTransfertBody"></div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
         <button type="button" class="btn btn-primary" id="confirmTransfertBtn">Confirmer</button>
@@ -116,67 +114,104 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let currentButton = null;
 
-    document.querySelectorAll('.transfert-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+    // Vérifie si une table est vide -> supprime le bloc du compte
+    function checkAndRemoveEmptyBlock(container) {
+        if (!container) return;
+        const tbody = container.querySelector('tbody');
+        if (tbody && tbody.querySelectorAll('tr').length === 0) {
+            container.classList.add('fadeout-block');
+            container.addEventListener('animationend', () => container.remove(), { once: true });
+        }
+    }
+
+    // Vérification initiale au chargement
+    document.querySelectorAll('.compte-block').forEach(block => {
+        checkAndRemoveEmptyBlock(block);
+    });
+
+    // Ouvre le modal
+    document.querySelectorAll('.transfert-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
             currentButton = btn;
-
             const nameCarte = btn.dataset.nameCarte;
-            const fromName = btn.dataset.nameCompteFrom;
-            const toName = btn.dataset.nameCompteTo;
-
+            const fromName  = btn.dataset.nameCompteFrom;
+            const toName    = btn.dataset.nameCompteTo;
             modalBody.textContent = `Confirmer le transfert de la carte ${nameCarte} de ${fromName} vers ${toName} ?`;
             modal.show();
         });
     });
 
+    // Confirme le transfert
     confirmBtn.addEventListener('click', function () {
         if (!currentButton) return;
 
         const idCarte = currentButton.dataset.idCarte;
-        const fromId = currentButton.dataset.idCompteFrom;
-        const toId = currentButton.dataset.idCompteTo;
+        const fromId  = currentButton.dataset.idCompteFrom;
+        const toId    = currentButton.dataset.idCompteTo;
+        const row     = currentButton.closest('tr');
+        const block   = currentButton.closest('.compte-block');
 
         fetch(`/compte/transfert/${fromId}/${toId}/${idCarte}`, {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            if (data.success) {
-                MGOM.notify(data.message, 'info');
+            if (!data.success) {
+                MGOM.notify(data.message || 'Transfert impossible.', 'error');
+                return;
+            }
 
-                if (data.remaining <= 1) {
-                    // Supprimer tous les boutons du même donneur pour cette carte
-                    const selector = `.transfert-btn[data-id-carte="${idCarte}"][data-id-compte-from="${fromId}"]`;
-                    document.querySelectorAll(selector).forEach(btn => {
-                        btn.classList.add('explode');
-                        btn.addEventListener('animationend', () => btn.remove(), { once: true });
-                    });
+            MGOM.notify(data.message, 'info');
 
-                    // Vérifier si plus aucun bouton disponible dans la ligne
-                    const row = currentButton.closest('tr');
-                    setTimeout(() => {
-                        if (row && row.querySelectorAll('.transfert-btn').length === 0) {
-                            row.classList.add('fadeout-row');
-                            row.addEventListener('animationend', () => row.remove(), { once: true });
-                        }
-                    }, 600);
-
-                } else {
-                    // Mettre à jour le stock du bouton cliqué
-                    let newStock = parseInt(currentButton.dataset.stock) - 1;
-                    currentButton.dataset.stock = newStock;
-                    currentButton.textContent = `${currentButton.dataset.nameCompteFrom} (x${newStock-1})`;
-
-                    // Explosion uniquement du bouton cliqué si on veut feedback visuel
-                    currentButton.classList.add('explode');
-                    currentButton.addEventListener('animationend', () => {
-                        currentButton.classList.remove('explode');
-                    }, { once: true });
+            // 1) Toujours : bouton + ligne disparaissent
+            currentButton.classList.add('fadeout-btn');
+            currentButton.addEventListener('animationend', () => {
+                if(currentButton) {
+                    currentButton.remove();
                 }
+                if (row) {
+                    row.classList.add('fadeout-row');
+                    row.addEventListener('animationend', () => {
+                        row.remove();
+                        checkAndRemoveEmptyBlock(block);
+                    }, { once: true });
+                } else {
+                    checkAndRemoveEmptyBlock(block);
+                }
+            }, { once: true });
 
-            } else {
-                MGOM.notify(data.message, 'error');
+            // 2) remaining > 1 : mise à jour des autres boutons
+            if (data.remaining > 1) {
+                const selector = `.transfert-btn[data-id-carte="${idCarte}"][data-id-compte-from="${fromId}"]`;
+                document.querySelectorAll(selector).forEach((btn) => {
+                    if (btn === currentButton) return;
+                    btn.dataset.stock = data.remaining;
+                    btn.textContent = `${btn.dataset.nameCompteFrom} (x${data.remaining - 1})`;
+                });
+            }
+
+            // 3) remaining <= 1 : supprime tous les autres boutons de ce donneur pour cette carte
+            if (data.remaining <= 1) {
+                const selector = `.transfert-btn[data-id-carte="${idCarte}"][data-id-compte-from="${fromId}"]`;
+                document.querySelectorAll(selector).forEach((btn) => {
+                    if (btn === currentButton) return;
+                    const r = btn.closest('tr');
+                    const b = btn.closest('.compte-block');
+                    btn.classList.add('fadeout-btn');
+                    btn.addEventListener('animationend', () => {
+                        btn.remove();
+                        if (r && !r.querySelector('.transfert-btn')) {
+                            r.classList.add('fadeout-row');
+                            r.addEventListener('animationend', () => {
+                                r.remove();
+                                checkAndRemoveEmptyBlock(b);
+                            }, { once: true });
+                        } else {
+                            checkAndRemoveEmptyBlock(b);
+                        }
+                    }, { once: true });
+                });
             }
         })
         .catch(() => {
@@ -198,14 +233,6 @@ table.table th {
   vertical-align: middle !important;
 }
 
-.dark-version .table > :not(caption) > * > *.text-success {
-    color: #4CAF50 !important; /* vert */
-}
-
-.dark-version .table > :not(caption) > * > *.text-danger {
-    color: #F44335 !important; /* rouge */
-}
-
 .entete-flottante {
   position: absolute;
   top: -0.75rem;
@@ -216,21 +243,38 @@ table.table th {
   pointer-events: none;
 }
 
-/* Effet explosion bouton */
-@keyframes explode {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.5) rotate(15deg); opacity: 0.6; }
-    100% { transform: scale(0) rotate(90deg); opacity: 0; }
+/* Transition douce sur les blocs pour éviter les sauts */
+.compte-block {
+  transition: height 0.4s ease;
+  overflow: hidden;
 }
-.explode { animation: explode 0.5s ease-out forwards; }
 
-/* Effet disparition ligne */
+/* Boutons : fade rapide */
+@keyframes fadeoutBtn {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+.fadeout-btn {
+  animation: fadeoutBtn 0.25s ease forwards;
+}
+
+/* Lignes : fade + shrink un peu plus lent */
 @keyframes fadeoutRow {
-    0% { opacity: 1; transform: translateX(0); }
-    100% { opacity: 0; transform: translateX(100%); }
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.97); }
 }
 .fadeout-row {
-    animation: fadeoutRow 0.7s ease forwards;
+  animation: fadeoutRow 0.35s ease forwards;
+}
+
+/* Blocs : fade + shrink légèrement plus long */
+@keyframes fadeoutBlock {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.95); }
+}
+.fadeout-block {
+  animation: fadeoutBlock 0.5s ease forwards;
 }
 </style>
 {% endblock %}
+
