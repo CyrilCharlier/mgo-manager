@@ -15,21 +15,21 @@ class Publication
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $date = null;
+    private \DateTimeImmutable $date;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $commentaire = null;
 
     #[ORM\ManyToOne(inversedBy: 'publications')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Compte $compte = null;
+    private Compte $compte;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDate(): ?\DateTimeImmutable
+    public function getDate(): \DateTimeImmutable
     {
         return $this->date;
     }
@@ -53,12 +53,12 @@ class Publication
         return $this;
     }
 
-    public function getCompte(): ?Compte
+    public function getCompte(): Compte
     {
         return $this->compte;
     }
 
-    public function setCompte(?Compte $compte): static
+    public function setCompte(Compte $compte): static
     {
         $this->compte = $compte;
 

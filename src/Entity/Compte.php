@@ -59,6 +59,9 @@ class Compte
     #[ORM\Column(nullable: true)]
     private ?bool $isGroupe = null;
 
+    #[ORM\OneToOne(mappedBy: 'compte', cascade: ['persist', 'remove'])]
+    private ?GroupCompteMembership $Membership = null;
+
     public function __construct()
     {
         $this->historiques = new ArrayCollection();
@@ -262,13 +265,7 @@ class Compte
 
     public function removePublication(Publication $publication): static
     {
-        if ($this->publications->removeElement($publication)) {
-            // set the owning side to null (unless already changed)
-            if ($publication->getCompte() === $this) {
-                $publication->setCompte(null);
-            }
-        }
-
+        $this->publications->removeElement($publication);
         return $this;
     }
 
@@ -290,6 +287,23 @@ class Compte
     public function setIsGroupe(?bool $isGroupe): static
     {
         $this->isGroupe = $isGroupe;
+
+        return $this;
+    }
+
+    public function getMembership(): ?GroupCompteMembership
+    {
+        return $this->Membership;
+    }
+
+    public function setMembership(GroupCompteMembership $Membership): static
+    {
+        // set the owning side of the relation if necessary
+        if ($Membership->getCompte() !== $this) {
+            $Membership->setCompte($this);
+        }
+
+        $this->Membership = $Membership;
 
         return $this;
     }
