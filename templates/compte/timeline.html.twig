@@ -24,12 +24,7 @@ button[aria-expanded="true"] .rotate-icon {
 }
 
 .mgom-collapse.open {
-  max-height: 999px; /* suffit à couvrir une journée */
   opacity: 1;
-}
-
-.toggle-collapse-btn[aria-expanded="true"] .rotate-icon {
-  transform: rotate(180deg);
 }
 </style>
 {% endblock %}
@@ -141,11 +136,35 @@ document.querySelectorAll('.toggle-collapse-btn').forEach(function (btn) {
   const targetId = btn.getAttribute('data-target');
   const content = document.querySelector(targetId);
 
+  // Si déjà ouvert par défaut (ex: premier jour), ajuster la hauteur
+  if (content.classList.contains('open')) {
+    content.style.maxHeight = content.scrollHeight + "px";
+  }
+
   btn.addEventListener('click', function () {
     const isOpen = content.classList.contains('open');
 
-    content.classList.toggle('open');
+    if (isOpen) {
+      // fermeture
+      content.style.maxHeight = content.scrollHeight + "px"; // fixer hauteur actuelle
+      requestAnimationFrame(() => {
+        content.style.maxHeight = "0";
+        content.classList.remove('open');
+      });
+    } else {
+      // ouverture
+      content.classList.add('open');
+      content.style.maxHeight = content.scrollHeight + "px";
+    }
+
     btn.setAttribute('aria-expanded', !isOpen);
+  });
+
+  // Nettoyage après transition pour permettre resize auto
+  content.addEventListener('transitionend', () => {
+    if (content.classList.contains('open')) {
+      content.style.maxHeight = "none";
+    }
   });
 });
 </script>
