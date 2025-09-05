@@ -8,6 +8,7 @@ use App\Entity\Compte;
 use App\Entity\Historique;
 use App\Entity\Notification;
 use App\Entity\Transfert;
+use App\Entity\User;
 use App\Form\CompteForm;
 use App\Form\TransfertForm;
 use App\Repository\AlbumRepository;
@@ -42,88 +43,111 @@ final class CarteController extends AbstractController
     }
 
     #[Route('/compte/transfert', name: 'app_compte_transfert')]
-    public function compteTransfert(Request $request, EntityManagerInterface $em, Security $security,): JsonResponse
-    {
+    public function compteTransfert(
+        Request $request,
+        EntityManagerInterface $em,
+        Security $security,
+    ): JsonResponse {
         $u = $security->getUser();
         $t = new Transfert();
         $formT = $this->createForm(TransfertForm::class, $t);
         $formT->handleRequest($request);
 
-        if ($formT->isSubmitted() && $formT->isValid()) {
-            $t = $formT->getData();
-            $cFrom = $t->getCFrom();
-            $cTo = $t->getcTo();
-            $carte = $t->getCarte();
-            
-            if($cFrom->getUser() != $u || $cTo->getUser() != $u) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Vous ne pouvez pas transférer une carte d\'un compte à un autre qui ne vous appartient pas.'
-                ]);
-            }
-            if($carte->isGolden()) {
-                if(!$carte->isTransferable()) {
-                    return $this->json([
-                        'success' => false,
-                        'message' => 'Vous ne pouvez pas transférer cette carte Gold.'
-                    ]);
-                }
-            }
-            if($cFrom == $cTo) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Vous ne pouvez pas transférer depuis et vers le même compte.'
-                ]);
-            }
-
-            $coFrom = $cFrom->getCarteObtenue($carte);
-            if(is_null($coFrom)) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Vous ne possédez pas '.$carte->getName().' pour '.$cFrom->getName()
-                ]);
-            }
-            if($coFrom->getNombre() == 1) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Vous ne possédez pas '.$carte->getName().' en double dans '.$cFrom->getName()
-                ]);
-            }
-            $coFrom->setNombre($coFrom->getNombre() - 1);
-            $coTo = $cTo->getCarteObtenue($carte);
-            if(is_null($coTo)) {
-                $coTo = new CarteObtenue();
-                $coTo->setCarte($carte);
-                $coTo->setCompte($cTo);
-                $coTo->setNombre(1);
-                $cTo->addCarteObtenue($coTo);
-                
-            } else {
-                $coTo->setNombre($coTo->getNombre() + 1);
-            }
-            $em->persist($coFrom);
-            $em->persist($coTo);
-
-            $h = new Historique();
-            $h->setTitre('Transfert de carte');
-            $h->setDescription('Carte ['.$carte->getS()->getAlbum()->getName().']['.$carte->getS()->getPage().' - '.$carte->getS()->getName().']['.$carte->getNum().' - '.$carte->getName().'] transférée de ['.$cFrom->getUser()->getUsername().']['.$cFrom->getName().'] à ['.$cTo->getUser()->getUsername().']['.$cTo->getName().']');
-            $h->setCompte($cTo);
-            $h->setUser($cTo->getUser());
-            $h->setIcone('swap_horiz');
-            $em->persist($h);
-
-            $em->flush();
-
+        if (!$formT->isSubmitted() || !$formT->isValid()) {
             return $this->json([
-                'success' => true,
-                'message' => $carte->getName().' a été transférée de '.$cFrom->getName().' à '.$cTo->getName()
+                'success' => false,
+                'message' => 'Vous devez soumettre le transfert via le formulaire.'
             ]);
         }
+
+        $t = $formT->getData();
+        $validationError = $this->validateTransfert($t, $u);
+        if ($validationError !== null) {
+            return $this->json([
+                'success' => false,
+                'message' => $validationError
+            ]);
+        }
+
+        // --- Traitement du transfert ---
+        $cFrom = $t->getCFrom();
+        $cTo   = $t->getCTo();
+        $carte = $t->getCarte();
+
+        $coFrom = $cFrom->getCarteObtenue($carte);
+        $coFrom->setNombre($coFrom->getNombre() - 1);
+
+        $coTo = $cTo->getCarteObtenue($carte);
+        if (is_null($coTo)) {
+            $coTo = new CarteObtenue();
+            $coTo->setCarte($carte);
+            $coTo->setCompte($cTo);
+            $coTo->setNombre(1);
+            $cTo->addCarteObtenue($coTo);
+        } else {
+            $coTo->setNombre($coTo->getNombre() + 1);
+        }
+
+        $em->persist($coFrom);
+        $em->persist($coTo);
+
+        $h = new Historique();
+        $h->setTitre('Transfert de carte');
+        $h->setDescription(sprintf(
+            'Carte [%s][%s - %s][%s - %s] transférée de [%s][%s] à [%s][%s]',
+            $carte->getS()->getAlbum()->getName(),
+            $carte->getS()->getPage(),
+            $carte->getS()->getName(),
+            $carte->getNum(),
+            $carte->getName(),
+            $cFrom->getUser()->getUsername(),
+            $cFrom->getName(),
+            $cTo->getUser()->getUsername(),
+            $cTo->getName()
+        ));
+        $h->setCompte($cTo);
+        $h->setUser($cTo->getUser());
+        $h->setIcone('swap_horiz');
+        $em->persist($h);
+
+        $em->flush();
+
         return $this->json([
-            'success' => false,
-            'message' => 'Vous devez soumettre le transfert via le formulaire.'
+            'success' => true,
+            'message' => $carte->getName().' a été transférée de '.$cFrom->getName().' à '.$cTo->getName()
         ]);
     }
+
+    /**
+     * Vérifie les conditions métiers avant transfert.
+     * Retourne un message d’erreur si invalide, sinon null.
+     */
+    private function validateTransfert(Transfert $t, User $u): ?string
+    {
+        $cFrom = $t->getCFrom();
+        $cTo   = $t->getCTo();
+        $carte = $t->getCarte();
+
+        $error = null;
+
+        if ($cFrom->getUser() !== $u || $cTo->getUser() !== $u) {
+            $error = 'Vous ne pouvez pas transférer une carte d\'un compte à un autre qui ne vous appartient pas.';
+        } elseif ($carte->isGolden() && !$carte->isTransferable()) {
+            $error = 'Vous ne pouvez pas transférer cette carte Gold.';
+        } elseif ($cFrom === $cTo) {
+            $error = 'Vous ne pouvez pas transférer depuis et vers le même compte.';
+        } else {
+            $coFrom = $cFrom->getCarteObtenue($carte);
+            if (is_null($coFrom)) {
+                $error = 'Vous ne possédez pas '.$carte->getName().' pour '.$cFrom->getName();
+            } elseif ($coFrom->getNombre() === 1) {
+                $error = 'Vous ne possédez pas '.$carte->getName().' en double dans '.$cFrom->getName();
+            }
+        }
+
+        return $error;
+    }
+
 
     #[Route('/compte/transfert/{fromid}/{toid}/{idcarte}', name: 'app_compte_transfert_api')]
     public function compteTransfertApi(CompteRepository $compteRepository, CarteRepository $carteRepository, EntityManagerInterface $em, Security $security, int $fromid, int $toid, int $idcarte): JsonResponse
