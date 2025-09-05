@@ -164,75 +164,67 @@ final class CarteController extends AbstractController
             ]);
         }
         
-        if (true) {
-            if($cFrom->getUser() != $u || $cTo->getUser() != $u) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Vous ne pouvez pas transférer une carte d\'un compte à un autre qui ne vous appartient pas.'
-                ]);
-            }
-            if($carte->isGolden()) {
-                if(!$carte->isTransferable()) {
-                    return $this->json([
-                        'success' => false,
-                        'message' => 'Vous ne pouvez pas transférer cette carte Gold.'
-                    ]);
-                }
-            }
-            if($cFrom == $cTo) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Vous ne pouvez pas transférer depuis et vers le même compte.'
-                ]);
-            }
-
-            $coFrom = $cFrom->getCarteObtenue($carte);
-            if(is_null($coFrom)) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Vous ne possédez pas '.$carte->getName().' pour '.$cFrom->getName()
-                ]);
-            }
-            if($coFrom->getNombre() == 1) {
-                return $this->json([
-                    'success' => false,
-                    'message' => 'Vous ne possédez pas '.$carte->getName().' en double dans '.$cFrom->getName()
-                ]);
-            }
-            $coFrom->setNombre($coFrom->getNombre() - 1);
-            $coTo = $cTo->getCarteObtenue($carte);
-            if(is_null($coTo)) {
-                $coTo = new CarteObtenue();
-                $coTo->setCarte($carte);
-                $coTo->setCompte($cTo);
-                $coTo->setNombre(1);
-                $cTo->addCarteObtenue($coTo);
-                
-            } else {
-                $coTo->setNombre($coTo->getNombre() + 1);
-            }
-            $em->persist($coFrom);
-            $em->persist($coTo);
-
-            $h = new Historique();
-            $h->setTitre('Transfert de carte');
-            $h->setDescription('Carte ['.$carte->getS()->getAlbum()->getName().']['.$carte->getS()->getPage().' - '.$carte->getS()->getName().']['.$carte->getNum().' - '.$carte->getName().'] transférée de ['.$cFrom->getUser()->getUsername().']['.$cFrom->getName().'] à ['.$cTo->getUser()->getUsername().']['.$cTo->getName().']');
-            $h->setCompte($cTo);
-            $h->setUser($cTo->getUser());
-            $h->setIcone('swap_horiz');
-            $em->persist($h);
-
-            $em->flush();
-
+        if($cFrom->getUser() != $u || $cTo->getUser() != $u) {
             return $this->json([
-                'success' => true,
-                'message' => $carte->getName().' a été transférée de '.$cFrom->getName().' à '.$cTo->getName(),
-                'remaining' => $coFrom->getNombre() // <- nombre de cartes restantes après transfert
+                'success' => false,
+                'message' => 'Vous ne pouvez pas transférer une carte d\'un compte à un autre qui ne vous appartient pas.'
             ]);
         }
+        if($carte->isGolden() && !$carte->isTransferable()) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Vous ne pouvez pas transférer cette carte Gold.'
+            ]);
+        }
+        if($cFrom == $cTo) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Vous ne pouvez pas transférer depuis et vers le même compte.'
+            ]);
+        }
+
+        $coFrom = $cFrom->getCarteObtenue($carte);
+        if(is_null($coFrom)) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Vous ne possédez pas '.$carte->getName().' pour '.$cFrom->getName()
+            ]);
+        }
+        if($coFrom->getNombre() == 1) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Vous ne possédez pas '.$carte->getName().' en double dans '.$cFrom->getName()
+            ]);
+        }
+        $coFrom->setNombre($coFrom->getNombre() - 1);
+        $coTo = $cTo->getCarteObtenue($carte);
+        if(is_null($coTo)) {
+            $coTo = new CarteObtenue();
+            $coTo->setCarte($carte);
+            $coTo->setCompte($cTo);
+            $coTo->setNombre(1);
+            $cTo->addCarteObtenue($coTo);
+            
+        } else {
+            $coTo->setNombre($coTo->getNombre() + 1);
+        }
+        $em->persist($coFrom);
+        $em->persist($coTo);
+
+        $h = new Historique();
+        $h->setTitre('Transfert de carte');
+        $h->setDescription('Carte ['.$carte->getS()->getAlbum()->getName().']['.$carte->getS()->getPage().' - '.$carte->getS()->getName().']['.$carte->getNum().' - '.$carte->getName().'] transférée de ['.$cFrom->getUser()->getUsername().']['.$cFrom->getName().'] à ['.$cTo->getUser()->getUsername().']['.$cTo->getName().']');
+        $h->setCompte($cTo);
+        $h->setUser($cTo->getUser());
+        $h->setIcone('swap_horiz');
+        $em->persist($h);
+
+        $em->flush();
+
         return $this->json([
-            'success' => false,
-            'message' => 'Vous devez soumettre le transfert via le formulaire.'
+            'success' => true,
+            'message' => $carte->getName().' a été transférée de '.$cFrom->getName().' à '.$cTo->getName(),
+            'remaining' => $coFrom->getNombre() // <- nombre de cartes restantes après transfert
         ]);
     }
 
@@ -255,7 +247,7 @@ final class CarteController extends AbstractController
                     'message' => "Vous n'avez pas le droit de modifier un compte de groupe."
                 ], 403);
             }
-        } 
+        }
         // 🔹 Cas où le compte n'est pas un groupe
         else {
             if ($u !== $compte->getUser()) {
@@ -334,7 +326,7 @@ final class CarteController extends AbstractController
                     'message' => "Vous n'avez pas le droit de modifier un compte de groupe."
                 ], 403);
             }
-        } 
+        }
         // 🔹 Cas où le compte n'est pas un groupe
         else {
             if ($u !== $compte->getUser()) {
@@ -393,14 +385,14 @@ final class CarteController extends AbstractController
             if(!is_null($carteObtenues))
             {
                 $comptesRetour[] = [
-                    'id' => $c->getId(), 
-                    'name' => $c->getName(), 
+                    'id' => $c->getId(),
+                    'name' => $c->getName(),
                     'nombre' => $carteObtenues->getNombre()
                 ];
             } else {
                 $comptesRetour[] = [
-                    'id' => $c->getId(), 
-                    'name' => $c->getName(), 
+                    'id' => $c->getId(),
+                    'name' => $c->getName(),
                     'nombre' => 0
                 ];
             }
@@ -421,11 +413,9 @@ final class CarteController extends AbstractController
         $album = $albumRepository->findAlbumWithSetsAndCartesActive();
 
         foreach ($compte->getCarteObtenues() as $carteObtenue) {
-            if($carteObtenue->getNombre()>1) {
-                if ($carteObtenue->getCarte()->getS()->getAlbum() === $album) {
-                    $carteObtenue->setNombre(1);
-                    $em->persist($carteObtenue);
-                }
+            if($carteObtenue->getNombre()>1 && $carteObtenue->getCarte()->getS()->getAlbum() === $album) {
+                $carteObtenue->setNombre(1);
+                $em->persist($carteObtenue);
             }
         }
         $em->flush();
