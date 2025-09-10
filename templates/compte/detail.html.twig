@@ -28,29 +28,24 @@
         </div>
         <div class="row">
 {% for s in album.sets %}
-    {# on préfiltre les cartes de ce set selon ta condition #}
-    {% set cartesAffichees = s.cartes|filter(c => (isRenderGroupe and c.golden) or (not isRenderGroupe)) %}
-
-    {# n’afficher le set que si au moins une carte passe le filtre #}
-    {% if cartesAffichees|length > 0 %}
-        <div data-set-id="{{ s.id }}" class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
-            <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
-                <span class="me-2">{{ s.page }} - {{ s.name }}</span>
-                <span class="badge bg-light text-dark">{{ cartesAffichees|filter(c => compte.getCarteObtenue(c))|length }} / {{ cartesAffichees|length }}</span>
-            </div>
-            <div class="card card-frame">
-                <div class="card-body">
-                    <div class="text-xs">
-                        <table id="mainTable{{ s.id }}" class="table table-sm table-hover mb-0 text-xs">
-                            <thead>
-                                <tr>
-                                    <th class="text-center"><i class="material-symbols-rounded text-sm" style="color: #facc15 !important;">star</i></th>
-                                    <th>Nom</th>
-                                    <th class="text-center">Double</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for c in cartesAffichees %}
+            <div data-set-id="{{ s.id }}" class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
+                <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
+                    <span class="me-2">{{ s.page }} - {{ s.name }}</span>
+                    <span class="badge bg-light text-dark">{{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }} / {{ s.cartes|length }}</span>
+                </div>
+                <div class="card card-frame">
+                    <div class="card-body">
+                        <div class="text-xs">
+                            <table id="mainTable{{ s.id }}" class="table table-sm table-hover mb-0 text-xs">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center"><i class="material-symbols-rounded text-sm" style="color: #facc15 !important;">star</i></th>
+                                        <th>Nom</th>
+                                        <th class="text-center">Double</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in s.cartes %}
                                     {% set carteObtenue = compte.getCarteObtenue(c) %}
                                     <tr class="ligne-carte ligne-carte-{{ c.id }}" data-iscarteobtenue="{{ carteObtenue is empty ? '0' : '1' }}">
                                         <td class="text-center text-xs"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>
@@ -78,16 +73,14 @@
                                             <button type="button" data-idcarte="{{c.id}}" id="plus_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs" aria-label="Ajoute une carte {{c.name}} de ton album"><i class="material-symbols-rounded text-xs">add</i></button>
                                         </td>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    {% endif %}
 {% endfor %}
-
         </div>
     </section>
 </div>
