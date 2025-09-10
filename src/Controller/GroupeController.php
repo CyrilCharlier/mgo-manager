@@ -62,6 +62,7 @@ final class GroupeController extends AbstractController
         return $this->render('compte/detail.html.twig', [
             'album' => $album,
             'compte' => $compte,
+            'isRenderGroupe' => true,
         ]);
     }
 

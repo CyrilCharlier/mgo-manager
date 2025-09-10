@@ -1,6 +1,8 @@
 {% extends "base.html.twig" %}
 
 {% block mainContent %}
+{% set isRenderGroupe = isRenderGroupe|default(false) %}
+
 <div id="progressionBadge" 
     class="badge bg-info p-2" 
     style="z-index: 2000;">
@@ -26,24 +28,29 @@
         </div>
         <div class="row">
 {% for s in album.sets %}
-            <div data-set-id="{{ s.id }}" class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
-                <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
-                    <span class="me-2">{{ s.page }} - {{ s.name }}</span>
-                    <span class="badge bg-light text-dark">{{ s.cartes|filter(c => compte.getCarteObtenue(c))|length }} / {{ s.cartes|length }}</span>
-                </div>
-                <div class="card card-frame">
-                    <div class="card-body">
-                        <div class="text-xs">
-                            <table id="mainTable{{ s.id }}" class="table table-sm table-hover mb-0 text-xs">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center"><i class="material-symbols-rounded text-sm" style="color: #facc15 !important;">star</i></th>
-                                        <th>Nom</th>
-                                        <th class="text-center">Double</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for c in s.cartes %}
+    {# on préfiltre les cartes de ce set selon ta condition #}
+    {% set cartesAffichees = s.cartes|filter(c => (isRenderGroupe and c.golden) or (not isRenderGroupe)) %}
+
+    {# n’afficher le set que si au moins une carte passe le filtre #}
+    {% if cartesAffichees|length > 0 %}
+        <div data-set-id="{{ s.id }}" class="col-lg-6 position-relative mb-3 col-transition overflow-visible">
+            <div class="entete-flottante text-white bg-primary text-center px-2 py-1 rounded shadow-sm">
+                <span class="me-2">{{ s.page }} - {{ s.name }}</span>
+                <span class="badge bg-light text-dark">{{ cartesAffichees|filter(c => compte.getCarteObtenue(c))|length }} / {{ cartesAffichees|length }}</span>
+            </div>
+            <div class="card card-frame">
+                <div class="card-body">
+                    <div class="text-xs">
+                        <table id="mainTable{{ s.id }}" class="table table-sm table-hover mb-0 text-xs">
+                            <thead>
+                                <tr>
+                                    <th class="text-center"><i class="material-symbols-rounded text-sm" style="color: #facc15 !important;">star</i></th>
+                                    <th>Nom</th>
+                                    <th class="text-center">Double</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in cartesAffichees %}
                                     {% set carteObtenue = compte.getCarteObtenue(c) %}
                                     <tr class="ligne-carte ligne-carte-{{ c.id }}" data-iscarteobtenue="{{ carteObtenue is empty ? '0' : '1' }}">
                                         <td class="text-center text-xs"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>
@@ -51,34 +58,36 @@
                                             <i id="nbetoile_etoile_carte{{c.id}}" class="material-symbols-rounded text-sm{% if c.golden %} etoile-golden etoile-golden-{{ c.id }}{% endif %}"{% if c.golden %} style="color: #facc15 !important;"{% endif %}>star</i>
                                         </td>
                                         <td id="nom_carte{{ c.id }}" class="text-{{ carteObtenue is empty ? 'danger' : 'success' }}">
-    {% if is_granted('ROLE_ADMIN') %}
-        <span class="clickable-carte" 
-              data-idcarte="{{c.id}}" 
-              id="mod_carte_{{c.id}}" 
-              data-url="{{ path('app_admin_carte_edit', {'id': c.id}) }}" 
-              data-title="Modifier une carte" 
-              data-bs-toggle="modal" 
-              data-bs-target="#carteModal">
-            {{c.num}} - {{c.nameStyle}}
-        </span>
-    {% else %}
-        {{c.num}} - {{c.nameStyle}}
-    {% endif %}
-</td>
+                                            {% if is_granted('ROLE_ADMIN') %}
+                                                <span class="clickable-carte" 
+                                                    data-idcarte="{{c.id}}" 
+                                                    id="mod_carte_{{c.id}}" 
+                                                    data-url="{{ path('app_admin_carte_edit', {'id': c.id}) }}" 
+                                                    data-title="Modifier une carte" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#carteModal">
+                                                    {{c.num}} - {{c.nameStyle}}
+                                                </span>
+                                            {% else %}
+                                                {{c.num}} - {{c.nameStyle}}
+                                            {% endif %}
+                                        </td>
                                         <td class="text-center"> 
                                             <button {% if carteObtenue is empty %}disabled {% endif %}type="button" data-idcarte="{{c.id}}" id="minus_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs" aria-label="Enlève une carte {{c.name}} de ton album"><i class="material-symbols-rounded text-xs">remove</i></button>
                                             <span class="badge badge-pill {% if c.golden %}badge-warning{% else %}badge-info{% endif %}" id="double_carte_{{c.id}}">{{ carteObtenue is empty ? '0' : (compte.getCarteObtenue(c).nombre-1) }}</span>
                                             <button type="button" data-idcarte="{{c.id}}" id="plus_carte_{{c.id}}" class="waves-effect waves-light btn btn-info btn-xs" aria-label="Ajoute une carte {{c.name}} de ton album"><i class="material-symbols-rounded text-xs">add</i></button>
                                         </td>
                                     </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+        </div>
+    {% endif %}
 {% endfor %}
+
         </div>
     </section>
 </div>
