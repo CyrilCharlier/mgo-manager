@@ -387,6 +387,18 @@
                     tr.classList.remove('d-none');
                 }
             });
+
+            // Masque aussi les colonnes vides
+            document.querySelectorAll('[data-set-id]').forEach(col => {
+                const visibleRows = Array.from(col.querySelectorAll('.ligne-carte')).filter(row => {
+                    return getComputedStyle(row).display !== 'none';
+                });
+
+                const doitCacher = (!cacheCO && visibleRows.length === 0);
+                col.style.display = doitCacher ? 'none' : '';
+                col.classList.toggle('col-hidden', doitCacher);
+            });
+
         } else {
             // Mode classique : toggle sur cartes obtenues
             const trElements = document.querySelectorAll('tr[data-iscarteobtenue="1"]');
