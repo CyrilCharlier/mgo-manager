@@ -123,6 +123,7 @@
 {% block javaScripts %}
 <script>
     var cacheCO = false;
+    var isRenderGroupe = {{ (isRenderGroupe|default(false)) ? 'true' : 'false' }};
 
     {% if is_granted("ROLE_ADMIN") %}
     function initModalPage () {
@@ -372,27 +373,42 @@
     }
 
     function callToggleCarteObtenue() {
-        const trElements = document.querySelectorAll('tr[data-iscarteobtenue="1"]');
         const icone = document.getElementById('icone_oeil');
 
-        trElements.forEach(function(tr) {
-            if (!cacheCO) {
-                tr.classList.add('d-none');
-            } else {
-                tr.classList.remove('d-none');
-            }
-        });
-
-        document.querySelectorAll('[data-set-id]').forEach(col => {
-            const visibleRows = Array.from(col.querySelectorAll('.ligne-carte')).filter(row => {
-                return getComputedStyle(row).display !== 'none';
+        if (isRenderGroupe) {
+            // Mode groupe : toggle sur cartes dorées
+            const trElements = document.querySelectorAll('tr.ligne-carte');
+            trElements.forEach(tr => {
+                const etoile = tr.querySelector('.etoile-golden');
+                if (!cacheCO) {
+                    // On cache celles qui ne sont PAS golden
+                    if (!etoile) tr.classList.add('d-none');
+                } else {
+                    tr.classList.remove('d-none');
+                }
+            });
+        } else {
+            // Mode classique : toggle sur cartes obtenues
+            const trElements = document.querySelectorAll('tr[data-iscarteobtenue="1"]');
+            trElements.forEach(function(tr) {
+                if (!cacheCO) {
+                    tr.classList.add('d-none');
+                } else {
+                    tr.classList.remove('d-none');
+                }
             });
 
-            const doitCacher = (!cacheCO && visibleRows.length === 0);
+            // Masque les colonnes vides
+            document.querySelectorAll('[data-set-id]').forEach(col => {
+                const visibleRows = Array.from(col.querySelectorAll('.ligne-carte')).filter(row => {
+                    return getComputedStyle(row).display !== 'none';
+                });
 
-            col.style.display = doitCacher ? 'none' : '';
-            col.classList.toggle('col-hidden', doitCacher);
-        });
+                const doitCacher = (!cacheCO && visibleRows.length === 0);
+                col.style.display = doitCacher ? 'none' : '';
+                col.classList.toggle('col-hidden', doitCacher);
+            });
+        }
 
         // Change l’icône dynamiquement
         icone.classList.add('animate');
