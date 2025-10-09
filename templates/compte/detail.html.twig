@@ -380,9 +380,12 @@
             const trElements = document.querySelectorAll('tr.ligne-carte');
             trElements.forEach(tr => {
                 const etoile = tr.querySelector('.etoile-golden');
+                const nbEtoilesEl = tr.querySelector('[id^="nbetoile_carte"]');
+                const nbEtoiles = nbEtoilesEl ? parseInt(nbEtoilesEl.textContent.trim()) : 0;
+
                 if (!cacheCO) {
-                    // On cache celles qui ne sont PAS golden
-                    if (!etoile) tr.classList.add('d-none');
+                    // On cache les cartes qui ne sont ni OR ni 5/6 étoiles
+                    if (!etoile && nbEtoiles < 5) tr.classList.add('d-none');
                 } else {
                     tr.classList.remove('d-none');
                 }
