@@ -4,18 +4,6 @@
 <div class="container-fluid">
     <section class="px-md-4">
         <div class="row">
-            {#<div class="col-lg-6 mb-3">
-                <div class="card card-frame">
-                    <div class="card-body">
-                        <h3>Charge Album</h3>
-                        <button class="btn btn-primary"
-                            disabled
-                            data-bs-toggle="modal"
-                            data-bs-target="#confirmTraitement"
-                            data-url="{{path('app_admin_charge_starwars')}}">STARWARS</button>
-                    </div>
-                </div>
-            </div>#}
             <div class="col-lg-12 mb-3">
                 <div class="card card-frame">
                     <div class="card-body">
@@ -35,6 +23,14 @@
             <div class="col-lg-12 mb-3">
                 <div class="card card-frame">
                     <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>Albums</h3>
+                            <button class="btn btn-success"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#createAlbumModal">
+                                Créer un album
+                            </button>
+                        </div>
                         <table class="table table-sm table-hover mb-0 text-center">
                             <thead>
                                 <tr>
@@ -148,23 +144,6 @@
         </div>
     </section>
 </div>
-{#<div class="modal fade" id="confirmTraitement" tabindex="-1" aria-labelledby="confirmTraitementLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border-secondary">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" id="confirmTraitementLabel">Confirmation de lancement</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-            <div class="modal-body">
-                Êtes-vous sûr de vouloir lancer ce traitement ? Cette action est à faire <strong>qu'une seule fois</strong>.
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <a id="confirmTraitementBtn" href="#" class="btn btn-danger">Lancer</a>
-            </div>
-        </div>
-    </div>
-</div>#}
 <div class="modal fade" id="confirmPurge" tabindex="-1" aria-labelledby="confirmPurgeLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white border-secondary">
@@ -215,22 +194,36 @@
     </form>
   </div>
 </div>
+<div class="modal fade" id="createAlbumModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="createAlbumForm">
+      <div class="modal-content bg-dark border-secondary">
+        <div class="modal-header">
+          <h5 class="modal-title">Créer un album</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="albumName" class="form-label">Nom de l'album</label>
+            <input type="text"
+                   class="form-control bg-dark text-white border-light"
+                   id="albumName"
+                   name="name"
+                   required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Créer</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
 {% endblock %}
 
 {% block javaScripts %}
     <script>
-        {#function initConfirmTraitement() {
-            const modal = document.getElementById('confirmTraitement');
-            const confirmBtn = document.getElementById('confirmTraitementBtn');
-
-            modal.addEventListener('show.bs.modal', event => {
-                const triggerBtn = event.relatedTarget;
-                const url = triggerBtn.getAttribute('data-url');
-
-                confirmBtn.setAttribute('href', url);
-            });
-        }#}
         function initConfirmPurge() {
             const modal = document.getElementById('confirmPurge');
             const confirmBtn = document.getElementById('confirmPurgeBtn');
@@ -269,8 +262,32 @@
                 });
             });
         }
+        function initAlbumCreate() {
+            const form = document.getElementById("createAlbumForm");
+            if (!form) return;
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                fetch("/admin/album/create", {
+                    method: "POST",
+                    body: new FormData(this)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        MGOM.notify(data.message || "Erreur lors de la création de l'album", 'error');
+                    }
+                })
+                .catch(() => {
+                    MGOM.notify("Erreur réseau lors de la création de l'album", 'error');
+                });
+            });
+        }
         function onPageLoad() {
-            {# initConfirmTraitement(); #}
+            initAlbumCreate();
             initConfirmPurge();
             initAlbumInit();
         }
