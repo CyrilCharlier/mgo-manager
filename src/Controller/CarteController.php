@@ -9,13 +9,10 @@ use App\Entity\Historique;
 use App\Entity\Notification;
 use App\Entity\Transfert;
 use App\Entity\User;
-use App\Form\CompteForm;
 use App\Form\TransfertForm;
 use App\Repository\AlbumRepository;
 use App\Repository\CarteRepository;
 use App\Repository\CompteRepository;
-use App\Repository\HistoriqueRepository;
-use App\Service\Calcul;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,10 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Uid\Uuid;
 
 final class CarteController extends AbstractController
 {
@@ -38,8 +32,13 @@ final class CarteController extends AbstractController
      */
     protected function getCurrentUser(): \App\Entity\User
     {
-        /** @var \App\Entity\User $user */
-        return $this->getUser();
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            throw new \LogicException('Current user is not an instance of App\Entity\User');
+        }
+
+        return $user;
     }
 
     #[Route('/compte/transfert', name: 'app_compte_transfert')]
@@ -48,7 +47,7 @@ final class CarteController extends AbstractController
         EntityManagerInterface $em,
         Security $security,
     ): JsonResponse {
-        $u = $security->getUser();
+        $u = $this->getCurrentUser();
         $t = new Transfert();
         $formT = $this->createForm(TransfertForm::class, $t);
         $formT->handleRequest($request);

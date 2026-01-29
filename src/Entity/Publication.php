@@ -15,14 +15,14 @@ class Publication
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $date = null;
+    private \DateTimeImmutable $date;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $commentaire = null;
 
     #[ORM\ManyToOne(inversedBy: 'publications')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Compte $compte = null;
+    private Compte $compte;
 
     public function getId(): ?int
     {

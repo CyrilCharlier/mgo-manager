@@ -17,6 +17,9 @@ class CompteRepository extends ServiceEntityRepository
         parent::__construct($registry, Compte::class);
     }
 
+    /**
+     * @return Compte[]
+     */
     public function findByUserWithCartesAndAlbum(User $user): array
     {
         return $this->createQueryBuilder('c')
@@ -30,6 +33,9 @@ class CompteRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return Compte[]
+     */
     public function findByWithoutUserByCartesAndAlbum(): array
     {
         return $this->createQueryBuilder('c')
@@ -43,6 +49,9 @@ class CompteRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return Compte[]
+     */
     public function findGroupes(): array
     {
         return $this->createQueryBuilder('c')

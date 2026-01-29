@@ -2,21 +2,16 @@
 
 namespace App\Controller;
 
-use App\Entity\Carte;
-use App\Entity\CarteObtenue;
+use App\Entity\User;
 use App\Entity\Compte;
 use App\Entity\Historique;
 use App\Entity\Notification;
-use App\Entity\Transfert;
 use App\Form\CompteForm;
-use App\Form\TransfertForm;
 use App\Repository\AlbumRepository;
-use App\Repository\CarteRepository;
 use App\Repository\CompteRepository;
 use App\Repository\HistoriqueRepository;
 use App\Service\Calcul;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -44,8 +39,13 @@ final class CompteController extends AbstractController
      */
     protected function getCurrentUser(): \App\Entity\User
     {
-        /** @var \App\Entity\User $user */
-        return $this->getUser();
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            throw new \LogicException('Current user is not an instance of App\Entity\User');
+        }
+
+        return $user;
     }
 
     #[Route('/', name: 'app_dashboard')]
